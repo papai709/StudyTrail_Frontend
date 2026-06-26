@@ -20,7 +20,6 @@ export default function Log() {
     username: "",
     email: "",
     password: "",
-    avatarFile: null,
   });
 
   useEffect(() => {
@@ -44,22 +43,12 @@ export default function Log() {
     }
   };
 
-  const handleFileChange = (e) => {
-    if (e.target.files && e.target.files[0]) {
-      setFormData({
-        ...formData,
-        avatarFile: e.target.files[0],
-      });
-      if (errors.avatar) setErrors({ ...errors, avatar: "" });
-    }
-  };
 
   const validateForm = () => {
     const newErrors = {};
     if (authMode === "register") {
       if (!formData.name.trim()) newErrors.name = "Full name is required";
       if (!formData.username?.trim()) newErrors.username = "Username is required";
-      if (!formData.avatarFile) newErrors.avatar = "Avatar image is required";
     }
     
     if (!formData.email) newErrors.email = "Email address is required";
@@ -77,17 +66,18 @@ export default function Log() {
     if (validateForm()) {
       try {
         if (authMode === "register") {
-          // --- Phase 2: Registration ---
-          const formDataPayload = new FormData();
-          formDataPayload.append("fullName", formData.name);
-          formDataPayload.append("email", formData.email);
-          formDataPayload.append("username", formData.username); 
-          formDataPayload.append("password", formData.password);
-          formDataPayload.append("avatar", formData.avatarFile); 
-
+          // --- Phase 2: Registration (Simplified JSON Payload) ---
           const response = await fetch("http://localhost:8080/api/v1/user/register", {
             method: "POST",
-            body: formDataPayload, 
+            headers: {
+              "Content-Type": "application/json"
+            },
+            body: JSON.stringify({
+              fullName: formData.name,
+              username: formData.username,
+              email: formData.email,
+              password: formData.password
+            }),
           });
 
           const data = await response.json();
@@ -99,8 +89,8 @@ export default function Log() {
           setTimeout(() => {
             setShowSuccess(false);
             setAuthMode("login"); 
-            setFormData({ name: "", username: "", email: "", password: "", avatarFile: null });
-          }, 1000); 
+            setFormData({ name: "", username: "", email: "", password: "" }); // Cleaned up state reset
+          }, 3000); 
 
         } else {
           // --- Phase 3: Login ---
@@ -266,12 +256,7 @@ export default function Log() {
                     {errors.password && <p className="text-red-500 text-xs mt-1.5 ml-1 font-medium">{errors.password}</p>}
                   </div>
 
-                  <div>
-                    <div className="relative group">
-                      <input type="file" name="avatar" onChange={handleFileChange} accept="image/*" className={`w-full px-4 py-3 rounded-xl bg-slate-50 dark:bg-[#111] border focus:outline-none focus:ring-2 focus:ring-indigo-500/50 transition-all text-sm text-slate-500 dark:text-slate-400 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-xs file:font-semibold file:bg-indigo-50 file:text-indigo-600 hover:file:bg-indigo-100 ${errors.avatar ? 'border-red-500' : 'border-black/10 dark:border-white/10'}`} />
-                    </div>
-                    {errors.avatar && <p className="text-red-500 text-xs mt-1.5 ml-1 font-medium">{errors.avatar}</p>}
-                  </div>
+                  
 
                   <button type="submit" className="w-full py-3.5 mt-2 rounded-xl font-bold text-white bg-gradient-to-r from-indigo-600 via-violet-600 to-cyan-500 hover:scale-[1.02] active:scale-[0.98] transition-all shadow-lg shadow-indigo-500/25 flex justify-center items-center gap-2">
                     Create Account <ArrowRight size={18} />
