@@ -3,13 +3,16 @@ import { Link, useLocation, useNavigate } from "react-router-dom";
 import {
   Sun, Moon, GraduationCap, Mail, Lock, User, ArrowRight, ArrowLeft
 } from "lucide-react";
+import { useTheme } from './ThemeContext'; // 1. Import Context
 
 export default function Log() {
   const location = useLocation();
   const navigate = useNavigate(); 
   const initialMode = location.state?.mode || "login";
 
-  const [isDarkMode, setIsDarkMode] = useState(true);
+  // 2. Use the global theme state
+  const { isDarkMode, toggleDarkMode } = useTheme();
+  
   const [authMode, setAuthMode] = useState(initialMode);
   const [showSuccess, setShowSuccess] = useState(false);
   const [errors, setErrors] = useState({});
@@ -66,60 +69,20 @@ export default function Log() {
     if (validateForm()) {
       try {
         if (authMode === "register") {
-          // --- Phase 2: Registration (Simplified JSON Payload) ---
-          // const response = await fetch("http://localhost:8080/api/v1/user/register", {
-          //   method: "POST",
-          //   headers: {
-          //     "Content-Type": "application/json"
-          //   },
-          //   body: JSON.stringify({
-          //     fullName: formData.name,
-          //     username: formData.username,
-          //     email: formData.email,
-          //     password: formData.password
-          //   }),
-          // });
-
-          // const data = await response.json();
-          // if (!response.ok) {
-          //   throw new Error(data.message || "Registration failed on backend");
-          // }
-
           setShowSuccess(true);
           setTimeout(() => {
             setShowSuccess(false);
             setAuthMode("login"); 
-            setFormData({ name: "", username: "", email: "", password: "" }); // Cleaned up state reset
+            setFormData({ name: "", username: "", email: "", password: "" }); 
           }, 3000); 
 
         } else {
-          // --- Phase 3: Login ---
-          // const response = await fetch("http://localhost:8080/api/v1/user/login", {
-          //   method: "POST",
-          //   headers: {
-          //     "Content-Type": "application/json"
-          //   },
-          //   body: JSON.stringify({
-          //     email: formData.email,
-          //     password: formData.password
-          //   }),
-          //   credentials: "include" // CRITICAL: This allows the browser to save your JWT cookies
-          // });
-
-          // const data = await response.json();
-          // if (!response.ok) {
-          //   throw new Error(data.message || "Invalid email or password");
-          // }
-
-          // const loggedInUser = data.data.user;
-          // const isProfileComplete = loggedInUser.bio && loggedInUser.schoolName;
-
           // Login Success
           setShowSuccess(true);
           setTimeout(() => {
             setShowSuccess(false);
             setFormData({ name: "", username: "", email: "", password: "", avatarFile: null });
-            navigate("/Signed"); // Redirect to Dashboard
+            navigate("/signed"); // Redirect to Dashboard
           }, 1000); 
         }
 
@@ -136,7 +99,7 @@ export default function Log() {
 
         {/* Floating Dark Mode Toggle */}
         <button
-          onClick={() => setIsDarkMode(!isDarkMode)}
+          onClick={toggleDarkMode} // 3. Use toggle function
           className={`fixed bottom-6 right-6 z-50 p-3.5 rounded-full bg-white/80 dark:bg-white/5 text-slate-700 dark:text-slate-200 backdrop-blur-xl border border-black/5 dark:border-white/10 shadow-2xl hover:scale-110 active:scale-95 transition-all duration-1000 group ${mounted ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10'}`}
           aria-label="Toggle Dark Mode"
         >
@@ -151,7 +114,7 @@ export default function Log() {
         <div className={`w-full max-w-5xl overflow-hidden rounded-4xl bg-white dark:bg-[#0A0A0A] shadow-2xl border border-slate-200 dark:border-white/5 flex flex-col md:flex-row relative z-10 min-h-150 transition-all duration-1000 ease-out transform-gpu ${mounted ? 'opacity-100 translate-y-0 scale-100' : 'opacity-0 translate-y-8 scale-[0.98]'}`}>
 
           {/* Left Panel */}
-          <div className="hidden md:flex md:w-5/12 bg-gradient-to-br from-indigo-600 via-violet-600 to-cyan-500 p-12 text-white flex-col justify-between relative overflow-hidden">
+          <div className="hidden md:flex md:w-5/12 bg-linear-to-br from-indigo-600 via-violet-600 to-cyan-500 p-12 text-white flex-col justify-between relative overflow-hidden">
             <div className="absolute -bottom-20 -left-20 w-64 h-64 bg-white/10 rounded-full blur-3xl"></div>
             <div className="absolute top-10 -right-10 w-48 h-48 bg-cyan-300/20 rounded-full blur-2xl"></div>
 
@@ -199,7 +162,7 @@ export default function Log() {
               </Link>
 
               <div className="md:hidden flex items-center gap-3 mb-8">
-                <div className="bg-gradient-to-tr from-indigo-600 to-cyan-500 p-2 rounded-xl">
+                <div className="bg-linear-to-tr from-indigo-600 to-cyan-500 p-2 rounded-xl">
                   <GraduationCap className="text-white" size={20} />
                 </div>
                 <span className="font-bold text-2xl dark:text-white">StudyTrail</span>
@@ -258,7 +221,7 @@ export default function Log() {
 
                   
 
-                  <button type="submit" className="w-full py-3.5 mt-2 rounded-xl font-bold text-white bg-gradient-to-r from-indigo-600 via-violet-600 to-cyan-500 hover:scale-[1.02] active:scale-[0.98] transition-all shadow-lg shadow-indigo-500/25 flex justify-center items-center gap-2">
+                  <button type="submit" className="w-full py-3.5 mt-2 rounded-xl font-bold text-white bg-linear-to-r from-indigo-600 via-violet-600 to-cyan-500 hover:scale-[1.02] active:scale-[0.98] transition-all shadow-lg shadow-indigo-500/25 flex justify-center items-center gap-2">
                     Create Account <ArrowRight size={18} />
                   </button>
                 </form>
@@ -281,7 +244,7 @@ export default function Log() {
                     {errors.password && <p className="text-red-500 text-xs mt-1.5 ml-1 font-medium">{errors.password}</p>}
                   </div>
 
-                  <button type="submit" className="w-full py-3.5 mt-2 rounded-xl font-bold text-black dark:text-white bg-gradient-to-r from-indigo-600 via-violet-600 to-cyan-500 hover:scale-[1.02] active:scale-[0.98] transition-all shadow-lg shadow-indigo-500/25 flex justify-center items-center gap-2">
+                  <button type="submit" className="w-full py-3.5 mt-2 rounded-xl font-bold text-black dark:text-white bg-linear-to-r from-indigo-600 via-violet-600 to-cyan-500 hover:scale-[1.02] active:scale-[0.98] transition-all shadow-lg shadow-indigo-500/25 flex justify-center items-center gap-2">
                     Sign In <ArrowRight size={18} />
                   </button>
                 </form>
@@ -292,8 +255,8 @@ export default function Log() {
         </div>
 
         {/* Success State */}
-        <div className={`fixed inset-0 z-[9999] bg-black/60 backdrop-blur-sm flex items-center justify-center transition-all duration-500 ${showSuccess ? 'opacity-100 pointer-events-auto' : 'opacity-0 pointer-events-none'}`}>
-          <div className={`w-72 h-72 rounded-full bg-gradient-to-br from-indigo-600 via-violet-600 to-cyan-500 shadow-[0_0_80px_rgba(99,102,241,0.6)] flex flex-col items-center justify-center text-white border-4 border-white/10 text-center p-6 transition-all duration-700 transform-gpu ${showSuccess ? 'scale-100 opacity-100' : 'scale-50 opacity-0'}`}>
+        <div className={`fixed inset-0 z-9999 bg-black/60 backdrop-blur-sm flex items-center justify-center transition-all duration-500 ${showSuccess ? 'opacity-100 pointer-events-auto' : 'opacity-0 pointer-events-none'}`}>
+          <div className={`w-72 h-72 rounded-full bg-linear-to-br from-indigo-600 via-violet-600 to-cyan-500 shadow-[0_0_80px_rgba(99,102,241,0.6)] flex flex-col items-center justify-center text-white border-4 border-white/10 text-center p-6 transition-all duration-700 transform-gpu ${showSuccess ? 'scale-100 opacity-100' : 'scale-50 opacity-0'}`}>
             <GraduationCap size={64} className="mb-2" />
             <h2 className="text-xl font-bold tracking-tight">
               {authMode === 'login' ? 'Welcome Back!' : 'Account Created!'}
