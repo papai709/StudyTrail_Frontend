@@ -9,6 +9,11 @@ import { useTheme } from './ThemeContext';
 
 const Signed = () => {
   const navigate = useNavigate();
+  const handleContinue = (e) => {
+    e.preventDefault();
+    console.log("Saving data...");
+    navigate("/Profile"); 
+  };
   const { isDarkMode, toggleDarkMode } = useTheme();
   
   // Auth States
@@ -20,7 +25,7 @@ const Signed = () => {
   // Profile Setup States
   const [educationLevel, setEducationLevel] = useState('school'); 
   const [showAvatarModal, setShowAvatarModal] = useState(false);
-  const [showCoverModal, setShowCoverModal] = useState(false); // Brought this back!
+  const [showCoverModal, setShowCoverModal] = useState(false);
   
   // Create a reference for our hidden file input
   const coverInputRef = useRef(null);
@@ -327,9 +332,12 @@ const Signed = () => {
                   </div>
 
                   <div className="pt-6">
-                    <button type="submit" className="w-full md:w-auto px-10 py-4 rounded-xl font-bold text-white bg-linear-to-r from-indigo-600 via-violet-600 to-cyan-500 hover:scale-[1.02] active:scale-[0.98] transition-all shadow-lg shadow-indigo-500/25 flex justify-center items-center gap-2 ml-auto">
-                      Continue to Dashboard <ArrowRight size={18} />
-                    </button>
+                   <button 
+                  type="button" 
+                  onClick={handleContinue}
+                  className="w-full md:w-auto px-10 py-4 rounded-xl font-bold text-black dark:text-white bg-linear-to-r from-indigo-600 via-violet-600 to-cyan-500 hover:scale-[1.02] active:scale-[0.98] transition-all shadow-lg shadow-indigo-500/25 flex justify-center items-center gap-2 ml-auto">
+                  Continue to Profile <ArrowRight size={18} />
+                  </button>
                   </div>
                 </form>
 
@@ -337,7 +345,7 @@ const Signed = () => {
             </div>
           </section>
 
-          {/* 3. FEATURES GRID (Kept for visual balance) */}
+          {/* 3. FEATURES GRID */}
           <section id="features" className="py-32 border-y border-black/5 dark:border-white/5 backdrop-blur-3xl relative">
             <div className="max-w-7xl mx-auto px-6">
               <div className="text-center mb-20 max-w-2xl mx-auto">
@@ -362,6 +370,54 @@ const Signed = () => {
           </section>
 
         </main>
+
+        {/* 4. FOOTER */}
+        <footer className="bg-transparent border-t border-black/5 dark:border-white/5 py-16 relative z-10">
+          <div className="max-w-7xl mx-auto px-6 grid grid-cols-1 md:grid-cols-4 gap-12 mb-16">
+            <div className="md:col-span-2">
+              <div className="flex items-center gap-3 mb-6">
+                <div className="bg-linear-to-tr from-indigo-600 to-cyan-500 p-2 rounded-lg">
+                  <GraduationCap className="text-white" size={20} />
+                </div>
+                <span className="text-2xl font-bold text-slate-900 dark:text-white tracking-tight">StudyTrail</span>
+              </div>
+              <p className="text-slate-500 dark:text-slate-400 max-w-sm text-sm leading-relaxed font-light">
+                Empowering students worldwide by combining community-driven learning with modern productivity tools.
+              </p>
+            </div>
+            
+            <div>
+              <h4 className="font-semibold text-slate-900 dark:text-white mb-6">Platform</h4>
+              <ul className="space-y-4 text-sm text-slate-500 dark:text-slate-400">
+                <li><a href="#" className="hover:text-slate-900 dark:hover:text-white transition-colors">Features</a></li>
+                <li><a href="#" className="hover:text-slate-900 dark:hover:text-white transition-colors">Leaderboard</a></li>
+                <li><a href="#" className="hover:text-slate-900 dark:hover:text-white transition-colors">Resources</a></li>
+                <li><a href="#" className="hover:text-slate-900 dark:hover:text-white transition-colors">Pricing</a></li>
+              </ul>
+            </div>
+            
+            <div>
+              <h4 className="font-semibold text-slate-900 dark:text-white mb-6">Company</h4>
+              <ul className="space-y-4 text-sm text-slate-500 dark:text-slate-400">
+                <li><a href="#" className="hover:text-slate-900 dark:hover:text-white transition-colors">About Us</a></li>
+                <li><a href="#" className="hover:text-slate-900 dark:hover:text-white transition-colors">Careers</a></li>
+                <li><a href="#" className="hover:text-slate-900 dark:hover:text-white transition-colors">Privacy Policy</a></li>
+                <li><a href="#" className="hover:text-slate-900 dark:hover:text-white transition-colors">Terms of Service</a></li>
+              </ul>
+            </div>
+          </div>
+          
+          <div className="max-w-7xl mx-auto px-6 pt-8 border-t border-black/5 dark:border-white/5 flex flex-col md:flex-row justify-between items-center gap-6">
+            <div className="text-sm text-slate-500 dark:text-slate-400">
+              &copy; 2026 StudyTrail. All rights reserved.
+            </div>
+            <div className="flex gap-4">
+              <div className="w-10 h-10 rounded-full bg-black/5 dark:bg-white/5 flex items-center justify-center text-slate-500 hover:text-slate-900 dark:hover:text-white hover:bg-black/10 dark:hover:bg-white/10 cursor-pointer transition-all">X</div>
+              <div className="w-10 h-10 rounded-full bg-black/5 dark:bg-white/5 flex items-center justify-center text-slate-500 hover:text-slate-900 dark:hover:text-white hover:bg-black/10 dark:hover:bg-white/10 cursor-pointer transition-all">in</div>
+              <div className="w-10 h-10 rounded-full bg-black/5 dark:bg-white/5 flex items-center justify-center text-slate-500 hover:text-slate-900 dark:hover:text-white hover:bg-black/10 dark:hover:bg-white/10 cursor-pointer transition-all">IG</div>
+            </div>
+          </div>
+        </footer>
 
         {/* MODALS */}
         
@@ -428,6 +484,7 @@ const Signed = () => {
                           <div className="absolute top-2 right-2 bg-indigo-500 rounded-full p-1.5 text-white shadow-md">
                             <Check size={14} strokeWidth={3} />
                           </div>
+                          
                         )}
                       </div>
                     ))}
