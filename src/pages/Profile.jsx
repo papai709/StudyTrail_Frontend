@@ -1,14 +1,15 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { 
   Sun, Moon, GraduationCap, Bell, MessageSquare, Camera, Edit2, 
   Image as ImageIcon, UploadCloud, Mail, BookOpen, Zap, 
   Flame, Share2, UserPlus, Trophy, Star, Clock, FileText,
-  Activity, Target, CheckCircle2,Users
+  Activity, Target, CheckCircle2, Users, LogOut
 } from 'lucide-react';
 import { useTheme } from './ThemeContext';
 
 const Profile = () => {
+  const navigate = useNavigate();
   const { isDarkMode, toggleDarkMode } = useTheme();
   const [scrolled, setScrolled] = useState(false);
   
@@ -19,13 +20,13 @@ const Profile = () => {
   // Profile State
   const [isEditing, setIsEditing] = useState(false);
   const [profileData, setProfileData] = useState({
-    name: "Alex Johnson",
-    email: "alex.johnson@example.com",
+    name: "Student",
+    email: "Guest12345@example.com",
     bio: "Passionate about computer science and building tools for students. Always up for a late-night coding session!",
     type: "college", // 'school' or 'college'
     instituteName: "Stanford University",
-    course: "B.Tech (Bachelor of Technology)",
-    year: "Year 3",
+    course: "MCA (Masters of Computer Applications)",
+    year: "Year 2",
     schoolName: "",
     grade: "",
     avatar: "https://api.dicebear.com/7.x/avataaars/svg?seed=Alex&backgroundColor=e2e8f0",
@@ -63,6 +64,12 @@ const Profile = () => {
     console.log("Profile Saved:", profileData);
   };
 
+  const handleLogout = () => {
+    // Add any global state/auth clearing logic here if needed
+    console.log("Logging out...");
+    navigate("/");
+  };
+
   return (
     <div className={isDarkMode ? 'dark' : ''}>
       <div className="min-h-screen bg-[#FAFAFA] dark:bg-[#050505] text-slate-900 dark:text-slate-100 font-sans transition-colors duration-500 flex flex-col overflow-x-hidden selection:bg-indigo-500/30 relative">
@@ -83,7 +90,7 @@ const Profile = () => {
             </div>
             
             {/* Center Links */}
-            <div className="hidden md:flex items-center gap-8 text-slate-500 dark:text-slate-400 font-medium text-sm bg-slate-100/50 dark:bg-white/5 px-6 py-2.5 rounded-full border border-black/5 dark:border-white/10 backdrop-blur-md">
+            <div className="hidden md:flex items-center gap-8 text-slate-500 dark:text-slate-400 font-medium text-sm">
               <a href="#" className="text-indigo-600 dark:text-indigo-400 font-bold transition-colors">Home</a>
               <a href="#leaderboard" className="hover:text-slate-900 dark:hover:text-white transition-colors">Leaderboard</a>
               <a href="#explore" className="hover:text-slate-900 dark:hover:text-white transition-colors">Explore</a>
@@ -107,6 +114,14 @@ const Profile = () => {
               <div className="w-9 h-9 rounded-full overflow-hidden border-2 border-indigo-500 shadow-sm ml-2">
                 <img src={profileData.avatar} alt="Current User" className="w-full h-full object-cover bg-white" />
               </div>
+
+              {/* LOGOUT BUTTON */}
+              <button 
+                onClick={handleLogout}
+                className="bg-red-50 hover:bg-red-100 dark:bg-red-500/10 dark:hover:bg-red-500/20 text-red-600 dark:text-red-400 px-3 py-2 sm:px-4 rounded-full text-sm font-semibold hover:scale-105 active:scale-95 transition-all shadow-sm flex items-center gap-2 ml-1"
+              >
+                <LogOut size={16} /> <span className="hidden sm:inline">Logout</span>
+              </button>
             </div>
           </div>
         </nav>
@@ -159,6 +174,7 @@ const Profile = () => {
                       {/* Bio & Education fields */}
                       {isEditing ? (
                         <div className="space-y-4 animate-in fade-in duration-300 max-w-2xl">
+                          <input type="text" name="name" value={profileData.name} onChange={handleInputChange} className="w-full px-4 py-3 rounded-xl bg-slate-50 dark:bg-[#111] border border-black/10 dark:border-white/10 focus:ring-2 focus:ring-indigo-500/50 text-sm font-bold" placeholder="Full Name" />
                           <textarea name="bio" value={profileData.bio} onChange={handleInputChange} className="w-full px-4 py-3 rounded-xl bg-slate-50 dark:bg-[#111] border border-black/10 dark:border-white/10 focus:ring-2 focus:ring-indigo-500/50 text-sm" rows="2" placeholder="Write your bio..." />
                           
                           <input type="email" name="email" value={profileData.email} onChange={handleInputChange} className="w-full px-4 py-3 rounded-xl bg-slate-50 dark:bg-[#111] border border-black/10 dark:border-white/10 focus:ring-2 focus:ring-indigo-500/50 text-sm" placeholder="Email address" />

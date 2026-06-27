@@ -9,11 +9,6 @@ import { useTheme } from './ThemeContext';
 
 const Signed = () => {
   const navigate = useNavigate();
-  const handleContinue = (e) => {
-    e.preventDefault();
-    console.log("Saving data...");
-    navigate("/Profile"); 
-  };
   const { isDarkMode, toggleDarkMode } = useTheme();
   
   // Auth States
@@ -102,9 +97,12 @@ const Signed = () => {
     }
   };
 
+  // This handles BOTH saving and navigating now!
   const handleProfileSubmit = (e) => {
     e.preventDefault();
+    // If the code reaches this line, all required fields are filled out.
     console.log("Saving Profile Data:", profileData);
+    navigate("/Profile"); // Navigates ONLY after successful form submission
   };
 
   const features = [
@@ -332,11 +330,11 @@ const Signed = () => {
                   </div>
 
                   <div className="pt-6">
+                   {/* CHANGED THIS BUTTON TO TYPE="SUBMIT" AND REMOVED ONCLICK */}
                    <button 
-                  type="button" 
-                  onClick={handleContinue}
-                  className="w-full md:w-auto px-10 py-4 rounded-xl font-bold text-black dark:text-white bg-linear-to-r from-indigo-600 via-violet-600 to-cyan-500 hover:scale-[1.02] active:scale-[0.98] transition-all shadow-lg shadow-indigo-500/25 flex justify-center items-center gap-2 ml-auto">
-                  Continue to Profile <ArrowRight size={18} />
+                    type="submit" 
+                    className="w-full md:w-auto px-10 py-4 rounded-xl font-bold text-black dark:text-white bg-linear-to-r from-indigo-600 via-violet-600 to-cyan-500 hover:scale-[1.02] active:scale-[0.98] transition-all shadow-lg shadow-indigo-500/25 flex justify-center items-center gap-2 ml-auto">
+                    Continue to Profile <ArrowRight size={18} />
                   </button>
                   </div>
                 </form>

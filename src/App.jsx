@@ -2,12 +2,14 @@ import Home from "./pages/Home";
 import Log from "./pages/Log";
 import Signed from "./pages/Signed";
 import Profile from "./pages/Profile";
+import ScrollToTop from './pages/ScrollToTop';
 import { ThemeProvider } from './pages/ThemeContext';
 import { BrowserRouter, Route, Routes } from "react-router-dom";
 
 function App() {
   return (
     <BrowserRouter>
+    <ScrollToTop />
      <ThemeProvider>
       <Routes>
         <Route path="/" element={<Home />} />
