@@ -28,21 +28,21 @@ const Signed = () => {
   useEffect(() => {
     const checkSession = async () => {
       try {
-        const response = await fetch("http://localhost:8080/api/v1/user/current-user", {
-          method: "GET",
-          credentials: "include" // CRITICAL: Sends the JWT cookies to your verifyJWT middleware
-        });
+        // const response = await fetch("http://localhost:8080/api/v1/user/current-user", {
+        //   method: "GET",
+        //   credentials: "include" // CRITICAL: Sends the JWT cookies to your verifyJWT middleware
+        // });
 
-        if (response.ok) {
-          const result = await response.json();
-          setUser(result.data); // Set the MongoDB user object to state
-        } else {
-          // If the token is invalid or expired, kick them back to login
-          navigate("/log"); 
-        }
+        // if (response.ok) {
+        //   const result = await response.json();
+        //   setUser(result.data); // Set the MongoDB user object to state
+        // } else {
+        //   // If the token is invalid or expired, kick them back to login
+        //   navigate("/log"); 
+        // }
       } catch (error) {
-        console.error("Session check failed:", error);
-        navigate("/log");
+        // console.error("Session check failed:", error);
+        // navigate("/log");
       } finally {
         setLoading(false);
       }
@@ -54,20 +54,20 @@ const Signed = () => {
   // --- PHASE 5: SECURE LOGOUT ---
   const handleLogout = async () => {
     try {
-      const response = await fetch("http://localhost:8080/api/v1/user/logout", {
-        method: "POST",
-        credentials: "include" // Identifies which user is logging out
-      });
+      // const response = await fetch("http://localhost:8080/api/v1/user/logout", {
+      //   method: "POST",
+      //   credentials: "include" // Identifies which user is logging out
+      // });
 
-      if (response.ok) {
-        setUser(null);
-        navigate("/"); // Redirects to Home
-      } else {
-        setError("Failed to log out. Please try again.");
-      }
+      // if (response.ok) {
+      //   setUser(null);
+      //   navigate("/"); // Redirects to Home
+      // } else {
+      //   setError("Failed to log out. Please try again.");
+      // }
     } catch (error) {
-      console.error("Logout failed:", error);
-      setError("Failed to log out. Please try again.");
+      // console.error("Logout failed:", error);
+      // setError("Failed to log out. Please try again.");
     }
   };
 

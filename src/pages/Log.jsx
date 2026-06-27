@@ -67,23 +67,23 @@ export default function Log() {
       try {
         if (authMode === "register") {
           // --- Phase 2: Registration (Simplified JSON Payload) ---
-          const response = await fetch("http://localhost:8080/api/v1/user/register", {
-            method: "POST",
-            headers: {
-              "Content-Type": "application/json"
-            },
-            body: JSON.stringify({
-              fullName: formData.name,
-              username: formData.username,
-              email: formData.email,
-              password: formData.password
-            }),
-          });
+          // const response = await fetch("http://localhost:8080/api/v1/user/register", {
+          //   method: "POST",
+          //   headers: {
+          //     "Content-Type": "application/json"
+          //   },
+          //   body: JSON.stringify({
+          //     fullName: formData.name,
+          //     username: formData.username,
+          //     email: formData.email,
+          //     password: formData.password
+          //   }),
+          // });
 
-          const data = await response.json();
-          if (!response.ok) {
-            throw new Error(data.message || "Registration failed on backend");
-          }
+          // const data = await response.json();
+          // if (!response.ok) {
+          //   throw new Error(data.message || "Registration failed on backend");
+          // }
 
           setShowSuccess(true);
           setTimeout(() => {
@@ -94,22 +94,22 @@ export default function Log() {
 
         } else {
           // --- Phase 3: Login ---
-          const response = await fetch("http://localhost:8080/api/v1/user/login", {
-            method: "POST",
-            headers: {
-              "Content-Type": "application/json"
-            },
-            body: JSON.stringify({
-              email: formData.email,
-              password: formData.password
-            }),
-            credentials: "include" // CRITICAL: This allows the browser to save your JWT cookies
-          });
+          // const response = await fetch("http://localhost:8080/api/v1/user/login", {
+          //   method: "POST",
+          //   headers: {
+          //     "Content-Type": "application/json"
+          //   },
+          //   body: JSON.stringify({
+          //     email: formData.email,
+          //     password: formData.password
+          //   }),
+          //   credentials: "include" // CRITICAL: This allows the browser to save your JWT cookies
+          // });
 
-          const data = await response.json();
-          if (!response.ok) {
-            throw new Error(data.message || "Invalid email or password");
-          }
+          // const data = await response.json();
+          // if (!response.ok) {
+          //   throw new Error(data.message || "Invalid email or password");
+          // }
 
           // const loggedInUser = data.data.user;
           // const isProfileComplete = loggedInUser.bio && loggedInUser.schoolName;
