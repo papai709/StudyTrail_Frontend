@@ -215,7 +215,7 @@ const Home = () => {
             <div className="md:col-span-2">
               <div className="flex items-center gap-3 mb-6">
                 <div className="bg-linear-to-tr from-indigo-600 to-cyan-500 p-2 rounded-lg">
-                  <GraduationCap className="text-white" size={20} />
+                  <GraduationCap className="text-black dark:text-white " size={20} />
                 </div>
                 <span className="text-2xl font-bold text-slate-900 dark:text-white tracking-tight">StudyTrail</span>
               </div>

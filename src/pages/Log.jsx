@@ -221,7 +221,7 @@ export default function Log() {
 
                   
 
-                  <button type="submit" className="w-full py-3.5 mt-2 rounded-xl font-bold text-white bg-linear-to-r from-indigo-600 via-violet-600 to-cyan-500 hover:scale-[1.02] active:scale-[0.98] transition-all shadow-lg shadow-indigo-500/25 flex justify-center items-center gap-2">
+                  <button type="submit" className="w-full py-3.5 mt-2 rounded-xl font-bold text-black dark:text-white bg-linear-to-r from-indigo-600 via-violet-600 to-cyan-500 hover:scale-[1.02] active:scale-[0.98] transition-all shadow-lg shadow-indigo-500/25 flex justify-center items-center gap-2">
                     Create Account <ArrowRight size={18} />
                   </button>
                 </form>
