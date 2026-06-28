@@ -69,6 +69,27 @@ export default function Log() {
     if (validateForm()) {
       try {
         if (authMode === "register") {
+          //Registration (Simplified JSON Payload)
+
+          const response = await fetch("http://localhost:8090/api/v1/user/register", {
+            method: "POST",
+            headers:{
+              "Content-Type": "application/json"
+            },
+            body: JSON.stringify({
+              fullName: formData.name,
+              username: formData.username,
+              email: formData.email,
+              password: formData.password
+            }),
+          });
+
+          const data = await response.json();
+
+          if(!response.ok){
+            throw new Error(data.message || "Registration failed on backend");
+          };
+
           setShowSuccess(true);
           setTimeout(() => {
             setShowSuccess(false);
@@ -77,12 +98,43 @@ export default function Log() {
           }, 3000); 
 
         } else {
+          //Login
+
+          const response = await fetch("http://localhost:8090/api/v1/user/login", {
+            method:"POST",
+            headers:{
+              "Content-Type": "application/json"
+            },
+            body: JSON.stringify({
+              email: formData.email,
+              password: formData.password
+            }),
+            credentials: "include"    //This allows the browser to save your JWT cookies
+          });
+
+          const data = await response.json();
+
+          if(!response.ok){
+            throw new Error(data.message || "Invalid email or password");
+          };
+
+          //grt logged in user data from backend
+          const loggedInUser = data.data.user;
+
+          //check profile is complete or not
+          const isProfileComplete = loggedInUser.schoolName && loggedInUser.className;
+
           // Login Success
           setShowSuccess(true);
           setTimeout(() => {
             setShowSuccess(false);
-            setFormData({ name: "", username: "", email: "", password: "", avatarFile: null });
-            navigate("/signed"); // Redirect to Dashboard
+            setFormData({ name: "", username: "", email: "", password: ""});
+
+            if(isProfileComplete){
+              navigate("/profile") //refirect to profile page
+            }else{
+              navigate("/signed"); //redirect to signed page
+            }
           }, 1000); 
         }
 

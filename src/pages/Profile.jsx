@@ -4,7 +4,7 @@ import {
   Sun, Moon, GraduationCap, Bell, MessageSquare, Camera, Edit2, 
   Image as ImageIcon, UploadCloud, Mail, BookOpen, Zap, 
   Flame, Share2, UserPlus, Trophy, Star, Clock, FileText,
-  Activity, Target, CheckCircle2, Users, LogOut
+  Activity, Target, CheckCircle2, Users, LogOut, Loader2
 } from 'lucide-react';
 import { useTheme } from './ThemeContext';
 
@@ -12,6 +12,8 @@ const Profile = () => {
   const navigate = useNavigate();
   const { isDarkMode, toggleDarkMode } = useTheme();
   const [scrolled, setScrolled] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
+  const [isSaving, setIsSaving] = useState(false); // Added for save button state
   
   // Refs for hidden file inputs
   const coverInputRef = useRef(null);
@@ -21,22 +23,63 @@ const Profile = () => {
   const [isEditing, setIsEditing] = useState(false);
   const [profileData, setProfileData] = useState({
     name: "Student",
-    email: "Guest12345@example.com",
-    bio: "Passionate about computer science and building tools for students. Always up for a late-night coding session!",
-    type: "college", // 'school' or 'college'
-    instituteName: "Stanford University",
-    course: "MCA (Masters of Computer Applications)",
-    year: "Year 2",
+    email: "",
+    bio: "",
+    type: "college",
+    instituteName: "",
+    course: "",
+    year: "",
     schoolName: "",
     grade: "",
     avatar: "https://api.dicebear.com/7.x/avataaars/svg?seed=Alex&backgroundColor=e2e8f0",
     cover: "https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?q=80&w=2000&auto=format&fit=crop",
     stats: { xp: 12450, streak: 14, resources: 32 },
-    goalProgress: 75 // percentage
+    goalProgress: 75 
   });
 
   // Tab State
   const [activeTab, setActiveTab] = useState('posts');
+
+  // Fetch Logged-in User Data
+  useEffect(() => {
+    const fetchUserData = async () => {
+      try {
+        const response = await fetch("http://localhost:8090/api/v1/user/current-user", {
+          method: "GET",
+          credentials: "include" 
+        });
+
+        if (response.ok) {
+          const result = await response.json();
+          const user = result.data;
+          
+          setProfileData(prev => ({
+            ...prev,
+            name: user.fullName || "Student",
+            email: user.email || "",
+            bio: user.bio || prev.bio,
+            avatar: user.profileImage || prev.avatar,
+            cover: user.coverImage || prev.cover,
+            type: user.className?.includes('-') ? 'college' : 'school',
+            instituteName: user.schoolName || "",
+            schoolName: user.schoolName || "",
+            course: user.className?.includes('-') ? user.className.split(' - ')[0].trim() : "",
+            year: user.className?.includes('-') ? user.className.split(' - ')[1].trim() : "",
+            grade: !user.className?.includes('-') ? user.className : ""
+          }));
+        } else {
+          navigate("/log");
+        }
+      } catch (error) {
+        console.error("Failed to fetch user data:", error);
+        navigate("/log");
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    fetchUserData();
+  }, [navigate]);
 
   useEffect(() => {
     const handleScroll = () => setScrolled(window.scrollY > 20);
@@ -44,12 +87,35 @@ const Profile = () => {
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
-  // Handlers for image uploads (Triggered from PC or Mobile)
-  const handleImageUpload = (e, type) => {
+  // Handle Live Image Uploads to Backend
+  const handleImageUpload = async (e, type) => {
     const file = e.target.files[0];
-    if (file) {
-      const url = URL.createObjectURL(file);
-      setProfileData(prev => ({ ...prev, [type]: url }));
+    if (!file) return;
+
+    // 1. Show preview immediately
+    const url = URL.createObjectURL(file);
+    setProfileData(prev => ({ ...prev, [type]: url }));
+
+    // 2. Send file to backend
+    try {
+      const formData = new FormData();
+      const endpoint = type === 'avatar' ? '/update-profile-image' : '/update-cover-image'; 
+      const fileField = type === 'avatar' ? 'profileImage' : 'coverImage';
+      
+      formData.append(fileField, file);
+
+      const response = await fetch(`http://localhost:8090/api/v1/user${endpoint}`, {
+        method: "PATCH",
+        body: formData,
+        credentials: "include"
+      });
+
+      if (!response.ok) {
+        throw new Error(`Failed to upload ${type}`);
+      }
+    } catch (error) {
+      console.error(`Error uploading ${type}:`, error);
+      // Optional: Add a toast notification here to tell the user it failed
     }
   };
 
@@ -58,17 +124,59 @@ const Profile = () => {
     setProfileData(prev => ({ ...prev, [name]: value }));
   };
 
-  const saveProfile = () => {
-    setIsEditing(false);
-    // In a real app, API call to save would go here
-    console.log("Profile Saved:", profileData);
+  // Handle Text Profile Updates to Backend
+  const saveProfile = async () => {
+    setIsSaving(true);
+    try {
+      const finalSchoolName = profileData.type === 'college' ? profileData.instituteName : profileData.schoolName;
+      const finalClassName = profileData.type === 'college' ? `${profileData.course} - ${profileData.year}` : profileData.grade;
+
+      const response = await fetch("http://localhost:8090/api/v1/user/update-account", {
+        method: "PATCH",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({
+          fullName: profileData.name,
+          email: profileData.email,
+          schoolName: finalSchoolName,
+          className: finalClassName,
+          bio: profileData.bio
+        }),
+        credentials: "include"
+      });
+
+      if (!response.ok) {
+        throw new Error("Failed to update profile details");
+      }
+      
+      setIsEditing(false);
+    } catch (error) {
+      console.error("Error saving profile:", error);
+    } finally {
+      setIsSaving(false);
+    }
   };
 
-  const handleLogout = () => {
-    // Add any global state/auth clearing logic here if needed
-    console.log("Logging out...");
-    navigate("/");
+  const handleLogout = async () => {
+    try {
+      await fetch("http://localhost:8090/api/v1/user/logout", {
+        method: "POST",
+        credentials: "include"
+      });
+      navigate("/");
+    } catch (error) {
+      console.error(error);
+    }
   };
+
+  if (isLoading) {
+    return (
+      <div className={`min-h-screen flex items-center justify-center ${isDarkMode ? 'dark bg-[#050505]' : 'bg-[#FAFAFA]'}`}>
+         <Loader2 className="animate-spin text-indigo-500" size={48} />
+      </div>
+    );
+  }
 
   return (
     <div className={isDarkMode ? 'dark' : ''}>
@@ -163,11 +271,15 @@ const Profile = () => {
                 <div className="flex-1 pt-2 md:pt-4">
                   <div className="flex flex-col lg:flex-row lg:items-start justify-between gap-6">
                     <div className="flex-1 space-y-4">
-                      {/* Name & Edit Toggle */}
                       <div className="flex items-center justify-between lg:justify-start gap-4">
                         <h1 className="text-3xl md:text-4xl font-extrabold text-slate-900 dark:text-white tracking-tight">{profileData.name}</h1>
-                        <button onClick={() => isEditing ? saveProfile() : setIsEditing(true)} className="flex items-center gap-2 px-4 py-2 rounded-full bg-indigo-50 dark:bg-indigo-500/10 text-indigo-600 dark:text-indigo-400 text-sm font-semibold hover:bg-indigo-100 dark:hover:bg-indigo-500/20 transition-colors">
-                          {isEditing ? <><CheckCircle2 size={16} /> Save</> : <><Edit2 size={16} /> Edit Profile</>}
+                        <button 
+                          onClick={() => isEditing ? saveProfile() : setIsEditing(true)} 
+                          disabled={isSaving}
+                          className="flex items-center gap-2 px-4 py-2 rounded-full bg-indigo-50 dark:bg-indigo-500/10 text-indigo-600 dark:text-indigo-400 text-sm font-semibold hover:bg-indigo-100 dark:hover:bg-indigo-500/20 transition-colors disabled:opacity-50"
+                        >
+                          {isSaving ? <Loader2 size={16} className="animate-spin" /> : (isEditing ? <CheckCircle2 size={16} /> : <Edit2 size={16} />)}
+                          {isSaving ? 'Saving...' : (isEditing ? 'Save' : 'Edit Profile')}
                         </button>
                       </div>
 
@@ -218,7 +330,7 @@ const Profile = () => {
                             {profileData.type === 'college' ? (
                               <>
                                 <div className="flex items-center gap-2"><BookOpen size={16} className="text-indigo-500" /> {profileData.instituteName}</div>
-                                <div className="flex items-center gap-2"><GraduationCap size={16} className="text-indigo-500" /> {profileData.course} &bull; {profileData.year}</div>
+                                <div className="flex items-center gap-2"><GraduationCap size={16} className="text-indigo-500" /> {profileData.course} {profileData.year ? `• ${profileData.year}` : ''}</div>
                               </>
                             ) : (
                               <>
@@ -240,7 +352,6 @@ const Profile = () => {
                         <MessageSquare size={18} /> Message
                       </button>
                     </div>
-
                   </div>
                 </div>
               </div>
