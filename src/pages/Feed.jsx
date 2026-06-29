@@ -1,4 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
+import { Link } from 'react-router-dom';
 import '../Feed.css';
 import {
   Home,
@@ -23,7 +24,8 @@ import {
   CheckCircle2,
   Sun,
   Moon,
-  Eye
+  Eye,
+  GraduationCap
 } from 'lucide-react';
 
 export const LOGGED_IN_USER = {
@@ -121,6 +123,14 @@ const INITIAL_COMMENTS = {
   ]
 };
 
+const REACTION_OPTIONS = [
+  { emoji: '👍', label: 'Like' },
+  { emoji: '🔥', label: 'Fire' },
+  { emoji: '🎉', label: 'Celebrate' },
+  { emoji: '💡', label: 'Insight' },
+  { emoji: '❤️', label: 'Love' }
+];
+
 export default function Feed() {
   const [isDarkMode, setIsDarkMode] = useState(true);
   const [posts, setPosts] = useState(INITIAL_POSTS);
@@ -141,6 +151,7 @@ export default function Feed() {
   const [toastMessage, setToastMessage] = useState(null);
   const [imageLightbox, setImageLightbox] = useState(null);
   const [currentRoute, setCurrentRoute] = useState('/home');
+  const [reactionPickerPostId, setReactionPickerPostId] = useState(null);
 
   const [checklist, setChecklist] = useState([
     { id: 'check-1', text: 'Revise Machine Learning neural backprop notes', done: true },
@@ -150,6 +161,8 @@ export default function Feed() {
 
   const mediaInputRef = useRef(null);
   const docInputRef = useRef(null);
+  const reactionHoldTimerRef = useRef(null);
+  const suppressClickRef = useRef(false);
 
   useEffect(() => {
     if (toastMessage) {
@@ -159,6 +172,14 @@ export default function Feed() {
       return () => clearTimeout(timer);
     }
   }, [toastMessage]);
+
+  useEffect(() => {
+    return () => {
+      if (reactionHoldTimerRef.current) {
+        clearTimeout(reactionHoldTimerRef.current);
+      }
+    };
+  }, []);
 
   const showToast = (message) => {
     setToastMessage(message);
@@ -208,20 +229,65 @@ export default function Feed() {
     return 0;
   });
 
-  const handleLikeToggle = (postId) => {
+  const handleLikeToggle = (postId, reaction = null) => {
     setPosts(prevPosts =>
       prevPosts.map(post => {
         if (post.id === postId) {
-          const isLiked = !post.isLikedByMe;
+          const isReaction = Boolean(reaction);
+          const isLiked = isReaction ? true : !post.isLikedByMe;
+          const nextCount = isLiked ? post.likesCount + 1 : Math.max(0, post.likesCount - 1);
           return {
             ...post,
             isLikedByMe: isLiked,
-            likesCount: isLiked ? post.likesCount + 1 : post.likesCount - 1
+            likesCount: nextCount,
+            reactionEmoji: isReaction ? reaction.emoji : (post.isLikedByMe ? '' : post.reactionEmoji || '')
           };
         }
         return post;
       })
     );
+
+    const targetPost = posts.find(post => post.id === postId);
+    if (targetPost) {
+      const actionText = reaction ? `Reacted with ${reaction.label}` : (targetPost.isLikedByMe ? 'Post unliked' : 'Post liked');
+      showToast(actionText);
+    }
+  };
+
+  const startReactionHold = (postId) => {
+    if (reactionHoldTimerRef.current) {
+      clearTimeout(reactionHoldTimerRef.current);
+    }
+    suppressClickRef.current = false;
+    reactionHoldTimerRef.current = setTimeout(() => {
+      setReactionPickerPostId(postId);
+      suppressClickRef.current = true;
+    }, 400);
+  };
+
+  const cancelReactionHold = () => {
+    if (reactionHoldTimerRef.current) {
+      clearTimeout(reactionHoldTimerRef.current);
+      reactionHoldTimerRef.current = null;
+    }
+    suppressClickRef.current = false;
+  };
+
+  const handleLikeButtonClick = (postId, event) => {
+    if (suppressClickRef.current) {
+      event.preventDefault();
+      suppressClickRef.current = false;
+      return;
+    }
+
+    cancelReactionHold();
+    handleLikeToggle(postId);
+  };
+
+  const handleReactionSelect = (postId, reaction) => {
+    setReactionPickerPostId(null);
+    cancelReactionHold();
+    handleLikeToggle(postId, reaction);
   };
 
   const triggerMediaUpload = () => {
@@ -417,18 +483,27 @@ export default function Feed() {
       }`}>
         <div className="space-y-6">
           
-          <div className="flex items-center gap-3 mb-10 px-2">
-            <div className="w-8 h-8 bg-violet-600 rounded-lg flex items-center justify-center font-bold text-lg italic text-white shadow-md shadow-violet-600/20 shrink-0">
-              S
-            </div>
-            <h1 className={`text-xl font-bold tracking-tight uppercase ${
+          <Link to="/profile" className="flex items-center gap-3 mb-10 px-2 group">
+            <div className={`p-2 rounded-xl border shadow-sm transition-colors ${
               isDarkMode 
-                ? 'bg-gradient-to-r from-white via-violet-300 to-violet-500 bg-clip-text text-transparent' 
-                : 'text-slate-950'
+                ? 'bg-white/10 border-white/10 text-white' 
+                : 'bg-slate-200 border-slate-300 text-black'
             }`}>
-              StudyTrail
-            </h1>
-          </div>
+              <GraduationCap className="w-6 h-6" />
+            </div>
+            <div className="flex flex-col">
+              <h1 className={`text-xl font-bold tracking-tight ${
+                isDarkMode 
+                  ? 'bg-gradient-to-r from-white via-violet-300 to-violet-500 bg-clip-text text-transparent' 
+                  : 'text-slate-950'
+              }`}>
+                StudyTrail
+              </h1>
+              <span className="text-[10px] font-semibold uppercase tracking-[0.24em] text-gray-500 group-hover:text-violet-500 transition-colors">
+                Your study circle
+              </span>
+            </div>
+          </Link>
           
           <span className="text-[10px] font-bold text-gray-500 tracking-widest font-mono uppercase px-2 block mb-3">NAVIGATION</span>
           <nav className="space-y-1">
@@ -606,9 +681,10 @@ export default function Feed() {
             </div>
 
             <div className="relative">
-              <button
+              <Link
+                to="/profile"
                 onClick={() => {
-                  setIsProfileOpen(!isProfileOpen);
+                  setIsProfileOpen(false);
                   setIsNotificationsOpen(false);
                 }}
                 className="w-8 h-8 rounded-full overflow-hidden ring-2 ring-violet-500/50 cursor-pointer flex items-center justify-center hover:ring-violet-400 transition"
@@ -619,7 +695,7 @@ export default function Feed() {
                   alt={LOGGED_IN_USER.name}
                   className="w-full h-full object-cover"
                 />
-              </button>
+              </Link>
 
               {isProfileOpen && (
                 <div className={`absolute right-0 mt-3 w-64 border rounded-2xl shadow-2xl p-4 z-50 transition-colors duration-300 ${
@@ -901,20 +977,56 @@ export default function Feed() {
                         <div className={`flex items-center gap-6 mt-5 pt-4 border-t ${
                           isDarkMode ? 'border-white/5' : 'border-slate-100'
                         }`}>
-                          <button
-                            onClick={() => handleLikeToggle(post.id)}
-                            className="flex items-center gap-2 text-xs font-semibold transition cursor-pointer"
-                          >
-                            <Heart
-                              key={post.isLikedByMe ? 'liked' : 'unliked'}
-                              className={`w-5 h-5 ${post.isLikedByMe ? 'animate-pop' : ''}`}
-                              fill={post.isLikedByMe ? 'url(#likeGradient)' : 'none'}
-                              stroke={post.isLikedByMe ? 'url(#likeGradient)' : 'currentColor'}
-                            />
-                            <span className={post.isLikedByMe ? 'bg-gradient-to-r from-red-500 to-pink-500 bg-clip-text text-transparent font-bold font-mono' : 'text-gray-400 font-mono'}>
-                              {post.likesCount}
-                            </span>
-                          </button>
+                          <div className="relative">
+                            <button
+                              type="button"
+                              onMouseDown={() => startReactionHold(post.id)}
+                              onMouseUp={cancelReactionHold}
+                              onMouseLeave={cancelReactionHold}
+                              onTouchStart={() => startReactionHold(post.id)}
+                              onTouchEnd={cancelReactionHold}
+                              onTouchCancel={cancelReactionHold}
+                              onClick={(event) => handleLikeButtonClick(post.id, event)}
+                              className={`flex items-center gap-2 text-xs font-semibold transition cursor-pointer rounded-full px-2 py-1 ${
+                                post.isLikedByMe
+                                  ? 'bg-red-500/10 text-red-500 shadow-sm shadow-red-500/10'
+                                  : isDarkMode
+                                    ? 'text-gray-400 hover:bg-white/5 hover:text-white'
+                                    : 'text-slate-500 hover:bg-slate-100 hover:text-slate-900'
+                              }`}
+                            >
+                              {post.reactionEmoji ? (
+                                <span className="text-base leading-none">{post.reactionEmoji}</span>
+                              ) : (
+                                <Heart
+                                  key={post.isLikedByMe ? 'liked' : 'unliked'}
+                                  className={`w-5 h-5 ${post.isLikedByMe ? 'animate-pop' : ''}`}
+                                  fill={post.isLikedByMe ? 'url(#likeGradient)' : 'none'}
+                                  stroke={post.isLikedByMe ? 'url(#likeGradient)' : 'currentColor'}
+                                />
+                              )}
+                              <span className={`font-mono font-bold ${post.isLikedByMe ? 'text-red-500' : ''}`}>
+                                {post.likesCount}
+                              </span>
+                            </button>
+
+                            {reactionPickerPostId === post.id && (
+                              <div className="reaction-picker absolute bottom-10 left-0 mb-2 flex items-center gap-2 rounded-full border border-white/10 bg-white/95 px-2 py-2 shadow-2xl backdrop-blur-xl z-20">
+                                {REACTION_OPTIONS.map((reaction, index) => (
+                                  <button
+                                    key={reaction.emoji}
+                                    type="button"
+                                    onClick={() => handleReactionSelect(post.id, reaction)}
+                                    className="reaction-option flex h-9 w-9 items-center justify-center rounded-full bg-white/80 text-lg shadow-sm transition-transform hover:scale-110"
+                                    style={{ animationDelay: `${index * 60}ms` }}
+                                    title={reaction.label}
+                                  >
+                                    {reaction.emoji}
+                                  </button>
+                                ))}
+                              </div>
+                            )}
+                          </div>
 
                           <button
                             onClick={() => toggleComments(post.id)}
