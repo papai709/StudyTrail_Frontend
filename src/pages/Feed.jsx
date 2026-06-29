@@ -232,26 +232,34 @@ export default function Feed() {
   const handleLikeToggle = (postId, reaction = null) => {
     setPosts(prevPosts =>
       prevPosts.map(post => {
-        if (post.id === postId) {
-          const isReaction = Boolean(reaction);
-          const isLiked = isReaction ? true : !post.isLikedByMe;
-          const nextCount = isLiked ? post.likesCount + 1 : Math.max(0, post.likesCount - 1);
+        if (post.id !== postId) return post;
+
+        if (reaction) {
+          const alreadyReactedWithSameEmoji = post.isLikedByMe && post.reactionEmoji === reaction.emoji;
+          if (alreadyReactedWithSameEmoji) {
+            return post;
+          }
+
           return {
             ...post,
-            isLikedByMe: isLiked,
-            likesCount: nextCount,
-            reactionEmoji: isReaction ? reaction.emoji : (post.isLikedByMe ? '' : post.reactionEmoji || '')
+            isLikedByMe: true,
+            likesCount: post.isLikedByMe ? post.likesCount : post.likesCount + 1,
+            reactionEmoji: reaction.emoji
           };
         }
-        return post;
+
+        const isLiked = !post.isLikedByMe;
+        return {
+          ...post,
+          isLikedByMe: isLiked,
+          likesCount: isLiked ? post.likesCount + 1 : Math.max(0, post.likesCount - 1),
+          reactionEmoji: isLiked ? post.reactionEmoji : ''
+        };
       })
     );
 
-    const targetPost = posts.find(post => post.id === postId);
-    if (targetPost) {
-      const actionText = reaction ? `Reacted with ${reaction.label}` : (targetPost.isLikedByMe ? 'Post unliked' : 'Post liked');
-      showToast(actionText);
-    }
+    const actionText = reaction ? `Reacted with ${reaction.label}` : 'Post liked';
+    showToast(actionText);
   };
 
   const startReactionHold = (postId) => {
@@ -492,14 +500,10 @@ export default function Feed() {
               <GraduationCap className="w-6 h-6" />
             </div>
             <div className="flex flex-col">
-              <h1 className={`text-xl font-bold tracking-tight ${
-                isDarkMode 
-                  ? 'bg-gradient-to-r from-white via-violet-300 to-violet-500 bg-clip-text text-transparent' 
-                  : 'text-slate-950'
-              }`}>
+              <h1 className="text-xl font-bold tracking-tight text-white">
                 StudyTrail
               </h1>
-              <span className="text-[10px] font-semibold uppercase tracking-[0.24em] text-gray-500 group-hover:text-violet-500 transition-colors">
+              <span className="text-[10px] font-semibold uppercase tracking-[0.24em] text-gray-300 group-hover:text-violet-300 transition-colors">
                 Your study circle
               </span>
             </div>
