@@ -1,10 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
-<<<<<<< HEAD
 import { Link, useNavigate } from 'react-router-dom';
-=======
-import { Link } from 'react-router-dom';
-import { useTheme } from './ThemeContext';
->>>>>>> d5246cdc34da1210b991ed49a704d0299a08d6aa
 import '../Feed.css';
 import { useTheme } from './ThemeContext';
 import {
@@ -36,7 +31,6 @@ const REACTION_OPTIONS = [
 ];
 
 export default function Feed() {
-<<<<<<< HEAD
   const { isDarkMode, toggleDarkMode } = useTheme();
   const navigate = useNavigate();
 
@@ -47,12 +41,6 @@ export default function Feed() {
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   // UI States
-=======
-  // 1. Hook up the global Theme Context
-  const { isDarkMode, toggleDarkMode } = useTheme();
-  
-  const [posts, setPosts] = useState(INITIAL_POSTS);
->>>>>>> d5246cdc34da1210b991ed49a704d0299a08d6aa
   const [currentFilter, setCurrentFilter] = useState('All');
   const [searchQuery, setSearchQuery] = useState('');
   const [newPostText, setNewPostText] = useState('');
@@ -121,12 +109,6 @@ export default function Feed() {
     if (route === '/explore' || route === '/feed') {
       setCurrentFilter('All');
       setSearchQuery('');
-<<<<<<< HEAD
-=======
-      showToast(route === '/explore' ? 'Redirected to Explore Feed!' : 'Navigated to Home Feed');
-    } else {
-      showToast(`Mapsd to ${route} (Simulated Route Change)`);
->>>>>>> d5246cdc34da1210b991ed49a704d0299a08d6aa
     }
   };
 
@@ -341,7 +323,6 @@ export default function Feed() {
     }
   };
 
-<<<<<<< HEAD
   if (isLoading || !currentUser) {
     return (
       <div className={`min-h-screen flex items-center justify-center ${isDarkMode ? 'dark bg-[#0B0914]' : 'bg-slate-50'}`}>
@@ -349,13 +330,6 @@ export default function Feed() {
       </div>
     );
   }
-=======
-  // 2. Wrapper function to fire the global toggle and the local toast notification
-  const handleToggleDarkMode = () => {
-    toggleDarkMode();
-    showToast(isDarkMode ? 'Light mode enabled' : 'Dark mode enabled');
-  };
->>>>>>> d5246cdc34da1210b991ed49a704d0299a08d6aa
 
   return (
     <div className={`h-screen w-screen flex overflow-hidden font-sans antialiased transition-colors duration-300 ${
@@ -384,21 +358,9 @@ export default function Feed() {
               <GraduationCap className="w-6 h-6" />
             </div>
             <div className="flex flex-col">
-<<<<<<< HEAD
               <h1 className="text-xl font-bold tracking-tight text-white">StudyTrail</h1>
               <span className="text-[10px] font-semibold uppercase tracking-[0.24em] text-gray-300 group-hover:text-violet-300 transition-colors">Your study circle</span>
             </div>
-=======
-  <h1 className={`text-xl font-bold tracking-tight ${isDarkMode ? 'text-white' : 'text-slate-900'}`}>
-    StudyTrail
-  </h1>
-  <span className={`text-[5.2px] font-semibold uppercase tracking-[0.24em] transition-colors ${
-    isDarkMode ? 'text-gray-400 group-hover:text-violet-300' : 'text-slate-500 group-hover:text-violet-600'
-  }`}>
-    Empowering Students Worldwide
-  </span>
-</div>
->>>>>>> d5246cdc34da1210b991ed49a704d0299a08d6aa
           </Link>
           
           <span className="text-[10px] font-bold text-gray-500 tracking-widest font-mono uppercase px-2 block mb-3">NAVIGATION</span>
@@ -434,21 +396,6 @@ export default function Feed() {
                 <p className="text-[10px] text-gray-400 truncate">Target matches goals!</p>
               </div>
             </div>
-<<<<<<< HEAD
-=======
-
-            <div className="space-y-1">
-              <div className="flex justify-between text-xs">
-                <span className="text-gray-400">Weekly Target</span>
-                <span className="text-violet-500 font-bold font-mono">78%</span>
-              </div>
-              <div className={`w-full rounded-full h-1.5 overflow-hidden border transition-colors duration-300 ${
-                isDarkMode ? 'bg-[#0b0914] border-white/5' : 'bg-slate-200 border-slate-300'
-              }`}>
-                <div className="bg-linear-to-r from-violet-600 to-fuchsia-500 h-full rounded-full" style={{ width: '78%' }} />
-              </div>
-            </div>
->>>>>>> d5246cdc34da1210b991ed49a704d0299a08d6aa
           </div>
         </div>
 
@@ -471,15 +418,8 @@ export default function Feed() {
 
       <main className="flex-1 flex flex-col h-full overflow-hidden">
         
-<<<<<<< HEAD
         {/* TOPBAR */}
         <header className={`h-16 border-b flex items-center justify-between px-8 flex-shrink-0 transition-colors duration-300 ${isDarkMode ? 'border-white/5 bg-[#0B0914]' : 'border-slate-200 bg-white'}`}>
-=======
-        <header className={`h-16 border-b flex items-center justify-between px-8 shrink-0 transition-colors duration-300 ${
-          isDarkMode ? 'border-white/5 bg-[#0B0914]' : 'border-slate-200 bg-white'
-        }`}>
-          
->>>>>>> d5246cdc34da1210b991ed49a704d0299a08d6aa
           <div className="flex-1 max-w-xl">
             <div className="relative">
               <input
@@ -499,19 +439,7 @@ export default function Feed() {
           </div>
 
           <div className="flex items-center gap-3 ml-4">
-<<<<<<< HEAD
             <button onClick={toggleDarkMode} className={`p-2 rounded-full transition-colors relative cursor-pointer ${isDarkMode ? 'text-gray-400 hover:text-white' : 'text-slate-500 hover:text-slate-900 hover:bg-slate-100'}`}>
-=======
-            
-            {/* 3. Changed onClick to point to the wrapper function */}
-            <button
-              onClick={handleToggleDarkMode}
-              className={`p-2 rounded-full transition-colors relative cursor-pointer ${
-                isDarkMode ? 'text-gray-400 hover:text-white' : 'text-slate-500 hover:text-slate-900 hover:bg-slate-100'
-              }`}
-              title={isDarkMode ? 'Switch to Light Mode' : 'Switch to Dark Mode'}
-            >
->>>>>>> d5246cdc34da1210b991ed49a704d0299a08d6aa
               {isDarkMode ? <Sun className="w-5 h-5 text-amber-400" /> : <Moon className="w-5 h-5" />}
             </button>
             <div className="relative">
@@ -522,7 +450,6 @@ export default function Feed() {
           </div>
         </header>
 
-<<<<<<< HEAD
         {/* POST FILTERS */}
         <div className={`px-8 py-4 flex gap-2 overflow-x-auto border-b flex-shrink-0 scrollbar-none transition-colors duration-300 ${isDarkMode ? 'border-white/5 bg-[#0B0914]' : 'border-slate-200 bg-slate-50'}`}>
           {POST_FILTERS.map(filter => (
@@ -534,32 +461,6 @@ export default function Feed() {
               {filter}
             </span>
           ))}
-=======
-        <div className={`px-8 py-4 flex gap-2 overflow-x-auto border-b shrink-0 scrollbar-none transition-colors duration-300 ${
-          isDarkMode ? 'border-white/5 bg-[#0B0914]' : 'border-slate-200 bg-slate-50'
-        }`}>
-          {POST_FILTERS.map(filter => {
-            const isActive = currentFilter === filter;
-            return (
-              <span
-                key={filter}
-                onClick={() => {
-                  setCurrentFilter(filter);
-                  showToast(`Filter: ${filter}`);
-                }}
-                className={`px-4 py-1.5 rounded-full text-xs font-semibold whitespace-nowrap cursor-pointer transition-colors ${
-                  isActive
-                    ? 'bg-violet-600 text-white'
-                    : isDarkMode 
-                      ? 'bg-[#151125] text-gray-400 hover:text-white' 
-                      : 'bg-white border border-slate-200 text-slate-600 hover:text-slate-900 shadow-sm'
-                }`}
-              >
-                {filter === 'All' ? 'All Posts' : filter}
-              </span>
-            );
-          })}
->>>>>>> d5246cdc34da1210b991ed49a704d0299a08d6aa
         </div>
 
         {/* MAIN FEED CONTENT */}
@@ -583,13 +484,7 @@ export default function Feed() {
                         value={newPostText}
                         onChange={(e) => setNewPostText(e.target.value)}
                         placeholder="What are you studying right now?"
-<<<<<<< HEAD
                         className={`w-full bg-transparent border-none focus:ring-0 resize-none min-h-[60px] text-sm focus:outline-none ${isDarkMode ? 'text-gray-200 placeholder-gray-500' : 'text-slate-800 placeholder-slate-400'}`}
-=======
-                        className={`w-full bg-transparent border-none focus:ring-0 resize-none min-h-15 text-sm focus:outline-none ${
-                          isDarkMode ? 'text-gray-200 placeholder-gray-500' : 'text-slate-800 placeholder-slate-400'
-                        }`}
->>>>>>> d5246cdc34da1210b991ed49a704d0299a08d6aa
                       />
                     </div>
                   </div>
