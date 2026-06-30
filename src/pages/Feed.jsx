@@ -1,5 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { Link } from 'react-router-dom';
+import { useTheme } from './ThemeContext';
 import '../Feed.css';
 import {
   Home,
@@ -132,7 +133,9 @@ const REACTION_OPTIONS = [
 ];
 
 export default function Feed() {
-  const [isDarkMode, setIsDarkMode] = useState(true);
+  // 1. Hook up the global Theme Context
+  const { isDarkMode, toggleDarkMode } = useTheme();
+  
   const [posts, setPosts] = useState(INITIAL_POSTS);
   const [currentFilter, setCurrentFilter] = useState('All');
   const [searchQuery, setSearchQuery] = useState('');
@@ -192,7 +195,7 @@ export default function Feed() {
       setSearchQuery('');
       showToast(route === '/explore' ? 'Redirected to Explore Feed!' : 'Navigated to Home Feed');
     } else {
-      showToast(`Navigated to ${route} (Simulated Route Change)`);
+      showToast(`Mapsd to ${route} (Simulated Route Change)`);
     }
   };
 
@@ -465,9 +468,10 @@ export default function Feed() {
     }
   };
 
-  const toggleDarkMode = () => {
-    setIsDarkMode(!isDarkMode);
-    showToast(!isDarkMode ? 'Dark mode enabled' : 'Light mode enabled');
+  // 2. Wrapper function to fire the global toggle and the local toast notification
+  const handleToggleDarkMode = () => {
+    toggleDarkMode();
+    showToast(isDarkMode ? 'Light mode enabled' : 'Dark mode enabled');
   };
 
   return (
@@ -500,13 +504,15 @@ export default function Feed() {
               <GraduationCap className="w-6 h-6" />
             </div>
             <div className="flex flex-col">
-              <h1 className="text-xl font-bold tracking-tight text-white">
-                StudyTrail
-              </h1>
-              <span className="text-[10px] font-semibold uppercase tracking-[0.24em] text-gray-300 group-hover:text-violet-300 transition-colors">
-                Your study circle
-              </span>
-            </div>
+  <h1 className={`text-xl font-bold tracking-tight ${isDarkMode ? 'text-white' : 'text-slate-900'}`}>
+    StudyTrail
+  </h1>
+  <span className={`text-[5.2px] font-semibold uppercase tracking-[0.24em] transition-colors ${
+    isDarkMode ? 'text-gray-400 group-hover:text-violet-300' : 'text-slate-500 group-hover:text-violet-600'
+  }`}>
+    Empowering Students Worldwide
+  </span>
+</div>
           </Link>
           
           <span className="text-[10px] font-bold text-gray-500 tracking-widest font-mono uppercase px-2 block mb-3">NAVIGATION</span>
@@ -561,7 +567,7 @@ export default function Feed() {
               <div className={`w-full rounded-full h-1.5 overflow-hidden border transition-colors duration-300 ${
                 isDarkMode ? 'bg-[#0b0914] border-white/5' : 'bg-slate-200 border-slate-300'
               }`}>
-                <div className="bg-gradient-to-r from-violet-600 to-fuchsia-500 h-full rounded-full" style={{ width: '78%' }} />
+                <div className="bg-linear-to-r from-violet-600 to-fuchsia-500 h-full rounded-full" style={{ width: '78%' }} />
               </div>
             </div>
           </div>
@@ -587,7 +593,7 @@ export default function Feed() {
 
       <main className="flex-1 flex flex-col h-full overflow-hidden">
         
-        <header className={`h-16 border-b flex items-center justify-between px-8 flex-shrink-0 transition-colors duration-300 ${
+        <header className={`h-16 border-b flex items-center justify-between px-8 shrink-0 transition-colors duration-300 ${
           isDarkMode ? 'border-white/5 bg-[#0B0914]' : 'border-slate-200 bg-white'
         }`}>
           
@@ -618,8 +624,9 @@ export default function Feed() {
 
           <div className="flex items-center gap-3 ml-4">
             
+            {/* 3. Changed onClick to point to the wrapper function */}
             <button
-              onClick={toggleDarkMode}
+              onClick={handleToggleDarkMode}
               className={`p-2 rounded-full transition-colors relative cursor-pointer ${
                 isDarkMode ? 'text-gray-400 hover:text-white' : 'text-slate-500 hover:text-slate-900 hover:bg-slate-100'
               }`}
@@ -739,7 +746,7 @@ export default function Feed() {
           </div>
         </header>
 
-        <div className={`px-8 py-4 flex gap-2 overflow-x-auto border-b flex-shrink-0 scrollbar-none transition-colors duration-300 ${
+        <div className={`px-8 py-4 flex gap-2 overflow-x-auto border-b shrink-0 scrollbar-none transition-colors duration-300 ${
           isDarkMode ? 'border-white/5 bg-[#0B0914]' : 'border-slate-200 bg-slate-50'
         }`}>
           {POST_FILTERS.map(filter => {
@@ -787,7 +794,7 @@ export default function Feed() {
                         value={newPostText}
                         onChange={(e) => setNewPostText(e.target.value)}
                         placeholder="What are you studying right now?"
-                        className={`w-full bg-transparent border-none focus:ring-0 resize-none min-h-[60px] text-sm focus:outline-none ${
+                        className={`w-full bg-transparent border-none focus:ring-0 resize-none min-h-15 text-sm focus:outline-none ${
                           isDarkMode ? 'text-gray-200 placeholder-gray-500' : 'text-slate-800 placeholder-slate-400'
                         }`}
                       />
