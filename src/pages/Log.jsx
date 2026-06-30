@@ -131,7 +131,7 @@ export default function Log() {
             setFormData({ name: "", username: "", email: "", password: ""});
 
             if(isProfileComplete){
-              navigate("/profile") //refirect to profile page
+              navigate("/feed") //refirect to profile page
             }else{
               navigate("/signed"); //redirect to signed page
             }

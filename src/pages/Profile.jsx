@@ -199,7 +199,7 @@ const Profile = () => {
             
             {/* Center Links */}
             <div className="hidden md:flex items-center gap-8 text-slate-500 dark:text-slate-400 font-medium text-sm">
-              <a href="#" className="text-indigo-600 dark:text-indigo-400 font-bold transition-colors">Home</a>
+            <Link to="/feed" className="text-indigo-600 dark:text-indigo-400 font-bold transition-colors">Feed</Link>
               <a href="#leaderboard" className="hover:text-slate-900 dark:hover:text-white transition-colors">Leaderboard</a>
               <a href="#explore" className="hover:text-slate-900 dark:hover:text-white transition-colors">Explore</a>
             </div>
