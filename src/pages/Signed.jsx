@@ -77,49 +77,37 @@ const Signed = () => {
 
   useEffect(()=>{
     const checkSession = async ()=>{
-      try {
-        const response = await fetch("http://localhost:8090/api/v1/user/current-user", {
-          method:"GET",
-          credentials: "include" 
-        });
+      /* --- BACKEND COMMENTED OUT ---
+      const response = await fetch("http://localhost:8090/api/v1/user/current-user", { ... });
+      ...
+      -------------------------------- */
 
-        if(response.ok){
-          const result = await response.json();
-          setUser(result.data);
-
-          if(result.data.schoolName && result.data.className){
-            navigate("/profile")
+      // Mock session check
+      setTimeout(() => {
+        const localUser = localStorage.getItem("mock_studyTrail_user");
+        if (localUser) {
+          const parsed = JSON.parse(localUser);
+          setUser(parsed);
+          if (parsed.schoolName && parsed.className) {
+            navigate("/profile");
           }
         } else {
-          navigate("/log");
+          // navigate("/log"); // Uncomment to force redirect to login
+          setUser({ fullName: "Demo User", username: "demo" });
         }
-      } catch (error) {
-        console.error("Session check failed:", error);
-        navigate("/log");
-      } finally {
-        setLoading(false)
-      }
+        setLoading(false);
+      }, 500);
     };
     checkSession();
   },[navigate]);
 
   const handleLogout = async () => {
-    try {
-      const response = await fetch("http://localhost:8090/api/v1/user/logout", {
-        method: "POST",
-        credentials: "include"
-      });
-
-      if(response.ok){
-        setUser(null);
-        navigate("/"); 
-      } else {
-        setError("Failed to log out. Please try again.")
-      }
-    } catch(error){
-      console.error("Logout failed:", error);
-      setError("Failed to log out. Please try again.");
-    }
+    /* --- BACKEND COMMENTED OUT ---
+    await fetch("http://localhost:8090/api/v1/user/logout", { ... });
+    -------------------------------- */
+    localStorage.removeItem("mock_studyTrail_user");
+    setUser(null);
+    navigate("/"); 
   };
 
   const handleProfileChange = (e) => {
@@ -152,58 +140,29 @@ const Signed = () => {
     setError(null);
     setSuccessMessage("");
 
-    try {
-      const formDataPayload = new FormData();
-      
-      // Map Frontend Inputs to Backend Expected Fields
-      const finalSchoolName = educationLevel === 'college' ? profileData.instituteName : profileData.schoolName;
-      const finalClassName = educationLevel === 'college' ? `${profileData.course} - ${profileData.year}` : profileData.grade;
-
-      formDataPayload.append("schoolName", finalSchoolName);
-      formDataPayload.append("className", finalClassName);
-      
-      if (profileData.bio) {
-        formDataPayload.append("bio", profileData.bio);
-      }
-
-      // Handle Files or Preset Image URLs
-      if (files.profileImage) {
-        formDataPayload.append("profileImage", files.profileImage);
-      } else if (profileData.avatar && !profileData.avatar.startsWith('blob:')) {
-        formDataPayload.append("profileImage", profileData.avatar);
-      }
-
-      if (files.coverImage) {
-        formDataPayload.append("coverImage", files.coverImage);
-      } else if (profileData.cover && !profileData.cover.startsWith('blob:')) {
-        formDataPayload.append("coverImage", profileData.cover);
-      }
-
-      // API Call
-      const response = await fetch("http://localhost:8090/api/v1/user/complete-profile", {
-        method: "PATCH",
-        body: formDataPayload,
-        credentials: "include" 
-      });
-
-      const data = await response.json();
-      
-      if (!response.ok) {
-        throw new Error(data.message || "Failed to update profile");
+    /* --- BACKEND COMMENTED OUT ---
+    const formDataPayload = new FormData();
+    // ... appended data
+    const response = await fetch("http://localhost:8090/api/v1/user/complete-profile", { ... });
+    -------------------------------- */
+    
+    // Mock updating user in local storage
+    setTimeout(() => {
+      const localUserStr = localStorage.getItem("mock_studyTrail_user");
+      if(localUserStr) {
+        const parsed = JSON.parse(localUserStr);
+        parsed.schoolName = educationLevel === 'college' ? profileData.instituteName : profileData.schoolName;
+        parsed.className = educationLevel === 'college' ? `${profileData.course} - ${profileData.year}` : profileData.grade;
+        parsed.bio = profileData.bio;
+        localStorage.setItem("mock_studyTrail_user", JSON.stringify(parsed));
       }
 
       setSuccessMessage("Profile completed successfully! Redirecting...");
-      
       setTimeout(() => {
         navigate("/profile"); 
       }, 1500);
-
-    } catch (err) {
-      console.error(err);
-      setError(err.message || "Failed to save profile. Please try again.");
-    } finally {
       setIsSubmitting(false);
-    }
+    }, 1000);
   };
 
   const features = [

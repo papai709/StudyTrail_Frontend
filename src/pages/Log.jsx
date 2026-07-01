@@ -69,8 +69,10 @@ export default function Log() {
     if (validateForm()) {
       try {
         if (authMode === "register") {
+          
           //Registration (Simplified JSON Payload)
 
+          /*
           const response = await fetch("http://localhost:8090/api/v1/user/register", {
             method: "POST",
             headers:{
@@ -89,7 +91,7 @@ export default function Log() {
           if(!response.ok){
             throw new Error(data.message || "Registration failed on backend");
           };
-
+          */
           setShowSuccess(true);
           setTimeout(() => {
             setShowSuccess(false);
@@ -100,6 +102,7 @@ export default function Log() {
         } else {
           //Login
 
+          /*
           const response = await fetch("http://localhost:8090/api/v1/user/login", {
             method:"POST",
             headers:{
@@ -124,17 +127,20 @@ export default function Log() {
           //check profile is complete or not
           const isProfileComplete = loggedInUser.schoolName && loggedInUser.className;
 
+          */
+         
           // Login Success
           setShowSuccess(true);
           setTimeout(() => {
             setShowSuccess(false);
             setFormData({ name: "", username: "", email: "", password: ""});
 
-            if(isProfileComplete){
-              navigate("/profile") //refirect to profile page
-            }else{
-              navigate("/signed"); //redirect to signed page
-            }
+            // if(isProfileComplete){
+            //   navigate("/profile") //refirect to profile page
+            // }else{
+            //   navigate("/signed"); //redirect to signed page
+            // }
+            navigate("/signed")
           }, 1000); 
         }
 

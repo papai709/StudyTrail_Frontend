@@ -5,6 +5,7 @@ import Profile from "./pages/Profile";
 import ScrollToTop from './pages/ScrollToTop';
 import { ThemeProvider } from './pages/ThemeContext';
 import { BrowserRouter, Route, Routes } from "react-router-dom";
+import Feed from "./pages/Feed";
 
 function App() {
   return (
@@ -16,6 +17,7 @@ function App() {
         <Route path="/log" element={<Log />} />
         <Route path="/signed" element={<Signed />} />
         <Route path="/profile" element={<Profile />} />
+        <Route path="/feed" element={<Feed/>} />
       </Routes>
       </ThemeProvider>
     </BrowserRouter>

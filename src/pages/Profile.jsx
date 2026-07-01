@@ -41,41 +41,40 @@ const Profile = () => {
   const [activeTab, setActiveTab] = useState('posts');
 
   // Fetch Logged-in User Data
-  useEffect(() => {
+useEffect(() => {
     const fetchUserData = async () => {
-      try {
-        const response = await fetch("http://localhost:8090/api/v1/user/current-user", {
-          method: "GET",
-          credentials: "include" 
-        });
+      /* --- BACKEND COMMENTED OUT ---
+      const response = await fetch("http://localhost:8090/api/v1/user/current-user", { ... });
+      ...
+      -------------------------------- */
 
-        if (response.ok) {
-          const result = await response.json();
-          const user = result.data;
-          
-          setProfileData(prev => ({
-            ...prev,
-            name: user.fullName || "Student",
-            email: user.email || "",
-            bio: user.bio || prev.bio,
-            avatar: user.profileImage || prev.avatar,
-            cover: user.coverImage || prev.cover,
-            type: user.className?.includes('-') ? 'college' : 'school',
-            instituteName: user.schoolName || "",
-            schoolName: user.schoolName || "",
-            course: user.className?.includes('-') ? user.className.split(' - ')[0].trim() : "",
-            year: user.className?.includes('-') ? user.className.split(' - ')[1].trim() : "",
-            grade: !user.className?.includes('-') ? user.className : ""
-          }));
-        } else {
-          navigate("/log");
-        }
-      } catch (error) {
-        console.error("Failed to fetch user data:", error);
-        navigate("/log");
-      } finally {
+      // Mock fetching user data from local storage
+      setTimeout(() => {
+        const localUserStr = localStorage.getItem("mock_studyTrail_user");
+        const user = localUserStr ? JSON.parse(localUserStr) : {
+           fullName: "Demo Student",
+           email: "demo@example.com",
+           bio: "This is a local demo running without a backend.",
+           schoolName: "Demo University",
+           className: "Computer Science - Year 3"
+        };
+        
+        setProfileData(prev => ({
+          ...prev,
+          name: user.fullName || "Student",
+          email: user.email || "",
+          bio: user.bio || prev.bio,
+          avatar: user.profileImage || prev.avatar,
+          cover: user.coverImage || prev.cover,
+          type: user.className?.includes('-') ? 'college' : 'school',
+          instituteName: user.schoolName || "",
+          schoolName: user.schoolName || "",
+          course: user.className?.includes('-') ? user.className.split(' - ')[0].trim() : "",
+          year: user.className?.includes('-') ? user.className.split(' - ')[1].trim() : "",
+          grade: !user.className?.includes('-') ? user.className : ""
+        }));
         setIsLoading(false);
-      }
+      }, 500);
     };
 
     fetchUserData();
@@ -96,27 +95,13 @@ const Profile = () => {
     const url = URL.createObjectURL(file);
     setProfileData(prev => ({ ...prev, [type]: url }));
 
-    // 2. Send file to backend
-    try {
-      const formData = new FormData();
-      const endpoint = type === 'avatar' ? '/update-profile-image' : '/update-cover-image'; 
-      const fileField = type === 'avatar' ? 'profileImage' : 'coverImage';
-      
-      formData.append(fileField, file);
-
-      const response = await fetch(`http://localhost:8090/api/v1/user${endpoint}`, {
-        method: "PATCH",
-        body: formData,
-        credentials: "include"
-      });
-
-      if (!response.ok) {
-        throw new Error(`Failed to upload ${type}`);
-      }
-    } catch (error) {
-      console.error(`Error uploading ${type}:`, error);
-      // Optional: Add a toast notification here to tell the user it failed
-    }
+    /* --- BACKEND COMMENTED OUT ---
+    const formData = new FormData();
+    const endpoint = type === 'avatar' ? '/update-profile-image' : '/update-cover-image'; 
+    const fileField = type === 'avatar' ? 'profileImage' : 'coverImage';
+    formData.append(fileField, file);
+    const response = await fetch(`http://localhost:8090/api/v1/user${endpoint}`, { ... });
+    -------------------------------- */
   };
 
   const handleInputChange = (e) => {
@@ -127,47 +112,23 @@ const Profile = () => {
   // Handle Text Profile Updates to Backend
   const saveProfile = async () => {
     setIsSaving(true);
-    try {
-      const finalSchoolName = profileData.type === 'college' ? profileData.instituteName : profileData.schoolName;
-      const finalClassName = profileData.type === 'college' ? `${profileData.course} - ${profileData.year}` : profileData.grade;
-
-      const response = await fetch("http://localhost:8090/api/v1/user/update-account", {
-        method: "PATCH",
-        headers: {
-          "Content-Type": "application/json"
-        },
-        body: JSON.stringify({
-          fullName: profileData.name,
-          email: profileData.email,
-          schoolName: finalSchoolName,
-          className: finalClassName,
-          bio: profileData.bio
-        }),
-        credentials: "include"
-      });
-
-      if (!response.ok) {
-        throw new Error("Failed to update profile details");
-      }
-      
+    /* --- BACKEND COMMENTED OUT ---
+    const response = await fetch("http://localhost:8090/api/v1/user/update-account", { ... });
+    -------------------------------- */
+    
+    // Mock save delay
+    setTimeout(() => {
       setIsEditing(false);
-    } catch (error) {
-      console.error("Error saving profile:", error);
-    } finally {
       setIsSaving(false);
-    }
+    }, 800);
   };
 
   const handleLogout = async () => {
-    try {
-      await fetch("http://localhost:8090/api/v1/user/logout", {
-        method: "POST",
-        credentials: "include"
-      });
-      navigate("/");
-    } catch (error) {
-      console.error(error);
-    }
+    /* --- BACKEND COMMENTED OUT ---
+    await fetch("http://localhost:8090/api/v1/user/logout", { ... });
+    -------------------------------- */
+    localStorage.removeItem("mock_studyTrail_user");
+    navigate("/");
   };
 
   if (isLoading) {

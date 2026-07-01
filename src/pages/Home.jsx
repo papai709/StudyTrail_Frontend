@@ -114,9 +114,9 @@ const Home = () => {
                 >
                   Create Free Account
                 </Link>
-                <button className="bg-white/50 dark:bg-white/5 text-slate-700 dark:text-slate-200 border border-black/10 dark:border-white/10 px-8 py-4 rounded-full text-base font-semibold hover:bg-black/5 dark:hover:bg-white/10 transition-all duration-300 backdrop-blur-md flex items-center justify-center gap-2">
+                <Link to="/feed" className="bg-white/50 dark:bg-white/5 text-slate-700 dark:text-slate-200 border border-black/10 dark:border-white/10 px-8 py-4 rounded-full text-base font-semibold hover:bg-black/5 dark:hover:bg-white/10 transition-all duration-300 backdrop-blur-md flex items-center justify-center gap-2">
                   <Globe size={20} /> Explore Community
-                </button>
+                </Link>
               </div>
 
               {/* Trust Indicators */}
