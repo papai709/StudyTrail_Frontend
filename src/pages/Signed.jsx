@@ -446,7 +446,7 @@ const Signed = () => {
         
         {/* Avatar Modal */}
         {showAvatarModal && (
-          <div className="fixed inset-0 z-[100] bg-black/60 backdrop-blur-sm flex items-center justify-center p-4">
+          <div className="fixed inset-0 z-100 bg-black/60 backdrop-blur-sm flex items-center justify-center p-4">
             <div className="bg-white dark:bg-[#111] w-full max-w-2xl rounded-3xl p-6 md:p-8 relative shadow-2xl border border-black/5 dark:border-white/10 animate-in zoom-in-95 duration-200">
               <button onClick={() => setShowAvatarModal(false)} className="absolute top-6 right-6 text-slate-400 hover:text-slate-900 dark:hover:text-white z-10 bg-black/5 dark:bg-white/5 rounded-full p-2 transition-colors">
                 <X size={20} />
@@ -499,7 +499,7 @@ const Signed = () => {
 
         {/* CoverImage Modal */}
         {showCoverModal && (
-          <div className="fixed inset-0 z-[100] bg-black/60 backdrop-blur-sm flex items-center justify-center p-4">
+          <div className="fixed inset-0 z-100 bg-black/60 backdrop-blur-sm flex items-center justify-center p-4">
             <div className="bg-white dark:bg-[#111] w-full max-w-2xl rounded-3xl p-6 md:p-8 relative shadow-2xl border border-black/5 dark:border-white/10 animate-in zoom-in-95 duration-200">
               <button onClick={() => setShowCoverModal(false)} className="absolute top-6 right-6 text-slate-400 hover:text-slate-900 dark:hover:text-white z-10 bg-black/5 dark:bg-white/5 rounded-full p-2 transition-colors">
                 <X size={20} />
