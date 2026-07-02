@@ -403,7 +403,7 @@ const Signed = () => {
             </div>
           </section>
 
-          <section id="features" className="py-32 border-y border-black/5 dark:border-white/5 backdrop-blur-3xl relative">
+          <section id="features" className="py-32 border-t border-black/5 dark:border-white/5 backdrop-blur-3xl relative">
             <div className="max-w-7xl mx-auto px-6">
               <div className="text-center mb-20 max-w-2xl mx-auto">
                 <h2 className="text-4xl lg:text-5xl font-bold text-slate-900 dark:text-white tracking-tighter mb-6">Your Active Tools</h2>
@@ -428,11 +428,11 @@ const Signed = () => {
 
         </main>
 
-        <footer className="bg-transparent border-t border-black/5 dark:border-white/5 py-16 relative z-10">
+        <footer className="bg-transparent border-t border-black/5 dark:border-white/5 py-16 relative z-10 w-full mt-auto">
           <div className="max-w-7xl mx-auto px-6 grid grid-cols-1 md:grid-cols-4 gap-12 mb-16">
             <div className="md:col-span-2">
               <div className="flex items-center gap-3 mb-6">
-                <div className="bg-linear-to-tr from-indigo-600 to-cyan-500 p-2 rounded-lg">
+                <div className="bg-linear-to-tr from-indigo-600 to-cyan-500 p-2 rounded-lg shadow-lg shadow-indigo-500/20">
                   <GraduationCap className="text-black dark:text-white" size={20} />
                 </div>
                 <span className="text-2xl font-bold text-slate-900 dark:text-white tracking-tight">StudyTrail</span>
@@ -440,6 +440,37 @@ const Signed = () => {
               <p className="text-slate-500 dark:text-slate-400 max-w-sm text-sm leading-relaxed font-light">
                 Empowering students worldwide by combining community-driven learning with modern productivity tools.
               </p>
+            </div>
+            
+            <div>
+              <h4 className="font-semibold text-slate-900 dark:text-white mb-6">Platform</h4>
+              <ul className="space-y-4 text-sm text-slate-500 dark:text-slate-400">
+                <li><a href="#" className="hover:text-slate-900 dark:hover:text-white transition-colors">Features</a></li>
+                <li><a href="#" className="hover:text-slate-900 dark:hover:text-white transition-colors">Leaderboard</a></li>
+                <li><a href="#" className="hover:text-slate-900 dark:hover:text-white transition-colors">Resources</a></li>
+                <li><a href="#" className="hover:text-slate-900 dark:hover:text-white transition-colors">Pricing</a></li>
+              </ul>
+            </div>
+            
+            <div>
+              <h4 className="font-semibold text-slate-900 dark:text-white mb-6">Company</h4>
+              <ul className="space-y-4 text-sm text-slate-500 dark:text-slate-400">
+                <li><a href="#" className="hover:text-slate-900 dark:hover:text-white transition-colors">About Us</a></li>
+                <li><a href="#" className="hover:text-slate-900 dark:hover:text-white transition-colors">Careers</a></li>
+                <li><a href="#" className="hover:text-slate-900 dark:hover:text-white transition-colors">Privacy Policy</a></li>
+                <li><a href="#" className="hover:text-slate-900 dark:hover:text-white transition-colors">Terms of Service</a></li>
+              </ul>
+            </div>
+          </div>
+          
+          <div className="max-w-7xl mx-auto px-6 pt-8 border-t border-black/5 dark:border-white/5 flex flex-col md:flex-row justify-between items-center gap-6">
+            <div className="text-sm text-slate-500 dark:text-slate-400">
+              &copy; 2026 StudyTrail. All rights reserved.
+            </div>
+            <div className="flex gap-4">
+              <div className="w-10 h-10 rounded-full bg-black/5 dark:bg-white/5 flex items-center justify-center text-slate-500 hover:text-slate-900 dark:hover:text-white hover:bg-black/10 dark:hover:bg-white/10 cursor-pointer transition-all">X</div>
+              <div className="w-10 h-10 rounded-full bg-black/5 dark:bg-white/5 flex items-center justify-center text-slate-500 hover:text-slate-900 dark:hover:text-white hover:bg-black/10 dark:hover:bg-white/10 cursor-pointer transition-all">in</div>
+              <div className="w-10 h-10 rounded-full bg-black/5 dark:bg-white/5 flex items-center justify-center text-slate-500 hover:text-slate-900 dark:hover:text-white hover:bg-black/10 dark:hover:bg-white/10 cursor-pointer transition-all">IG</div>
             </div>
           </div>
         </footer>
