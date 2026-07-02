@@ -16,6 +16,8 @@ export default function Log() {
   const [showSuccess, setShowSuccess] = useState(false);
   const [errors, setErrors] = useState({});
   const [mounted, setMounted] = useState(false);
+  
+  // showPassword is false on load, so password is hidden
   const [showPassword, setShowPassword] = useState(false); 
 
   // State to hold the API's response for password strength
@@ -278,7 +280,7 @@ export default function Log() {
                     
                     <div>
                       <div className="relative group">
-                        <User className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-indigo-500 transition-colors" size={18} />
+                        <User className="absolute left-4 top-1/3 -translate-y-1/6 text-slate-400 group-focus-within:text-indigo-500 transition-colors" size={18} />
                         <input type="text" name="name" value={formData.name} onChange={handleChange} placeholder="Full Name" className={`w-full pl-11 pr-4 py-3.5 rounded-xl bg-slate-50 dark:bg-[#111] border focus:outline-none focus:ring-2 focus:ring-indigo-500/50 transition-all text-sm text-slate-900 dark:text-white ${errors.name ? 'border-red-500' : 'border-black/10 dark:border-white/10'}`} />
                       </div>
                       {errors.name && <p className="text-red-500 text-xs mt-1.5 ml-1 font-medium">{errors.name}</p>}
@@ -286,7 +288,7 @@ export default function Log() {
 
                     <div>
                       <div className="relative group">
-                        <User className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-indigo-500 transition-colors" size={18} />
+                        <User className="absolute left-4 top-1/3 -translate-y-1/6 text-slate-400 group-focus-within:text-indigo-500 transition-colors" size={18} />
                         <input type="text" name="username" value={formData.username} onChange={handleChange} placeholder="Username" className={`w-full pl-11 pr-4 py-3.5 rounded-xl bg-slate-50 dark:bg-[#111] border focus:outline-none focus:ring-2 focus:ring-indigo-500/50 transition-all text-sm text-slate-900 dark:text-white ${errors.username ? 'border-red-500' : 'border-black/10 dark:border-white/10'}`} />
                       </div>
                       {errors.username && <p className="text-red-500 text-xs mt-1.5 ml-1 font-medium">{errors.username}</p>}
@@ -294,7 +296,7 @@ export default function Log() {
 
                     <div>
                       <div className="relative group">
-                        <Mail className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-indigo-500 transition-colors" size={18} />
+                       <Mail className="absolute left-4 top-1/3 -translate-y-1/6 text-slate-400 group-focus-within:text-indigo-500 transition-colors" size={18} />
                         <input type="email" name="email" value={formData.email} onChange={handleChange} placeholder="Email Address" className={`w-full pl-11 pr-4 py-3.5 rounded-xl bg-slate-50 dark:bg-[#111] border focus:outline-none focus:ring-2 focus:ring-indigo-500/50 transition-all text-sm text-slate-900 dark:text-white ${errors.email ? 'border-red-500' : 'border-black/10 dark:border-white/10'}`} />
                       </div>
                       {errors.email && <p className="text-red-500 text-xs mt-1.5 ml-1 font-medium">{errors.email}</p>}
@@ -302,7 +304,7 @@ export default function Log() {
 
                     <div>
                       <div className="relative group">
-                        <Lock className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-indigo-500 transition-colors" size={18} />
+                        <Lock className="absolute left-4 top-1/3 -translate-y-1/6 text-slate-400 group-focus-within:text-indigo-500 transition-colors" size={18} />
                         <input 
                           type={showPassword ? "text" : "password"} 
                           name="password" 
@@ -312,17 +314,19 @@ export default function Log() {
                           className={`w-full pl-11 pr-12 py-3.5 rounded-xl bg-slate-50 dark:bg-[#111] border focus:outline-none focus:ring-2 focus:ring-indigo-500/50 transition-all text-sm text-slate-900 dark:text-white ${errors.password ? 'border-red-500' : 'border-black/10 dark:border-white/10'}`} 
                         />
                         
-                        {/* Animated Eye Button */}
+                        {/* Animated Eye Button - Register */}
                         <button
                           type="button"
                           onClick={() => setShowPassword(!showPassword)}
-                          className="absolute right-4 top-1/2 -translate-y-1/2 w-6 h-6 flex items-center justify-center text-slate-400 hover:text-indigo-500 transition-colors focus:outline-none"
+                          className="absolute right-4 top-1/2 -translate-y-1/4 w-6 h-6 flex items-center justify-center text-slate-400 hover:text-indigo-500 transition-colors focus:outline-none"
                         >
+                          {/* Shows Eye when password IS visible (showPassword = true) */}
                           <div className={`absolute transition-all duration-300 transform ${showPassword ? 'opacity-100 rotate-0 scale-100' : 'opacity-0 rotate-90 scale-50'}`}>
-                            <EyeOff size={18} />
-                          </div>
-                          <div className={`absolute transition-all duration-300 transform ${!showPassword ? 'opacity-100 rotate-0 scale-100' : 'opacity-0 -rotate-90 scale-50'}`}>
                             <Eye size={18} />
+                          </div>
+                          {/* Shows EyeOff when password is NOT visible (showPassword = false) */}
+                          <div className={`absolute transition-all duration-300 transform ${!showPassword ? 'opacity-100 rotate-0 scale-100' : 'opacity-0 -rotate-90 scale-50'}`}>
+                            <EyeOff size={18} />
                           </div>
                         </button>
                       </div>
@@ -368,7 +372,7 @@ export default function Log() {
                   <form onSubmit={handleSubmit} className={`space-y-5 transition-all duration-500 absolute w-full ${authMode === 'login' ? 'opacity-100 translate-x-0 relative pointer-events-auto' : 'opacity-0 -translate-x-8 absolute pointer-events-none'}`}>
                     <div>
                       <div className="relative group">
-                        <Mail className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-indigo-500 transition-colors" size={18} />
+                        <Mail className="absolute left-4 top-1/3 -translate-y-1/6 text-slate-400 group-focus-within:text-indigo-500 transition-colors" size={18} />
                         <input type="email" name="email" value={formData.email} onChange={handleChange} placeholder="Email Address" className={`w-full pl-11 pr-4 py-3.5 rounded-xl bg-slate-50 dark:bg-[#111] border focus:outline-none focus:ring-2 focus:ring-indigo-500/50 transition-all text-sm text-slate-900 dark:text-white ${errors.email ? 'border-red-500' : 'border-black/10 dark:border-white/10'}`} />
                       </div>
                       {errors.email && <p className="text-red-500 text-xs mt-1.5 ml-1 font-medium">{errors.email}</p>}
@@ -376,7 +380,7 @@ export default function Log() {
 
                     <div>
                       <div className="relative group">
-                        <Lock className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-indigo-500 transition-colors" size={18} />
+                        <Lock className="absolute left-4 top-1/3 -translate-y-1/6 text-slate-400 group-focus-within:text-indigo-500 transition-colors" size={18} />
                         <input 
                           type={showPassword ? "text" : "password"} 
                           name="password" 
@@ -386,16 +390,19 @@ export default function Log() {
                           className={`w-full pl-11 pr-12 py-3.5 rounded-xl bg-slate-50 dark:bg-[#111] border focus:outline-none focus:ring-2 focus:ring-indigo-500/50 transition-all text-sm text-slate-900 dark:text-white ${errors.password ? 'border-red-500' : 'border-black/10 dark:border-white/10'}`} 
                         />
                         
+                        {/* Animated Eye Button - Login */}
                         <button
                           type="button"
                           onClick={() => setShowPassword(!showPassword)}
-                          className="absolute right-4 top-1/2 -translate-y-1/2 w-6 h-6 flex items-center justify-center text-slate-400 hover:text-indigo-500 transition-colors focus:outline-none"
+                          className="absolute right-4 top-1/2 -translate-y-1/4 w-6 h-6 flex items-center justify-center text-slate-400 hover:text-indigo-500 transition-colors focus:outline-none"
                         >
+                          {/* Shows Eye when password IS visible (showPassword = true) */}
                           <div className={`absolute transition-all duration-300 transform ${showPassword ? 'opacity-100 rotate-0 scale-100' : 'opacity-0 rotate-90 scale-50'}`}>
-                            <EyeOff size={18} />
-                          </div>
-                          <div className={`absolute transition-all duration-300 transform ${!showPassword ? 'opacity-100 rotate-0 scale-100' : 'opacity-0 -rotate-90 scale-50'}`}>
                             <Eye size={18} />
+                          </div>
+                          {/* Shows EyeOff when password is NOT visible (showPassword = false) */}
+                          <div className={`absolute transition-all duration-300 transform ${!showPassword ? 'opacity-100 rotate-0 scale-100' : 'opacity-0 -rotate-90 scale-50'}`}>
+                            <EyeOff size={18} />
                           </div>
                         </button>
                       </div>
