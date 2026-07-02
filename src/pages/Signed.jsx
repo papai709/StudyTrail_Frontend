@@ -25,6 +25,10 @@ const Signed = () => {
   const [showCoverModal, setShowCoverModal] = useState(false);
   const [files, setFiles] = useState({ profileImage: null, coverImage: null });
   
+  // New States for Searchable Course Input
+  const [courseSearch, setCourseSearch] = useState('');
+  const [showCourseDropdown, setShowCourseDropdown] = useState(false);
+  
   const coverInputRef = useRef(null);
   const avatarInputRef = useRef(null);
   
@@ -63,10 +67,32 @@ const Signed = () => {
     { name: "MBA (Master of Business Admin)", duration: 2 },
     { name: "M.Sc (Master of Science)", duration: 2 },
     { name: "MCA (Master of Computer Application)", duration: 2 },
+    { name: "M.A. (Master of Arts)", duration: 2 },
+    { name: "M.Com (Master of Commerce)", duration: 2 },
+    { name: "Ph.D (Doctor of Philosophy)", duration: 3 },
   ];
 
+  // Logic for Course Search & Filtering
+  const filteredCourses = collegeCourses.filter(c =>
+    c.name.toLowerCase().includes(courseSearch.toLowerCase())
+  );
+
+  const handleCourseSelect = (courseName) => {
+    setProfileData(prev => ({ ...prev, course: courseName, year: '' }));
+    setCourseSearch(courseName);
+    setShowCourseDropdown(false);
+  };
+
+  const handleCourseSearchChange = (e) => {
+    const value = e.target.value;
+    setCourseSearch(value);
+    setShowCourseDropdown(true);
+    setProfileData(prev => ({ ...prev, course: value, year: '' }));
+  };
+
+  // Allow up to 5 years if a custom course is entered that isn't in the list
   const selectedCourseObj = collegeCourses.find(c => c.name === profileData.course);
-  const maxYears = selectedCourseObj ? selectedCourseObj.duration : 0;
+  const maxYears = selectedCourseObj ? selectedCourseObj.duration : (profileData.course ? 5 : 0);
   const yearOptions = Array.from({ length: maxYears }, (_, i) => i + 1);
 
   useEffect(() => {
@@ -77,11 +103,6 @@ const Signed = () => {
 
   useEffect(()=>{
     const checkSession = async ()=>{
-      /* --- BACKEND COMMENTED OUT ---
-      const response = await fetch("http://localhost:8090/api/v1/user/current-user", { ... });
-      ...
-      -------------------------------- */
-
       // Mock session check
       setTimeout(() => {
         const localUser = localStorage.getItem("mock_studyTrail_user");
@@ -92,7 +113,6 @@ const Signed = () => {
             navigate("/profile");
           }
         } else {
-          // navigate("/log"); // Uncomment to force redirect to login
           setUser({ fullName: "Demo User", username: "demo" });
         }
         setLoading(false);
@@ -102,9 +122,6 @@ const Signed = () => {
   },[navigate]);
 
   const handleLogout = async () => {
-    /* --- BACKEND COMMENTED OUT ---
-    await fetch("http://localhost:8090/api/v1/user/logout", { ... });
-    -------------------------------- */
     localStorage.removeItem("mock_studyTrail_user");
     setUser(null);
     navigate("/"); 
@@ -117,9 +134,9 @@ const Signed = () => {
   const handleAvatarUpload = (e) => {
     const file = e.target.files[0];
     if (file) {
-      setFiles(prev => ({ ...prev, profileImage: file })); // Save actual file for backend
+      setFiles(prev => ({ ...prev, profileImage: file })); 
       const imageUrl = URL.createObjectURL(file);
-      setProfileData({ ...profileData, avatar: imageUrl }); // Set local preview
+      setProfileData({ ...profileData, avatar: imageUrl }); 
       setShowAvatarModal(false); 
     }
   };
@@ -140,12 +157,6 @@ const Signed = () => {
     setError(null);
     setSuccessMessage("");
 
-    /* --- BACKEND COMMENTED OUT ---
-    const formDataPayload = new FormData();
-    // ... appended data
-    const response = await fetch("http://localhost:8090/api/v1/user/complete-profile", { ... });
-    -------------------------------- */
-    
     // Mock updating user in local storage
     setTimeout(() => {
       const localUserStr = localStorage.getItem("mock_studyTrail_user");
@@ -362,14 +373,45 @@ const Signed = () => {
                         <input type="text" name="instituteName" required value={profileData.instituteName} onChange={handleProfileChange} placeholder="e.g. Stanford University" className="w-full px-4 py-3.5 rounded-xl bg-slate-50 dark:bg-[#111] border border-black/10 dark:border-white/10 focus:outline-none focus:ring-2 focus:ring-indigo-500/50 transition-all text-sm text-slate-900 dark:text-white" />
                       </div>
                       
-                      <div className="space-y-2">
-                        <label className="text-sm font-semibold text-slate-900 dark:text-white">Course Name <span className="text-red-500">*</span></label>
-                        <select name="course" required value={profileData.course} onChange={(e) => { handleProfileChange(e); setProfileData(prev => ({...prev, course: e.target.value, year: ''})); }} className="w-full px-4 py-3.5 rounded-xl bg-slate-50 dark:bg-[#111] border border-black/10 dark:border-white/10 focus:outline-none focus:ring-2 focus:ring-indigo-500/50 transition-all text-sm text-slate-900 dark:text-white appearance-none">
-                          <option value="" disabled>Select your course</option>
-                          {collegeCourses.map(c => (
-                            <option key={c.name} value={c.name}>{c.name}</option>
-                          ))}
-                        </select>
+                      <div className="space-y-2 relative">
+                        <label className="text-sm font-semibold text-slate-900 dark:text-white">
+                          Course Name <span className="text-red-500">*</span>
+                        </label>
+                        <input 
+                          type="text" 
+                          name="courseSearch" 
+                          required 
+                          value={courseSearch} 
+                          onChange={handleCourseSearchChange}
+                          onFocus={() => setShowCourseDropdown(true)}
+                          onBlur={() => setShowCourseDropdown(false)}
+                          placeholder="Search or type your course..." 
+                          className="w-full px-4 py-3.5 rounded-xl bg-slate-50 dark:bg-[#111] border border-black/10 dark:border-white/10 focus:outline-none focus:ring-2 focus:ring-indigo-500/50 transition-all text-sm text-slate-900 dark:text-white" 
+                        />
+                        
+                        {/* Searchable Dropdown Menu */}
+                        {showCourseDropdown && (
+                          <div className="absolute z-50 w-full mt-1 max-h-60 overflow-y-auto bg-white dark:bg-[#1A1A1A] border border-black/10 dark:border-white/10 rounded-xl shadow-xl custom-scrollbar">
+                            {filteredCourses.length > 0 ? (
+                              filteredCourses.map(c => (
+                                <div 
+                                  key={c.name} 
+                                  onMouseDown={(e) => {
+                                    e.preventDefault(); 
+                                    handleCourseSelect(c.name);
+                                  }}
+                                  className="px-4 py-3 hover:bg-slate-100 dark:hover:bg-white/5 cursor-pointer text-sm text-slate-700 dark:text-slate-300 transition-colors"
+                                >
+                                  {c.name}
+                                </div>
+                              ))
+                            ) : (
+                              <div className="px-4 py-3 text-sm text-slate-500 dark:text-slate-400 italic">
+                                No exact match found. You can use this custom course name!
+                              </div>
+                            )}
+                          </div>
+                        )}
                       </div>
 
                       <div className="space-y-2">
