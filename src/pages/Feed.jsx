@@ -26,7 +26,12 @@ import {
   Sun,
   Moon,
   Eye,
-  GraduationCap
+  GraduationCap,
+  Edit3,
+  Menu,
+  ArrowUp,
+  Upload,
+  Plane
 } from 'lucide-react';
 
 export const LOGGED_IN_USER = {
@@ -38,7 +43,7 @@ export const LOGGED_IN_USER = {
 
 export const NAV_ITEMS = [
   { id: 'home', label: 'Home', icon: 'Home', targetRoute: '/home' },
-  { id: 'explore', label: 'Explore', icon: 'Compass', targetRoute: '/explore' },
+  { id: 'messages', label: 'Messages', icon: 'MessageSquare', targetRoute: '/messages' },
   { id: 'resources', label: 'Resources', icon: 'BookOpen', targetRoute: '/resources' },
   { id: 'leaderboard', label: 'Leaderboard', icon: 'Trophy', targetRoute: '/leaderboard' }
 ];
@@ -113,14 +118,14 @@ const TRENDING_TOPICS = [
 
 const INITIAL_COMMENTS = {
   'post-1': [
-    { id: 'c1', author: 'Michael Torres', avatar: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=150&h=150&q=80', text: 'This visual guide is incredibly helpful! Can you upload the PDF?', time: '1h ago' },
-    { id: 'c2', author: 'Emily Watson', avatar: 'https://images.unsplash.com/photo-1544005313-94ddf0286df2?auto=format&fit=crop&w=150&h=150&q=80', text: 'Love the color coding approach Sarah!', time: '45m ago' }
+    { id: 'c1', author: 'Michael Torres', avatar: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=150&h=150&q=80', text: 'This visual guide is incredibly helpful! Can you upload the PDF?', time: '1h ago', likes: 3, isLikedByMe: false, replies: [] },
+    { id: 'c2', author: 'Emily Watson', avatar: 'https://images.unsplash.com/photo-1544005313-94ddf0286df2?auto=format&fit=crop&w=150&h=150&q=80', text: 'Love the color coding approach Sarah!', time: '45m ago', likes: 5, isLikedByMe: false, replies: [] }
   ],
   'post-2': [
-    { id: 'c3', author: 'Sarah Chen', avatar: 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?auto=format&fit=crop&w=150&h=150&q=80', text: 'Downloading this immediately. You saved my life!', time: '3h ago' }
+    { id: 'c3', author: 'Sarah Chen', avatar: 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?auto=format&fit=crop&w=150&h=150&q=80', text: 'Downloading this immediately. You saved my life!', time: '3h ago', likes: 2, isLikedByMe: false, replies: [] }
   ],
   'post-3': [
-    { id: 'c4', author: 'Alex Rivera', avatar: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=150&h=150&q=80', text: 'The wave function explanation was super clear, thank you!', time: '12h ago' }
+    { id: 'c4', author: 'Alex Rivera', avatar: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=150&h=150&q=80', text: 'The wave function explanation was super clear, thank you!', time: '12h ago', likes: 8, isLikedByMe: false, replies: [] }
   ]
 };
 
@@ -146,26 +151,43 @@ export default function Feed() {
   const [comments, setComments] = useState(INITIAL_COMMENTS);
   const [newCommentTexts, setNewCommentTexts] = useState({});
   const [commentsOpen, setCommentsOpen] = useState({});
+  const [repliesOpen, setRepliesOpen] = useState({});
+  const [newReplyTexts, setNewReplyTexts] = useState({});
 
   const [notificationCount, setNotificationCount] = useState(2);
   const [notifications, setNotifications] = useState(NOTIFICATION_LIST);
   const [isNotificationsOpen, setIsNotificationsOpen] = useState(false);
   const [isProfileOpen, setIsProfileOpen] = useState(false);
+  const [isTaskPanelOpen, setIsTaskPanelOpen] = useState(false);
+  const [isUploadMenuOpen, setIsUploadMenuOpen] = useState(false);
+  const [isUploading, setIsUploading] = useState(false);
   const [toastMessage, setToastMessage] = useState(null);
   const [imageLightbox, setImageLightbox] = useState(null);
   const [currentRoute, setCurrentRoute] = useState('/home');
   const [reactionPickerPostId, setReactionPickerPostId] = useState(null);
+  const [newTaskText, setNewTaskText] = useState('');
+  const [editingTaskId, setEditingTaskId] = useState(null);
+  const [editingTaskText, setEditingTaskText] = useState('');
 
-  const [checklist, setChecklist] = useState([
-    { id: 'check-1', text: 'Revise Machine Learning neural backprop notes', done: true },
-    { id: 'check-2', text: 'Complete Anatomy heart labels', done: true },
-    { id: 'check-3', text: 'Solve quantum physics double-slit worksheet', done: false }
-  ]);
+  const [tasks, setTasks] = useState(() => {
+    try {
+      const saved = localStorage.getItem('studytrail_tasks');
+      if (saved) return JSON.parse(saved);
+    } catch (error) {
+      console.warn('Failed to load saved tasks', error);
+    }
+    return [
+      { id: 'task-1', text: 'Revise Machine Learning neural backprop notes', done: true, xp: 15 },
+      { id: 'task-2', text: 'Complete Anatomy heart labels', done: true, xp: 15 },
+      { id: 'task-3', text: 'Solve quantum physics double-slit worksheet', done: false, xp: 15 }
+    ];
+  });
 
   const mediaInputRef = useRef(null);
   const docInputRef = useRef(null);
   const reactionHoldTimerRef = useRef(null);
   const suppressClickRef = useRef(false);
+  const postTextareaRef = useRef(null);
 
   useEffect(() => {
     if (toastMessage) {
@@ -184,6 +206,21 @@ export default function Feed() {
     };
   }, []);
 
+  useEffect(() => {
+    try {
+      localStorage.setItem('studytrail_tasks', JSON.stringify(tasks));
+    } catch (error) {
+      console.warn('Failed to save tasks', error);
+    }
+  }, [tasks]);
+
+  useEffect(() => {
+    if (postTextareaRef.current) {
+      postTextareaRef.current.style.height = 'auto';
+      postTextareaRef.current.style.height = Math.max(postTextareaRef.current.scrollHeight, 72) + 'px';
+    }
+  }, [newPostText]);
+
   const showToast = (message) => {
     setToastMessage(message);
   };
@@ -199,15 +236,69 @@ export default function Feed() {
     }
   };
 
-  const handleToggleCheck = (id) => {
-    setChecklist(prev => prev.map(item => {
+  const handleToggleTask = (id) => {
+    setTasks(prev => prev.map(item => {
       if (item.id === id) {
         const nextState = !item.done;
-        showToast(nextState ? 'Task completed!' : 'Task incomplete');
+        showToast(nextState ? 'Task completed! +15 EXP' : 'Task marked incomplete');
         return { ...item, done: nextState };
       }
       return item;
     }));
+  };
+
+  const startEditTask = (task) => {
+    setEditingTaskId(task.id);
+    setEditingTaskText(task.text);
+  };
+
+  const cancelEditTask = () => {
+    setEditingTaskId(null);
+    setEditingTaskText('');
+  };
+
+  const saveTaskEdit = (id) => {
+    const trimmed = editingTaskText.trim();
+    if (!trimmed) {
+      showToast('Task text cannot be empty.');
+      return;
+    }
+    setTasks(prev => prev.map(item => item.id === id ? { ...item, text: trimmed } : item));
+    setEditingTaskId(null);
+    setEditingTaskText('');
+    showToast('Task updated.');
+  };
+
+  const handleAddTask = () => {
+    const trimmed = newTaskText.trim();
+    if (!trimmed) {
+      showToast('Enter a task before adding it.');
+      return;
+    }
+
+    setTasks(prev => [
+      { id: `task-${Date.now()}`, text: trimmed, done: false, xp: 15 },
+      ...prev
+    ]);
+    setNewTaskText('');
+    showToast('Task added and saved!');
+  };
+
+  const handleSaveTasksToProfile = () => {
+    try {
+      const savedUser = localStorage.getItem('mock_studyTrail_user');
+      const profile = savedUser ? JSON.parse(savedUser) : {};
+      const updatedProfile = { ...profile, tasks };
+      localStorage.setItem('mock_studyTrail_user', JSON.stringify(updatedProfile));
+      showToast('Tasks saved to your profile.');
+    } catch (error) {
+      console.error('Failed to save tasks to profile', error);
+      showToast('Unable to save tasks to profile.');
+    }
+  };
+
+  const handleToggleTaskPanel = () => {
+    setIsTaskPanelOpen(prev => !prev);
   };
 
   const filteredPosts = posts.filter(post => {
@@ -379,10 +470,15 @@ export default function Feed() {
       isLikedByMe: false
     };
 
+    setIsUploading(true);
     setPosts([newPost, ...posts]);
     setNewPostText('');
     setSelectedFile(null);
     showToast('Success: Study update posted!');
+    
+    setTimeout(() => {
+      setIsUploading(false);
+    }, 800);
   };
 
   const handleCommentSubmit = (postId) => {
@@ -419,6 +515,80 @@ export default function Feed() {
     setCommentsOpen(prev => ({
       ...prev,
       [postId]: !prev[postId]
+    }));
+  };
+
+  const handleCommentLike = (postId, commentId) => {
+    setComments(prev => ({
+      ...prev,
+      [postId]: prev[postId].map(comment => {
+        if (comment.id === commentId) {
+          const isLiked = !comment.isLikedByMe;
+          return {
+            ...comment,
+            isLikedByMe: isLiked,
+            likes: isLiked ? comment.likes + 1 : Math.max(0, comment.likes - 1)
+          };
+        }
+        return comment;
+      })
+    }));
+  };
+
+  const handleReplySubmit = (postId, commentId) => {
+    const replyKey = `${postId}-${commentId}`;
+    const text = newReplyTexts[replyKey];
+    if (!text || !text.trim()) return;
+
+    const newReply = {
+      id: `reply-${Date.now()}`,
+      author: LOGGED_IN_USER.name,
+      avatar: LOGGED_IN_USER.avatarUrl,
+      text: text.trim(),
+      time: 'Just now',
+      likes: 0,
+      isLikedByMe: false
+    };
+
+    setComments(prev => ({
+      ...prev,
+      [postId]: prev[postId].map(comment => {
+        if (comment.id === commentId) {
+          return {
+            ...comment,
+            replies: [...(comment.replies || []), newReply]
+          };
+        }
+        return comment;
+      })
+    }));
+
+    setNewReplyTexts(prev => ({ ...prev, [replyKey]: '' }));
+    showToast('Reply posted successfully');
+  };
+
+  const handleReplyLike = (postId, commentId, replyId) => {
+    setComments(prev => ({
+      ...prev,
+      [postId]: prev[postId].map(comment => {
+        if (comment.id === commentId) {
+          return {
+            ...comment,
+            replies: comment.replies.map(reply => {
+              if (reply.id === replyId) {
+                const isLiked = !reply.isLikedByMe;
+                return {
+                  ...reply,
+                  isLikedByMe: isLiked,
+                  likes: isLiked ? reply.likes + 1 : Math.max(0, reply.likes - 1)
+                };
+              }
+              return reply;
+            })
+          };
+        }
+        return comment;
+      })
     }));
   };
 
@@ -464,6 +634,7 @@ export default function Feed() {
       case 'BookOpen': return <BookOpen className="w-5 h-5" />;
       case 'Trophy': return <Trophy className="w-5 h-5" />;
       case 'Compass': return <Compass className="w-5 h-5" />;
+      case 'MessageSquare': return <MessageSquare className="w-5 h-5" />;
       default: return <Sparkles className="w-5 h-5" />;
     }
   };
@@ -592,7 +763,190 @@ export default function Feed() {
       </aside>
 
       <main className="flex-1 flex flex-col h-full overflow-hidden">
-        
+        <div className={`fixed inset-0 z-40 bg-black/40 transition-opacity duration-300 ${isTaskPanelOpen ? 'opacity-100 pointer-events-auto' : 'opacity-0 pointer-events-none'} lg:hidden`} onClick={() => setIsTaskPanelOpen(false)} />
+        <aside className={`fixed inset-y-0 right-0 z-50 w-full max-w-sm bg-white dark:bg-[#0B0914] border-l border-slate-200 dark:border-white/10 p-5 shadow-2xl transition-transform duration-300 ${isTaskPanelOpen ? 'translate-x-0' : 'translate-x-full'} lg:hidden`}>
+          <div className="flex items-center justify-between mb-4">
+            <div>
+              <h4 className="text-sm font-bold">My Tasks</h4>
+              <span className="text-[10px] uppercase tracking-[0.16em] text-violet-500 font-mono">Swipe from right to open</span>
+            </div>
+            <button
+              type="button"
+              onClick={() => setIsTaskPanelOpen(false)}
+              className={`p-2 rounded-full transition ${isDarkMode ? 'text-gray-300 hover:bg-white/10' : 'text-slate-700 hover:bg-slate-100'}`}
+              title="Close task panel"
+            >
+              <X className="w-4 h-4" />
+            </button>
+          </div>
+
+          <div className="space-y-4">
+            <div className="flex gap-2">
+              <input
+                type="text"
+                value={newTaskText}
+                onChange={(e) => setNewTaskText(e.target.value)}
+                placeholder="Add a new task"
+                className={`flex-1 rounded-2xl border px-3 py-2 text-xs focus:outline-none focus:ring-2 focus:ring-violet-500 transition ${
+                  isDarkMode ? 'bg-[#0B0914] border-white/10 text-white placeholder-gray-500' : 'bg-white border-slate-200 text-slate-900 placeholder-slate-400'
+                }`}
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter') handleAddTask();
+                }}
+              />
+              <button
+                type="button"
+                onClick={handleAddTask}
+                className="rounded-2xl bg-violet-500 px-4 py-2 text-[10px] font-semibold uppercase tracking-[0.08em] text-white transition hover:bg-violet-600"
+              >
+                Add
+              </button>
+            </div>
+            <button
+              type="button"
+              onClick={handleSaveTasksToProfile}
+              className="w-full rounded-2xl bg-slate-900 px-4 py-2 text-[10px] font-semibold uppercase tracking-[0.08em] text-white transition hover:bg-slate-800"
+            >
+              Save
+            </button>
+            <div className="space-y-3">
+              {tasks.length === 0 ? (
+                <p className="text-[11px] text-slate-500">No tasks yet. Add one to start earning EXP.</p>
+              ) : tasks.map(item => (
+                <div key={item.id} className="flex items-start gap-3 text-xs">
+                  <button
+                    type="button"
+                    onClick={() => handleToggleTask(item.id)}
+                    className={`w-5 h-5 rounded-lg border flex items-center justify-center transition-colors shrink-0 ${
+                      item.done
+                        ? 'bg-violet-600 border-violet-500 text-white'
+                        : isDarkMode
+                          ? 'border-white/10 text-transparent hover:border-violet-500'
+                          : 'border-slate-300 text-transparent hover:border-violet-500'
+                    }`}
+                  >
+                    <Check className="w-3 h-3" />
+                  </button>
+                  <div className="flex-1 min-w-0">
+                    {editingTaskId === item.id ? (
+                      <div className="flex items-center gap-2">
+                        <input
+                          type="text"
+                          value={editingTaskText}
+                          onChange={(e) => setEditingTaskText(e.target.value)}
+                          onKeyDown={(e) => {
+                            if (e.key === 'Enter') saveTaskEdit(item.id);
+                            if (e.key === 'Escape') cancelEditTask();
+                          }}
+                          className={`flex-1 rounded-2xl border px-3 py-2 text-xs focus:outline-none focus:ring-2 focus:ring-violet-500 transition ${
+                            isDarkMode ? 'bg-[#0B0914] border-white/10 text-white placeholder-gray-500' : 'bg-white border-slate-200 text-slate-900 placeholder-slate-400'
+                          }`}
+                        />
+                        <button
+                          type="button"
+                          onClick={() => saveTaskEdit(item.id)}
+                          className="flex h-9 w-9 items-center justify-center rounded-full text-violet-500 hover:bg-violet-500/10 transition"
+                          title="Save"
+                        >
+                          <Check className="w-4 h-4" />
+                        </button>
+                        <button
+                          type="button"
+                          onClick={cancelEditTask}
+                          className="flex h-9 w-9 items-center justify-center rounded-full text-slate-500 hover:bg-slate-200 transition"
+                          title="Cancel"
+                        >
+                          <X className="w-4 h-4" />
+                        </button>
+                      </div>
+                    ) : (
+                      <div className="flex items-center justify-between gap-3">
+                        <div>
+                          <p className={`leading-relaxed text-[12px] ${item.done ? 'text-gray-400 line-through' : isDarkMode ? 'text-gray-200' : 'text-slate-800'}`}>
+                            {item.text}
+                          </p>
+                          <span className="text-[10px] text-slate-400">{item.xp} EXP</span>
+                        </div>
+                        <button
+                          type="button"
+                          onClick={() => startEditTask(item)}
+                          className="text-slate-500 hover:text-violet-500 transition"
+                          title="Edit task"
+                        >
+                          <Edit3 className="w-4 h-4" />
+                        </button>
+                      </div>
+                    )}
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        </aside>
+
+        {/* Upload Menu Panel */}
+        <div className={`fixed inset-0 z-40 bg-black/40 transition-opacity duration-300 ${isUploadMenuOpen ? 'opacity-100 pointer-events-auto' : 'opacity-0 pointer-events-none'}`} onClick={() => setIsUploadMenuOpen(false)} />
+        <aside className={`fixed inset-y-0 right-0 z-50 w-full max-w-xs bg-white dark:bg-[#0B0914] border-l border-slate-200 dark:border-white/10 p-5 shadow-2xl transition-transform duration-300 ${isUploadMenuOpen ? 'translate-x-0' : 'translate-x-full'}`}>
+          <div className="flex items-center justify-between mb-6">
+            <div>
+              <h4 className="text-sm font-bold">Upload Content</h4>
+              <span className="text-[10px] uppercase tracking-[0.16em] text-violet-500 font-mono">Add to your post</span>
+            </div>
+            <button
+              type="button"
+              onClick={() => setIsUploadMenuOpen(false)}
+              className={`p-2 rounded-full transition ${isDarkMode ? 'text-gray-300 hover:bg-white/10' : 'text-slate-700 hover:bg-slate-100'}`}
+              title="Close upload menu"
+            >
+              <X className="w-4 h-4" />
+            </button>
+          </div>
+
+          <div className="space-y-4">
+            <button
+              type="button"
+              onClick={() => {
+                triggerMediaUpload();
+                setIsUploadMenuOpen(false);
+              }}
+              className={`w-full flex items-center gap-4 p-4 rounded-2xl border-2 transition-all duration-300 ${
+                isDarkMode 
+                  ? 'bg-[#151125] border-white/10 hover:border-violet-500/50 hover:bg-violet-500/5 text-white' 
+                  : 'bg-slate-50 border-slate-200 hover:border-violet-500/50 hover:bg-violet-50 text-slate-900'
+              }`}
+            >
+              <div className={`p-3 rounded-xl ${isDarkMode ? 'bg-violet-950 text-violet-400' : 'bg-violet-100 text-violet-600'}`}>
+                <ImageIcon className="w-5 h-5" />
+              </div>
+              <div className="text-left">
+                <h5 className="text-sm font-semibold">Photo/Video</h5>
+                <p className="text-xs text-gray-400">Add images or videos</p>
+              </div>
+            </button>
+
+            <button
+              type="button"
+              onClick={() => {
+                triggerDocUpload();
+                setIsUploadMenuOpen(false);
+              }}
+              className={`w-full flex items-center gap-4 p-4 rounded-2xl border-2 transition-all duration-300 ${
+                isDarkMode 
+                  ? 'bg-[#151125] border-white/10 hover:border-emerald-500/50 hover:bg-emerald-500/5 text-white' 
+                  : 'bg-slate-50 border-slate-200 hover:border-emerald-500/50 hover:bg-emerald-50 text-slate-900'
+              }`}
+            >
+              <div className={`p-3 rounded-xl ${isDarkMode ? 'bg-emerald-950 text-emerald-400' : 'bg-emerald-100 text-emerald-600'}`}>
+                <FileText className="w-5 h-5" />
+              </div>
+              <div className="text-left">
+                <h5 className="text-sm font-semibold">Document</h5>
+                <p className="text-xs text-gray-400">PDF, DOCX, TXT files</p>
+              </div>
+            </button>
+          </div>
+        </aside>
+
         <header className={`h-16 border-b flex items-center justify-between px-8 shrink-0 transition-colors duration-300 ${
           isDarkMode ? 'border-white/5 bg-[#0B0914]' : 'border-slate-200 bg-white'
         }`}>
@@ -636,13 +990,13 @@ export default function Feed() {
             </button>
 
             <button
-              onClick={() => showToast('Chat channel updates are currently idle')}
-              className={`p-2 transition-colors relative cursor-pointer ${
-                isDarkMode ? 'text-gray-400 hover:text-white' : 'text-slate-500 hover:text-slate-900'
+              onClick={handleToggleTaskPanel}
+              className={`p-2 rounded-full transition-colors relative cursor-pointer lg:hidden ${
+                isDarkMode ? 'text-gray-400 hover:text-white' : 'text-slate-500 hover:text-slate-900 hover:bg-slate-100'
               }`}
-              title="Messages"
+              title="Open task panel"
             >
-              <MessageSquare className="w-5 h-5" />
+              <Menu className="w-5 h-5" />
             </button>
 
             <div className="relative">
@@ -772,17 +1126,17 @@ export default function Feed() {
           })}
         </div>
 
-        <div className="flex-1 overflow-y-auto px-8 pb-6 pt-6">
-          <div className="w-full max-w-5xl mx-auto flex flex-col lg:flex-row gap-6 items-start">
+<div className="flex-1 overflow-y-auto px-4 sm:px-8 pb-6 pt-6">
+          <div className="w-full max-w-7xl mx-auto flex flex-col lg:flex-row gap-8 items-start">
             
-            <div className="flex-1 w-full max-w-2xl space-y-6">
+            <div className="flex-1 w-full lg:max-w-[58rem] space-y-6">
               
-              <div className={`border rounded-3xl p-5 shadow-xl relative overflow-hidden transition-colors duration-300 ${
+              <div className={`border rounded-3xl p-3 shadow-xl relative overflow-hidden transition-colors duration-300 ${
                 isDarkMode ? 'bg-[#151125] border-white/5' : 'bg-white border-slate-100'
               }`}>
                 <div className="absolute top-0 left-0 w-1.5 h-full bg-violet-600" />
-                <form onSubmit={handlePostSubmit} className="space-y-4">
-                  <div className="flex gap-4">
+                <form onSubmit={handlePostSubmit} className="space-y-1">
+                  <div className="flex gap-5">
                     <img
                       src={LOGGED_IN_USER.avatarUrl}
                       alt={LOGGED_IN_USER.name}
@@ -793,14 +1147,11 @@ export default function Feed() {
                       <textarea
                         value={newPostText}
                         onChange={(e) => setNewPostText(e.target.value)}
-                        placeholder="What are you studying right now?"
-                        className={`w-full bg-transparent border-none focus:ring-0 resize-none min-h-15 text-sm focus:outline-none ${
+                        placeholder="What are you thinking?"
+                        className={`w-full bg-transparent border-none focus:ring-0 resize-none min-h-[1.5rem] text-sm focus:outline-none ${
                           isDarkMode ? 'text-gray-200 placeholder-gray-500' : 'text-slate-800 placeholder-slate-400'
                         }`}
                       />
-                      <span className="text-[10px] text-gray-400 font-mono block mt-2">
-                        Add hashtags like #MachineLearning to automatically tag your post.
-                      </span>
                     </div>
                   </div>
 
@@ -820,61 +1171,46 @@ export default function Feed() {
                   />
 
                   {selectedFile && (
-                    <div className={`flex items-center justify-between p-3.5 rounded-2xl border ${
+                    <div className={`flex items-center justify-between p-2 rounded-2xl border ${
                       isDarkMode ? 'bg-[#0B0914] border-white/10' : 'bg-slate-50 border-slate-200'
                     }`}>
-                      <div className="flex items-center gap-2.5 overflow-hidden">
+                      <div className="flex items-center gap-1 overflow-hidden">
                         {selectedFile.type === 'image' && <ImageIcon className="w-4 h-4 text-violet-400 shrink-0" />}
                         {selectedFile.type === 'video' && <Eye className="w-4 h-4 text-violet-400 shrink-0" />}
                         {selectedFile.type === 'document' && <FileText className="w-4 h-4 text-emerald-500 shrink-0" />}
-                        
                         <div className="truncate">
-                          <p className={`text-xs truncate font-medium ${isDarkMode ? 'text-white' : 'text-slate-900'}`}>{selectedFile.name}</p>
-                          <span className="text-[10px] text-gray-400 font-mono block">{selectedFile.size} • {selectedFile.type.toUpperCase()}</span>
+                          <p className={`text-[11px] truncate font-medium ${isDarkMode ? 'text-white' : 'text-slate-900'}`}>{selectedFile.name}</p>
+                          <span className="text-[9px] text-gray-400 font-mono block">{selectedFile.size} • {selectedFile.type.toUpperCase()}</span>
                         </div>
                       </div>
-                      
                       <button
                         type="button"
                         onClick={removeAttachment}
                         className={`p-1 rounded-full transition ${
                           isDarkMode ? 'bg-white/5 hover:bg-white/10 text-gray-400 hover:text-white' : 'bg-slate-200 hover:bg-slate-300 text-slate-600'
-                        }`}
-                      >
+                        }`}>
                         <X className="w-4 h-4" />
                       </button>
                     </div>
                   )}
 
-                  <div className={`flex justify-between items-center pt-4 border-t ${
+                  <div className={`flex justify-between items-center gap-3 pt-2 border-t ${
                     isDarkMode ? 'border-white/5' : 'border-slate-100'
                   }`}>
-                    <div className="flex gap-2">
-                      <button
-                        type="button"
-                        onClick={triggerMediaUpload}
-                        className={`flex items-center gap-2 text-xs transition-colors px-3 py-2 rounded-lg cursor-pointer ${
-                          isDarkMode ? 'text-gray-400 hover:text-violet-400 hover:bg-white/5' : 'text-slate-500 hover:text-violet-600 hover:bg-slate-100'
-                        }`}
-                      >
-                        <ImageIcon className="w-4 h-4 text-violet-500" />
-                        <span>Media</span>
-                      </button>
-                      <button
-                        type="button"
-                        onClick={triggerDocUpload}
-                        className={`flex items-center gap-2 text-xs transition-colors px-3 py-2 rounded-lg cursor-pointer ${
-                          isDarkMode ? 'text-gray-400 hover:text-violet-400 hover:bg-white/5' : 'text-slate-500 hover:text-violet-600 hover:bg-slate-100'
-                        }`}
-                      >
-                        <FileText className="w-4 h-4 text-emerald-500" />
-                        <span>Doc</span>
-                      </button>
-                    </div>
-                    
+                    <button
+                      type="button"
+                      onClick={() => setIsUploadMenuOpen(!isUploadMenuOpen)}
+                      className={`flex items-center justify-center text-xs transition-colors px-3 py-2 rounded-xl cursor-pointer ${
+                        isDarkMode ? 'text-gray-400 hover:text-violet-400 hover:bg-white/5' : 'text-slate-500 hover:text-violet-600 hover:bg-slate-100'
+                      }`}
+                      title="Upload menu"
+                    >
+                       <Upload className="w-6 h-6 text-violet-500" /> 
+
+                    </button>
                     <button
                       type="submit"
-                      className="bg-violet-600 hover:bg-violet-500 px-6 py-2 rounded-xl text-sm font-bold transition-all shadow-lg shadow-violet-900/20 text-white cursor-pointer"
+                      className="bg-violet-600 hover:bg-violet-500 px-4 py-2 rounded-xl text-sm font-bold transition-all shadow-lg shadow-violet-900/20 text-white cursor-pointer"
                     >
                       Post Update
                     </button>
@@ -900,16 +1236,17 @@ export default function Feed() {
                     </button>
                   </div>
                 ) : (
-                  sortedAndFilteredPosts.map(post => {
+                  sortedAndFilteredPosts.map((post, index) => {
                     const isCommentsOpen = !!commentsOpen[post.id];
                     const postComments = comments[post.id] || [];
+                    const isNewPost = isUploading && index === 0;
 
                     return (
                       <div
                         key={post.id}
                         className={`border rounded-3xl p-5 shadow-xl space-y-4 transition-colors duration-300 ${
                           isDarkMode ? 'bg-[#151125] border-white/5' : 'bg-white border-slate-200'
-                        }`}
+                        } ${isNewPost ? 'animate-upload-pop' : ''}`}
                       >
                         <div className="flex justify-between mb-2">
                           <div className="flex items-center gap-3">
@@ -1084,34 +1421,143 @@ export default function Feed() {
                                 />
                                 <button
                                   onClick={() => handleCommentSubmit(post.id)}
-                                  className="absolute right-1.5 top-1/2 -translate-y-1/2 p-1.5 text-violet-500 hover:text-violet-600 transition"
+                                  className="absolute right-1.5 top-3 -translate-y-1 p-1.5 text-violet-500 hover:text-violet-600 transition"
                                 >
-                                  <Send className="w-3.5 h-3.5" />
+
+                                  <ArrowUp className="w-3 h-3"/>
+ 
+
                                 </button>
                               </div>
                             </div>
 
                             {postComments.length > 0 && (
-                              <div className="space-y-3 pl-2 max-h-48 overflow-y-auto pr-1">
-                                {postComments.map(comment => (
-                                  <div key={comment.id} className={`flex gap-2.5 items-start text-xs rounded-xl p-2.5 border ${
-                                    isDarkMode ? 'bg-white/2 border-white/5' : 'bg-slate-50 border-slate-100'
-                                  }`}>
-                                    <img
-                                      src={comment.avatar}
-                                      alt={comment.author}
-                                      className="w-7 h-7 rounded-full object-cover shrink-0"
-                                      referrerPolicy="no-referrer"
-                                    />
-                                    <div className="flex-1 min-w-0">
-                                      <div className="flex items-center gap-1.5 flex-wrap">
-                                        <span className={`font-bold text-xs ${isDarkMode ? 'text-white' : 'text-slate-900'}`}>{comment.author}</span>
-                                        <span className="text-[9px] text-gray-400 font-mono">{comment.time}</span>
+                              <div className="space-y-3 pl-2 max-h-80 overflow-y-auto pr-1">
+                                {postComments.map(comment => {
+                                  const repliesShowing = repliesOpen[`${post.id}-${comment.id}`];
+                                  const commentReplies = comment.replies || [];
+                                  return (
+                                    <div key={comment.id}>
+                                      <div className={`flex gap-2.5 items-start text-xs rounded-xl p-2.5 border ${
+                                        isDarkMode ? 'bg-white/2 border-white/5' : 'bg-slate-50 border-slate-100'
+                                      }`}>
+                                        <img
+                                          src={comment.avatar}
+                                          alt={comment.author}
+                                          className="w-7 h-7 rounded-full object-cover shrink-0"
+                                          referrerPolicy="no-referrer"
+                                        />
+                                        <div className="flex-1 min-w-0">
+                                          <div className="flex items-center gap-1.5 flex-wrap">
+                                            <span className={`font-bold text-xs ${isDarkMode ? 'text-white' : 'text-slate-900'}`}>{comment.author}</span>
+                                            <span className="text-[9px] text-gray-400 font-mono">{comment.time}</span>
+                                          </div>
+                                          <p className={`leading-relaxed text-xs mt-0.5 ${isDarkMode ? 'text-gray-300' : 'text-slate-600'}`}>{comment.text}</p>
+                                          
+                                          {/* Comment Actions */}
+                                          <div className="flex items-center gap-3 mt-1.5">
+                                            <button
+                                              onClick={() => handleCommentLike(post.id, comment.id)}
+                                              className={`flex items-center gap-1 text-[11px] font-semibold transition ${
+                                                comment.isLikedByMe
+                                                  ? 'text-red-500'
+                                                  : isDarkMode ? 'text-gray-400 hover:text-red-500' : 'text-slate-500 hover:text-red-500'
+                                              }`}
+                                            >
+                                              <Heart className={`w-3 h-3 ${comment.isLikedByMe ? 'fill-red-500' : ''}`} />
+                                              {comment.likes > 0 && <span>{comment.likes}</span>}
+                                            </button>
+                                            
+                                            <button
+                                              onClick={() => setRepliesOpen(prev => ({
+                                                ...prev,
+                                                [`${post.id}-${comment.id}`]: !prev[`${post.id}-${comment.id}`]
+                                              }))}
+                                              className={`text-[11px] font-semibold transition ${
+                                                repliesShowing
+                                                  ? 'text-violet-500'
+                                                  : isDarkMode ? 'text-gray-400 hover:text-violet-400' : 'text-slate-500 hover:text-violet-600'
+                                              }`}
+                                            >
+                                              {commentReplies.length > 0 ? `${commentReplies.length} replies` : 'Reply'}
+                                            </button>
+                                          </div>
+                                        </div>
                                       </div>
-                                      <p className={`leading-relaxed text-xs mt-0.5 ${isDarkMode ? 'text-gray-300' : 'text-slate-600'}`}>{comment.text}</p>
+
+                                      {/* Replies Section */}
+                                      {repliesShowing && (
+                                        <div className={`ml-6 mt-2 space-y-2 pl-2 border-l ${isDarkMode ? 'border-white/10' : 'border-slate-200'}`}>
+                                          {/* Reply Input */}
+                                          <div className="flex items-center gap-2">
+                                            <img
+                                              src={LOGGED_IN_USER.avatarUrl}
+                                              alt={LOGGED_IN_USER.name}
+                                              className="w-6 h-6 rounded-full object-cover shrink-0"
+                                              referrerPolicy="no-referrer"
+                                            />
+                                            <div className="flex-1 relative">
+                                              <input
+                                                type="text"
+                                                value={newReplyTexts[`${post.id}-${comment.id}`] || ''}
+                                                onChange={(e) => setNewReplyTexts({ ...newReplyTexts, [`${post.id}-${comment.id}`]: e.target.value })}
+                                                placeholder="Write a reply..."
+                                                className={`w-full border rounded-lg pl-2 pr-7 py-1.5 text-[11px] focus:outline-none focus:border-violet-600 ${
+                                                  isDarkMode 
+                                                    ? 'bg-[#0B0914] text-white border-white/5 placeholder-gray-500' 
+                                                    : 'bg-slate-100 text-slate-900 border-slate-200 placeholder-slate-400'
+                                                }`}
+                                                onKeyDown={(e) => {
+                                                  if (e.key === 'Enter') handleReplySubmit(post.id, comment.id);
+                                                }}
+                                              />
+                                              <button
+                                                onClick={() => handleReplySubmit(post.id, comment.id)}
+                                                className="absolute right-1.5 top-3 -translate-y-1 p-1 text-violet-500 hover:text-violet-600 transition"
+                                              >
+                                                <ArrowUp className="w-3 h-3" />
+                                              </button>
+                                            </div>
+                                          </div>
+
+                                          {/* Replies Display */}
+                                          {commentReplies.map(reply => (
+                                            <div key={reply.id} className={`flex gap-2 items-start text-[11px] rounded-lg p-2 ${
+                                              isDarkMode ? 'bg-white/5' : 'bg-slate-100'
+                                            }`}>
+                                              <img
+                                                src={reply.avatar}
+                                                alt={reply.author}
+                                                className="w-5 h-5 rounded-full object-cover shrink-0"
+                                                referrerPolicy="no-referrer"
+                                              />
+                                              <div className="flex-1 min-w-0">
+                                                <div className="flex items-center gap-1">
+                                                  <span className={`font-bold ${isDarkMode ? 'text-white' : 'text-slate-900'}`}>{reply.author}</span>
+                                                  <span className="text-[9px] text-gray-400 font-mono">{reply.time}</span>
+                                                </div>
+                                                <p className={`leading-relaxed text-[11px] mt-0.5 ${isDarkMode ? 'text-gray-300' : 'text-slate-600'}`}>{reply.text}</p>
+                                                
+                                                {/* Reply Like Button */}
+                                                <button
+                                                  onClick={() => handleReplyLike(post.id, comment.id, reply.id)}
+                                                  className={`flex items-center gap-1 text-[10px] font-semibold transition mt-1 ${
+                                                    reply.isLikedByMe
+                                                      ? 'text-red-500'
+                                                      : isDarkMode ? 'text-gray-400 hover:text-red-500' : 'text-slate-500 hover:text-red-500'
+                                                  }`}
+                                                >
+                                                  <Heart className={`w-2.5 h-2.5 ${reply.isLikedByMe ? 'fill-red-500' : ''}`} />
+                                                  {reply.likes > 0 && <span>{reply.likes}</span>}
+                                                </button>
+                                              </div>
+                                            </div>
+                                          ))}
+                                        </div>
+                                      )}
                                     </div>
-                                  </div>
-                                ))}
+                                  );
+                                })}
                               </div>
                             )}
                           </div>
@@ -1125,42 +1571,125 @@ export default function Feed() {
 
             </div>
 
-            <aside id="studytrail-right-sidebar" className="hidden lg:flex flex-col w-80 shrink-0 space-y-6">
+            <aside id="studytrail-right-sidebar" className="hidden lg:flex flex-col w-80 xl:w-200 shrink-0 space-y-6">
               
               <div className={`border rounded-3xl p-5 space-y-4 shadow-xl relative overflow-hidden transition-colors duration-300 ${
                 isDarkMode ? 'bg-[#151125] border-white/5' : 'bg-white border-slate-200'
               }`}>
                 <div className="absolute top-0 right-0 w-32 h-32 bg-violet-600/10 rounded-full blur-3xl" />
-                <div className="flex items-center justify-between">
-                  <h4 className="font-bold text-sm">Student HUD</h4>
-                  <Sparkles className="w-4 h-4 text-violet-400 animate-pulse" />
-                </div>
-
                 <div className="space-y-3.5 relative">
-                  <div className={`p-3.5 rounded-2xl space-y-2 ${isDarkMode ? 'bg-white/5' : 'bg-slate-50'}`}>
-                    <span className="text-[10px] font-bold text-violet-500 font-mono uppercase tracking-wider block">DAILY STUDY TASKLIST</span>
-                    
-                    {checklist.map(item => (
-                      <div key={item.id} className="flex items-start gap-2.5 text-xs py-1">
-                        <button
-                          type="button"
-                          onClick={() => handleToggleCheck(item.id)}
-                          className={`w-4.5 h-4.5 rounded border flex items-center justify-center shrink-0 transition-colors cursor-pointer ${
-                            item.done
-                              ? 'bg-violet-600 border-violet-500 text-white'
-                              : isDarkMode 
-                                ? 'border-white/10 text-transparent hover:border-violet-500' 
-                                : 'border-slate-300 text-transparent hover:border-violet-500'
-                          }`}
-                        >
-                          <Check className="w-3 h-3" />
-                        </button>
-                        <span className={`leading-relaxed ${item.done ? 'text-gray-400 line-through' : isDarkMode ? 'text-gray-200' : 'text-slate-700'}`}>
-                          {item.text}
-                        </span>
+                  <div className={`p-3.5 rounded-2xl space-y-4 ${isDarkMode ? 'bg-white/5' : 'bg-slate-50'}`}>
+                    <div className="flex items-center justify-between gap-3">
+                      <div>
+                        <h4 className="font-bold text-sm">My Tasks</h4>
+                        <span className="text-[10px] font-bold text-violet-500 font-mono uppercase tracking-wider block">Complete tasks to earn EXP</span>
                       </div>
-                    ))}
-                  </div>
+                      <span className="text-[10px] font-semibold text-slate-500">EXP +15</span>
+                    </div>
+                    </div>
+
+                    <div className="flex gap-2">
+                      <input
+                        type="text"
+                        value={newTaskText}
+                        onChange={(e) => setNewTaskText(e.target.value)}
+                        placeholder="Add a new task"
+                        className={`flex-1 rounded-2xl border px-3 py-2 text-xs focus:outline-none focus:ring-2 focus:ring-violet-500 transition ${
+                          isDarkMode ? 'bg-[#0B0914] border-white/10 text-white placeholder-gray-500' : 'bg-white border-slate-200 text-slate-900 placeholder-slate-400'
+                        }`}
+                        onKeyDown={(e) => {
+                          if (e.key === 'Enter') handleAddTask();
+                        }}
+                      />
+                      <button
+                        type="button"
+                        onClick={handleAddTask}
+                        className="rounded-2xl bg-violet-500 px-4 py-2 text-[10px] font-semibold uppercase tracking-[0.08em] text-white transition hover:bg-violet-600"
+                      >
+                        Add
+                      </button>
+                      <button
+                        type="button"
+                        onClick={handleSaveTasksToProfile}
+                        className="rounded-2xl bg-slate-900 px-4 py-2 text-[10px] font-semibold uppercase tracking-[0.08em] text-white transition hover:bg-slate-800"
+                      >
+                        Save
+                      </button>
+                    </div>
+
+                    <div className="space-y-2">
+                      {tasks.length === 0 ? (
+                        <p className="text-[11px] text-slate-500">No tasks yet. Add one to start earning EXP.</p>
+                      ) : tasks.map(item => (
+                        <div key={item.id} className="flex items-start gap-3 text-xs">
+                          <button
+                            type="button"
+                            onClick={() => handleToggleTask(item.id)}
+                            className={`w-5 h-5 rounded-lg border flex items-center justify-center transition-colors shrink-0 ${
+                              item.done
+                                ? 'bg-violet-600 border-violet-500 text-white'
+                                : isDarkMode
+                                  ? 'border-white/10 text-transparent hover:border-violet-500'
+                                  : 'border-slate-300 text-transparent hover:border-violet-500'
+                            }`}
+                          >
+                            <Check className="w-3 h-3" />
+                          </button>
+
+                          <div className="flex-1 min-w-0">
+                            {editingTaskId === item.id ? (
+                              <div className="flex items-center gap-2">
+                                <input
+                                  type="text"
+                                  value={editingTaskText}
+                                  onChange={(e) => setEditingTaskText(e.target.value)}
+                                  onKeyDown={(e) => {
+                                    if (e.key === 'Enter') saveTaskEdit(item.id);
+                                    if (e.key === 'Escape') cancelEditTask();
+                                  }}
+                                  className={`flex-1 rounded-2xl border px-3 py-2 text-xs focus:outline-none focus:ring-2 focus:ring-violet-500 transition ${
+                                    isDarkMode ? 'bg-[#0B0914] border-white/10 text-white placeholder-gray-500' : 'bg-white border-slate-200 text-slate-900 placeholder-slate-400'
+                                  }`}
+                                />
+                                <button
+                                  type="button"
+                                  onClick={() => saveTaskEdit(item.id)}
+                                  className="flex h-9 w-9 items-center justify-center rounded-full text-violet-500 hover:bg-violet-500/10 transition"
+                                  title="Save"
+                                >
+                                  <Check className="w-4 h-4" />
+                                </button>
+                                <button
+                                  type="button"
+                                  onClick={cancelEditTask}
+                                  className="flex h-9 w-9 items-center justify-center rounded-full text-slate-500 hover:bg-slate-200 transition"
+                                  title="Cancel"
+                                >
+                                  <X className="w-4 h-4" />
+                                </button>
+                              </div>
+                            ) : (
+                              <div className="flex items-center justify-between gap-3">
+                                <div>
+                                  <p className={`leading-relaxed text-[12px] ${item.done ? 'text-gray-400 line-through' : isDarkMode ? 'text-gray-200' : 'text-slate-800'}`}>
+                                    {item.text}
+                                  </p>
+                                  <span className="text-[10px] text-slate-400">{item.xp} EXP</span>
+                                </div>
+                                <button
+                                  type="button"
+                                  onClick={() => startEditTask(item)}
+                                  className="text-slate-500 hover:text-violet-500 transition"
+                                  title="Edit task"
+                                >
+                                  <Edit3 className="w-4 h-4" />
+                                </button>
+                              </div>
+                            )}
+                          </div>
+                        </div>
+                      ))}
+                    </div>
 
                   <div className={`flex justify-between items-center p-3 rounded-xl border transition-colors duration-300 ${
                     isDarkMode ? 'bg-[#0B0914] border-white/5' : 'bg-slate-50 border-slate-200'
