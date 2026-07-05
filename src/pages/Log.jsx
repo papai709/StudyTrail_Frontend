@@ -181,20 +181,21 @@ export default function Log() {
         <div className="flex-1 flex items-center justify-center p-6 pt-20 pb-20 relative z-10 w-full">
           <div className={`w-full max-w-5xl overflow-hidden rounded-4xl bg-white dark:bg-[#0A0A0A] shadow-2xl border border-slate-200 dark:border-white/5 flex flex-col md:flex-row relative transition-all duration-1000 ease-out transform-gpu ${mounted ? 'opacity-100 translate-y-0 scale-100' : 'opacity-0 translate-y-8 scale-[0.98]'}`}>
 
-            {/* Left Panel */}
-            <div className="hidden md:flex md:w-5/12 bg-linear-to-br from-indigo-600 via-violet-600 to-cyan-500 p-12 text-white flex-col justify-between relative overflow-hidden">
+            {/* Left Panel (Now visible and responsive on mobile) */}
+            <div className="flex w-full md:w-5/12 bg-linear-to-br from-indigo-600 via-violet-600 to-cyan-500 p-8 md:p-12 text-white flex-col justify-center md:justify-between relative overflow-hidden">
               <div className="absolute -bottom-20 -left-20 w-64 h-64 bg-white/10 rounded-full blur-3xl"></div>
               <div className="absolute top-10 -right-10 w-48 h-48 bg-cyan-300/20 rounded-full blur-2xl"></div>
 
-              <div className="flex items-center gap-3 relative z-10">
+              <div className="flex items-center justify-center md:justify-start gap-3 relative z-10 mb-2 md:mb-0">
                 <div className="bg-white/20 p-2 rounded-xl backdrop-blur-sm border border-white/20">
-                  <GraduationCap size={28} />
+                  <GraduationCap size={28} className="w-5 h-5 md:w-7 md:h-7" />
                 </div>
-                <h1 className="text-2xl font-bold tracking-tight">StudyTrail</h1>
+                <h1 className="text-xl md:text-2xl font-bold tracking-tight">StudyTrail</h1>
               </div>
 
-              <div className={`flex justify-center items-center flex-1 relative z-10 my-8 transition-all duration-1000 delay-300 ease-out transform-gpu ${mounted ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-12'}`}>
-                <svg viewBox="0 0 400 400" className="w-full max-w-70 drop-shadow-2xl hover:scale-105 transition-transform duration-700">
+              <div className={`flex justify-center items-center flex-1 relative z-10 my-6 md:my-8 transition-all duration-1000 delay-300 ease-out transform-gpu ${mounted ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-12'}`}>
+                {/* SVG scaled slightly smaller for mobile to avoid taking up the whole screen */}
+                <svg viewBox="0 0 400 400" className="w-full max-w-[160px] md:max-w-70 drop-shadow-2xl hover:scale-105 transition-transform duration-700">
                   <circle cx="200" cy="180" r="120" fill="url(#glow)" opacity="0.8" />
                   <defs>
                     <radialGradient id="glow" cx="0.5" cy="0.5" r="0.5">
@@ -216,7 +217,8 @@ export default function Log() {
                 </svg>
               </div>
 
-              <p className="text-white/80 text-sm font-light relative z-10">
+              {/* Hide paragraph on mobile to save vertical scrolling space */}
+              <p className="text-white/80 text-sm font-light relative z-10 hidden md:block">
                 Join the academic network built for collaboration and excellence.
               </p>
             </div>
@@ -225,16 +227,11 @@ export default function Log() {
             <div className="w-full md:w-7/12 p-8 md:p-14 flex items-center justify-center">
               <div className="w-full max-w-md mx-auto">
                 
-                <Link to="/" className="inline-flex items-center gap-1.5 text-xs font-semibold text-slate-400 hover:text-slate-900 dark:hover:text-white transition-colors mb-8 uppercase tracking-widest">
+                <Link to="/" className="inline-flex items-center gap-1.5 text-xs font-semibold text-slate-400 hover:text-slate-900 dark:hover:text-white transition-colors mb-6 md:mb-8 uppercase tracking-widest">
                   <ArrowLeft size={14} /> Back to Home
                 </Link>
 
-                <div className="md:hidden flex items-center gap-3 mb-8">
-                  <div className="bg-linear-to-tr from-indigo-600 to-cyan-500 p-2 rounded-xl">
-                    <GraduationCap className="text-white" size={20} />
-                  </div>
-                  <span className="font-bold text-2xl dark:text-white">StudyTrail</span>
-                </div>
+                {/* Removed the old md:hidden static header since the animating SVG panel now shows on mobile */}
 
                 <h2 className="text-3xl font-bold text-slate-900 dark:text-white tracking-tight">
                   {authMode === "login" ? "Welcome back." : "Create account."}
