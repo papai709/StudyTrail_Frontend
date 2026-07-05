@@ -391,7 +391,8 @@ const Signed = () => {
             {/* Links (Drops to Bottom Row on Mobile, Centers on Desktop) */}
             <div className="flex w-full md:w-auto items-center justify-center gap-4 md:gap-8 order-3 md:order-2 text-xs md:text-sm font-medium text-slate-500 md:border-transparent pt-2 md:pt-0">
               <a href="#features" className="hover:text-slate-900 dark:hover:text-white transition-colors">Features</a>
-              <a href="#how-it-works" className="hover:text-slate-900 dark:hover:text-white transition-colors">How it Works</a>
+              <Link to="/Workflow" 
+              className="hover:text-slate-900 dark:hover:text-white transition-colors">How It Works</Link>
               <a href="#testimonials" className="hover:text-slate-900 dark:hover:text-white transition-colors">Stories</a>
             </div>
             
