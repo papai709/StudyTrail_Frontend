@@ -2,19 +2,28 @@ import React, { useState, useEffect, useRef } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { 
   Sun, Moon, GraduationCap, Bell, MessageSquare, Camera, Edit2, 
-  Image as ImageIcon, UploadCloud, Mail, BookOpen, Zap, 
-  Flame, Share2, UserPlus, Trophy, Star, Clock, FileText,
-  Activity, Target, CheckCircle2, Users, LogOut, Loader2
+  Image as ImageIcon, Mail, BookOpen, Zap, Flame, Share2, 
+  UserPlus, Trophy, Star, Clock, FileText, Activity, Target, 
+  CheckCircle2, Users, LogOut, Loader2, MoreVertical, X 
 } from 'lucide-react';
 import { useTheme } from './ThemeContext';
 
 const Profile = () => {
   const navigate = useNavigate();
+  // Ensure we are extracting the values correctly from your ThemeContext
   const { isDarkMode, toggleDarkMode } = useTheme();
+  
   const [scrolled, setScrolled] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
   
+  // NEW: Sidebar State
+  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+  
+  // NEW: Connect Button State
+  const [isConnected, setIsConnected] = useState(false);
+  const [connectionHover, setConnectionHover] = useState(false);
+
   // Refs for hidden file inputs
   const coverInputRef = useRef(null);
   const avatarInputRef = useRef(null);
@@ -37,7 +46,7 @@ const Profile = () => {
       xp: 12450, 
       streak: 14, 
       resources: 32, 
-      // 1. Initialize at 0, ready for backend data
+      //1.Initiallize at 0,ready for backend data//
       connections: 0 
     }, 
     goalProgress: 75 
@@ -46,13 +55,8 @@ const Profile = () => {
   // Tab State
   const [activeTab, setActiveTab] = useState('posts');
 
-  // Fetch Logged-in User Data
   useEffect(() => {
     const fetchUserData = async () => {
-      // 2. BACKEND CONNECTION READY: 
-      // Replace this setTimeout with your actual API call 
-      // e.g., const response = await axios.get('/api/users/profile');
-      
       setTimeout(() => {
         const localUserStr = localStorage.getItem("mock_studyTrail_user");
         const user = localUserStr ? JSON.parse(localUserStr) : {
@@ -61,7 +65,7 @@ const Profile = () => {
            bio: "This is a local demo running without a backend.",
            schoolName: "Demo University",
            className: "Computer Science - Year 3",
-           // Simulating the backend returning the connections count
+           //simulating the backend returning the connections count//
            connectionsCount: 142 
         };
         
@@ -78,7 +82,6 @@ const Profile = () => {
           course: user.className?.includes('-') ? user.className.split(' - ')[0].trim() : "",
           year: user.className?.includes('-') ? user.className.split(' - ')[1].trim() : "",
           grade: !user.className?.includes('-') ? user.className : "",
-          // 3. Merge the backend data into the existing stats object
           stats: {
             ...prev.stats,
             connections: user.connectionsCount || 0
@@ -97,12 +100,9 @@ const Profile = () => {
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
-  // Handle Live Image Uploads
   const handleImageUpload = async (e, type) => {
     const file = e.target.files[0];
     if (!file) return;
-
-    // Show preview immediately
     const url = URL.createObjectURL(file);
     setProfileData(prev => ({ ...prev, [type]: url }));
   };
@@ -112,10 +112,8 @@ const Profile = () => {
     setProfileData(prev => ({ ...prev, [name]: value }));
   };
 
-  // Handle Text Profile Updates
   const saveProfile = async () => {
     setIsSaving(true);
-    // Mock save delay
     setTimeout(() => {
       setIsEditing(false);
       setIsSaving(false);
@@ -127,6 +125,19 @@ const Profile = () => {
     navigate("/");
   };
 
+  // NEW: Handle Connect Button Click
+  const handleConnectClick = () => {
+    setIsConnected(!isConnected);
+    // Simulating updating the connection count in state based on backend response
+    setProfileData(prev => ({
+      ...prev,
+      stats: {
+        ...prev.stats,
+        connections: isConnected ? prev.stats.connections - 1 : prev.stats.connections + 1
+      }
+    }));
+  };
+
   if (isLoading) {
     return (
       <div className={`min-h-screen flex items-center justify-center ${isDarkMode ? 'dark bg-[#050505]' : 'bg-[#FAFAFA]'}`}>
@@ -134,6 +145,131 @@ const Profile = () => {
       </div>
     );
   }
+
+  // --- REUSABLE SIDEBAR WIDGETS ---
+  // To avoid duplicating code, we extract the right-column widgets so we can render them in the desktop grid AND the mobile sidebar.
+  
+const GoalWidget = () => {
+  const radius = 70;
+  const circumference = 2 * Math.PI * radius;
+  const progress = profileData.goalProgress;
+
+  return (
+    <div className="bg-white dark:bg-[#0A0A0A] p-6 rounded-3xl border border-black/5 dark:border-white/5 w-full">
+      <h3 className="font-bold text-slate-900 dark:text-white mb-6 flex items-center gap-2">
+        <Target className="text-indigo-500" size={20} />
+        Weekly Goal
+      </h3>
+
+      <div className="flex flex-col items-center">
+
+        <div className="relative w-40 h-40 flex items-center justify-center">
+
+          <svg
+            width="160"
+            height="160"
+            viewBox="0 0 160 160"
+          >
+            {/* Background */}
+            <circle
+              cx="80"
+              cy="80"
+              r={radius}
+              fill="none"
+              stroke={isDarkMode ? "#1f2937" : "#e5e7eb"}
+              strokeWidth="12"
+            />
+
+            {/* Progress */}
+            <circle
+              cx="80"
+              cy="80"
+              r={radius}
+              fill="none"
+              stroke="#6366F1"
+              strokeWidth="12"
+              strokeLinecap="round"
+              transform="rotate(-90 80 80)"
+              strokeDasharray={circumference}
+              strokeDashoffset={
+                circumference -
+                (circumference * progress) / 100
+              }
+              style={{
+                transition: "stroke-dashoffset 1s ease"
+              }}
+            />
+          </svg>
+
+          <div className="absolute inset-0 flex flex-col items-center justify-center">
+            <span className="text-3xl font-black text-slate-900 dark:text-white">
+              {progress}%
+            </span>
+
+            <span className="text-xs text-slate-500 dark:text-slate-400">
+              Completed
+            </span>
+          </div>
+
+        </div>
+
+        <p className="text-sm text-center text-slate-500 dark:text-slate-400 mt-6 px-4">
+          You are almost there! Keep studying to complete your weekly target.
+        </p>
+
+      </div>
+    </div>
+  );
+};
+
+  const BadgesWidget = () => (
+    <div className="bg-white dark:bg-[#0A0A0A] p-6 rounded-3xl border border-black/5 dark:border-white/5">
+      <div className="flex items-center justify-between mb-6">
+        <h3 className="font-bold text-slate-900 dark:text-white flex items-center gap-2">
+          <Star className="text-amber-500" size={20} /> Top Badges
+        </h3>
+        <button className="text-xs font-bold text-indigo-500 hover:text-indigo-600 uppercase tracking-wider">View All</button>
+      </div>
+      <div className="grid grid-cols-2 gap-4">
+        <div className="bg-slate-50 dark:bg-[#111] p-4 rounded-2xl flex flex-col items-center text-center border border-black/5 dark:border-white/5 hover:border-indigo-500/30 transition-colors group cursor-pointer">
+          <div className="w-12 h-12 rounded-full bg-violet-100 dark:bg-violet-500/10 text-violet-500 flex items-center justify-center mb-3 group-hover:scale-110 transition-transform"><Trophy size={20} /></div>
+          <span className="text-xs font-bold text-slate-900 dark:text-white">Top Contributor</span>
+        </div>
+        <div className="bg-slate-50 dark:bg-[#111] p-4 rounded-2xl flex flex-col items-center text-center border border-black/5 dark:border-white/5 hover:border-indigo-500/30 transition-colors group cursor-pointer">
+          <div className="w-12 h-12 rounded-full bg-indigo-100 dark:bg-indigo-500/10 text-indigo-500 flex items-center justify-center mb-3 group-hover:scale-110 transition-transform"><Moon size={20} /></div>
+          <span className="text-xs font-bold text-slate-900 dark:text-white">Night Owl</span>
+        </div>
+        <div className="bg-slate-50 dark:bg-[#111] p-4 rounded-2xl flex flex-col items-center text-center border border-black/5 dark:border-white/5 hover:border-indigo-500/30 transition-colors group cursor-pointer">
+          <div className="w-12 h-12 rounded-full bg-amber-100 dark:bg-amber-500/10 text-amber-500 flex items-center justify-center mb-3 group-hover:scale-110 transition-transform"><Zap size={20} /></div>
+          <span className="text-xs font-bold text-slate-900 dark:text-white">Quick Learner</span>
+        </div>
+        <div className="bg-slate-50 dark:bg-[#111] p-4 rounded-2xl flex flex-col items-center text-center border border-black/5 dark:border-white/5 hover:border-indigo-500/30 transition-colors group cursor-pointer">
+          <div className="w-12 h-12 rounded-full bg-cyan-100 dark:bg-cyan-500/10 text-cyan-500 flex items-center justify-center mb-3 group-hover:scale-110 transition-transform"><Users size={20} /></div>
+          <span className="text-xs font-bold text-slate-900 dark:text-white">Team Player</span>
+        </div>
+      </div>
+    </div>
+  );
+
+  const MobileStatsWidget = () => (
+    <div className="grid grid-cols-2 gap-4 mb-6">
+      <div className="bg-slate-50 dark:bg-[#111] p-4 rounded-2xl border border-black/5 dark:border-white/5 flex flex-col items-center text-center">
+        <Zap className="text-amber-500 mb-2" size={24} />
+        <h3 className="text-xl font-bold text-slate-900 dark:text-white">{profileData.stats.xp}</h3>
+        <p className="text-xs text-slate-500">Total XP</p>
+      </div>
+      <div className="bg-slate-50 dark:bg-[#111] p-4 rounded-2xl border border-black/5 dark:border-white/5 flex flex-col items-center text-center">
+        <Flame className="text-orange-500 mb-2" size={24} />
+        <h3 className="text-xl font-bold text-slate-900 dark:text-white">{profileData.stats.streak}</h3>
+        <p className="text-xs text-slate-500">Day Streak</p>
+      </div>
+      <div className="bg-slate-50 dark:bg-[#111] p-4 rounded-2xl border border-black/5 dark:border-white/5 flex flex-col items-center text-center col-span-2">
+        <Share2 className="text-emerald-500 mb-2" size={24} />
+        <h3 className="text-xl font-bold text-slate-900 dark:text-white">{profileData.stats.resources} Docs</h3>
+        <p className="text-xs text-slate-500">Resources Shared</p>
+      </div>
+    </div>
+  );
 
   return (
     <div className={isDarkMode ? 'dark' : ''}>
@@ -143,11 +279,11 @@ const Profile = () => {
         <div className="absolute top-[-10%] left-[-10%] w-[50%] h-[50%] rounded-full bg-[radial-gradient(circle,rgba(99,102,241,0.15)_0%,rgba(0,0,0,0)_70%)] blur-[100px] pointer-events-none z-0"></div>
         <div className="absolute top-[40%] right-[-10%] w-[40%] h-[40%] rounded-full bg-[radial-gradient(circle,rgba(56,189,248,0.1)_0%,rgba(0,0,0,0)_70%)] blur-[100px] pointer-events-none z-0"></div>
 
-        {/* 1. GLASS NAVBAR (Fully Visible Wrapping on Mobile) */}
-        <nav className={`fixed top-0 w-full z-50 transition-all duration-500 ${scrolled ? 'bg-white/90 dark:bg-[#050505]/90 backdrop-blur-2xl border-b border-black/5 dark:border-white/5 py-3' : 'bg-transparent border-transparent py-3 md:py-5'}`}>
+        {/* 1. GLASS NAVBAR */}
+        <nav className={`fixed top-0 w-full z-40 transition-all duration-500 ${scrolled ? 'bg-white/90 dark:bg-[#050505]/90 backdrop-blur-2xl border-b border-black/5 dark:border-white/5 py-3' : 'bg-transparent border-transparent py-3 md:py-5'}`}>
           <div className="max-w-7xl mx-auto px-3 md:px-6 flex flex-wrap items-center justify-between gap-y-3">
             
-            {/* Logo (Top Left on Mobile) */}
+            {/* Logo */}
             <div className="flex items-center gap-1.5 md:gap-3 order-1 shrink-0">
               <div className="bg-slate-200 dark:bg-white/10 border border-slate-300 dark:border-white/10 p-1.5 md:p-2 rounded-xl shadow-sm transition-colors">
                 <GraduationCap className="text-black dark:text-white w-4 h-4 md:w-6 md:h-6" />
@@ -155,35 +291,47 @@ const Profile = () => {
               <span className="text-lg md:text-2xl font-bold tracking-tight text-black dark:text-white">StudyTrail</span>
             </div>
 
-            {/* Right Actions (Top Right on Mobile) */}
+            {/* Right Actions */}
             <div className="flex items-center gap-1.5 md:gap-4 order-2 md:order-3 shrink-0">
-              <button onClick={toggleDarkMode} className="p-1.5 md:p-2.5 rounded-full bg-slate-200 dark:bg-white/10 text-slate-700 dark:text-amber-300 hover:scale-110 active:scale-95 transition-all">
-                {isDarkMode ? <Sun size={14} className="md:w-4.5 md:h-4.5" /> : <Moon size={14} className="md:w-4.5 md:h-4.5" />}
-              </button>
               
-              <button className="p-1.5 md:p-2.5 rounded-full bg-slate-200 dark:bg-white/10 text-slate-700 dark:text-slate-300 hover:text-indigo-600 dark:hover:text-indigo-400 hover:scale-110 active:scale-95 transition-all relative">
+              {/* FIX: Dark mode toggle - explicitly stop event propagation if necessary, but changing it from a button to div sometimes prevents strange router issues if inside a form. Using a simple onClick */}
+              <div 
+                onClick={(e) => {
+                  e.preventDefault();
+                  toggleDarkMode();
+                }} 
+                className="cursor-pointer p-1.5 md:p-2.5 rounded-full bg-slate-200 dark:bg-white/10 text-slate-700 dark:text-amber-300 hover:scale-110 active:scale-95 transition-all"
+              >
+                {isDarkMode ? <Sun size={14} className="md:w-4.5 md:h-4.5 pointer-events-none" /> : <Moon size={14} className="md:w-4.5 md:h-4.5 pointer-events-none" />}
+              </div>
+              
+              <button className="hidden md:block p-1.5 md:p-2.5 rounded-full bg-slate-200 dark:bg-white/10 text-slate-700 dark:text-slate-300 hover:text-indigo-600 dark:hover:text-indigo-400 hover:scale-110 active:scale-95 transition-all relative">
                 <Bell size={14} className="md:w-4.5 md:h-4.5" />
                 <span className="absolute top-1 right-1 md:top-1.5 md:right-2 w-1.5 h-1.5 md:w-2 md:h-2 bg-red-500 rounded-full border border-white dark:border-[#0A0A0A]"></span>
               </button>
               
-              <button className="p-1.5 md:p-2.5 rounded-full bg-slate-200 dark:bg-white/10 text-slate-700 dark:text-slate-300 hover:text-indigo-600 dark:hover:text-indigo-400 hover:scale-110 active:scale-95 transition-all">
-                <MessageSquare size={14} className="md:w-4.5 md:h-4.5" />
+              {/* FIX: Mobile Sidebar Toggle (Only visible on small screens) */}
+              <button 
+                onClick={() => setIsSidebarOpen(true)}
+                className="md:hidden p-1.5 rounded-full bg-slate-200 dark:bg-white/10 text-slate-700 dark:text-slate-300 hover:text-indigo-600 dark:hover:text-indigo-400 hover:scale-110 active:scale-95 transition-all"
+              >
+                <MoreVertical size={16} />
               </button>
 
-              <div className="w-6 h-6 md:w-9 md:h-9 rounded-full overflow-hidden border-2 border-indigo-500 shadow-sm ml-0.5 md:ml-2 shrink-0">
+              <div className="hidden md:block w-6 h-6 md:w-9 md:h-9 rounded-full overflow-hidden border-2 border-indigo-500 shadow-sm ml-0.5 md:ml-2 shrink-0">
                 <img src={profileData.avatar} alt="Current User" className="w-full h-full object-cover bg-white" />
               </div>
 
-              {/* LOGOUT BUTTON */}
+              {/* LOGOUT BUTTON - Desktop Only */}
               <button 
                 onClick={handleLogout}
-                className="bg-red-50 hover:bg-red-100 dark:bg-red-500/10 dark:hover:bg-red-500/20 text-red-600 dark:text-red-400 px-2.5 md:px-4 py-1.5 md:py-2 rounded-full text-[11px] md:text-sm font-semibold hover:scale-105 active:scale-95 transition-all shadow-sm flex items-center gap-1 md:gap-2 shrink-0 ml-0.5"
+                className="hidden md:flex bg-red-50 hover:bg-red-100 dark:bg-red-500/10 dark:hover:bg-red-500/20 text-red-600 dark:text-red-400 px-2.5 md:px-4 py-1.5 md:py-2 rounded-full text-[11px] md:text-sm font-semibold hover:scale-105 active:scale-95 transition-all shadow-sm items-center gap-1 md:gap-2 shrink-0 ml-0.5"
               >
                 <LogOut size={12} className="md:w-4 md:h-4" /> <span className="inline">Logout</span>
               </button>
             </div>
 
-            {/* Links (Drops to Bottom Row on Mobile, Centers on Desktop) */}
+            {/* Links */}
             <div className="flex w-full md:w-auto items-center justify-center gap-4 md:gap-8 order-3 md:order-2 text-xs md:text-sm font-medium text-slate-500  md:border-transparent pt-2 md:pt-0">
               <a href="#" className="text-indigo-600 dark:text-indigo-400 font-bold transition-colors">Home</a>
               <Link to="/Working" className="hover:text-slate-900 dark:hover:text-white transition-colors">
@@ -196,7 +344,53 @@ const Profile = () => {
           </div>
         </nav>
 
-        {/* Adjusted padding-top for wrapping nav */}
+        {/* --- MOBILE SIDEBAR --- */}
+        {/* Backdrop */}
+        {isSidebarOpen && (
+          <div 
+            className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 md:hidden transition-opacity"
+            onClick={() => setIsSidebarOpen(false)}
+          />
+        )}
+        
+        {/* Sidebar Panel */}
+        <div className={`fixed top-0 right-0 h-full w-[85%] sm:w-80 bg-white dark:bg-[#0A0A0A] shadow-2xl z-50 transform transition-transform duration-300 ease-in-out md:hidden overflow-y-auto ${isSidebarOpen ? 'translate-x-0' : 'translate-x-full'}`}>
+          <div className="p-6">
+            <div className="flex justify-between items-center mb-8 pb-4 border-b border-black/5 dark:border-white/5">
+              <div className="flex items-center gap-3">
+                <img src={profileData.avatar} alt="Current User" className="w-10 h-10 rounded-full border-2 border-indigo-500 object-cover" />
+                <div>
+                  <p className="font-bold text-slate-900 dark:text-white leading-tight">{profileData.name}</p>
+                  <p className="text-xs text-slate-500">Student Dashboard</p>
+                </div>
+              </div>
+              <button onClick={() => setIsSidebarOpen(false)} className="p-2 bg-slate-100 dark:bg-[#111] rounded-full text-slate-500 hover:text-slate-900 dark:hover:text-white">
+                <X size={20} />
+              </button>
+            </div>
+
+            {/* Mobile Sidebar Content */}
+            <h4 className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-4">Your Stats</h4>
+            <MobileStatsWidget />
+            
+            <div className="space-y-6 mt-8">
+              <GoalWidget />
+              <BadgesWidget />
+            </div>
+
+            <div className="mt-8 pt-6 border-t border-black/5 dark:border-white/5 space-y-3">
+              <button className="w-full flex items-center gap-3 p-3 rounded-xl hover:bg-slate-50 dark:hover:bg-[#111] text-slate-700 dark:text-slate-300 transition-colors">
+                <Bell size={18} /> Notifications <span className="ml-auto bg-red-500 text-white text-[10px] font-bold px-2 py-0.5 rounded-full">3</span>
+              </button>
+              <button onClick={handleLogout} className="w-full flex items-center gap-3 p-3 rounded-xl hover:bg-red-50 dark:hover:bg-red-500/10 text-red-600 dark:text-red-400 transition-colors font-semibold">
+                <LogOut size={18} /> Logout
+              </button>
+            </div>
+          </div>
+        </div>
+        {/* --- END MOBILE SIDEBAR --- */}
+
+
         <main className="flex-1 relative z-10 pt-32 md:pt-36 pb-20">
           <div className="max-w-7xl mx-auto px-4 sm:px-6">
             
@@ -254,7 +448,6 @@ const Profile = () => {
                           
                           <input type="email" name="email" value={profileData.email} onChange={handleInputChange} className="w-full px-4 py-3 rounded-xl bg-slate-50 dark:bg-[#111] border border-black/10 dark:border-white/10 focus:ring-2 focus:ring-indigo-500/50 text-sm" placeholder="Email address" />
                           
-                          {/* Education Toggle inside Edit */}
                           <div className="flex gap-4">
                             <label className="flex items-center gap-2 text-sm">
                               <input type="radio" name="type" value="college" checked={profileData.type === 'college'} onChange={handleInputChange} className="text-indigo-500" /> College
@@ -287,7 +480,6 @@ const Profile = () => {
                             {profileData.bio}
                           </p>
                           
-                          {/* Connections Link (LinkedIn Style) populated by state */}
                           <div className="pt-2">
                             <a href="#" className="inline-flex items-center text-sm font-semibold text-indigo-600 dark:text-indigo-400 hover:underline hover:text-indigo-700 dark:hover:text-indigo-300 transition-colors">
                               {profileData.stats.connections} connections
@@ -316,20 +508,39 @@ const Profile = () => {
 
                     {/* Action Buttons */}
                     <div className="flex lg:flex-col gap-3 shrink-0 pt-4 lg:pt-0 border-t lg:border-t-0 border-black/5 dark:border-white/5">
-                      <button className="flex-1 lg:flex-none flex items-center justify-center gap-2 px-6 py-3 rounded-xl font-bold text-black dark:text-white bg-linear-to-r from-indigo-600 to-cyan-500 hover:scale-105 active:scale-95 transition-all shadow-lg shadow-indigo-500/25">
-                        <UserPlus size={18} /> Connect
+                      {/* FIX: Improved Connect Button Logic */}
+                      <button 
+                        onClick={handleConnectClick}
+                        onMouseEnter={() => setConnectionHover(true)}
+                        onMouseLeave={() => setConnectionHover(false)}
+                        className={`flex-1 lg:flex-none flex items-center justify-center gap-2 px-6 py-3 rounded-xl font-bold transition-all shadow-lg ${
+                          isConnected 
+                            ? (connectionHover ? 'bg-red-50 text-red-600 dark:bg-red-500/10 dark:text-red-400 shadow-none' : 'bg-white dark:bg-[#111] text-slate-900 dark:text-white border border-slate-200 dark:border-white/10 shadow-none')
+                            : 'text-blue-600 bg-linear-to-r from-indigo-600 to-cyan-500 hover:scale-105 active:scale-95 shadow-indigo-500/25'
+                        }`}
+                      >
+                        {isConnected ? (
+                          connectionHover ? <><X size={18} /> Disconnect</> : <><CheckCircle2 size={18} className="text-emerald-500" /> Connected</>
+                        ) : (
+                          <><UserPlus size={18} /> Connect</>
+                        )}
                       </button>
-                      <button className="flex-1 lg:flex-none flex items-center justify-center gap-2 px-6 py-3 rounded-xl font-bold text-slate-700 dark:text-slate-200 bg-slate-100 hover:bg-slate-200 dark:bg-white/5 dark:hover:bg-white/10 active:scale-95 transition-all border border-black/5 dark:border-white/10">
+                      
+                      {/* FIX: Message Button uses Router Link */}
+                      <Link 
+                        to="/Working"
+                        className="flex-1 lg:flex-none flex items-center justify-center gap-2 px-6 py-3 rounded-xl font-bold text-slate-700 dark:text-slate-200 bg-slate-100 hover:bg-slate-200 dark:bg-white/5 dark:hover:bg-white/10 active:scale-95 transition-all border border-black/5 dark:border-white/10"
+                      >
                         <MessageSquare size={18} /> Message
-                      </button>
+                      </Link>
                     </div>
                   </div>
                 </div>
               </div>
             </div>
 
-            {/* 3. STATS CARDS */}
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+            {/* 3. STATS CARDS (Desktop Only - Mobile handles this in sidebar now, but kept here if desired for tablet) */}
+            <div className="hidden md:grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
               <div className="bg-white dark:bg-[#0A0A0A] p-6 rounded-3xl border border-black/5 dark:border-white/5 flex items-center gap-5 hover:-translate-y-1 transition-transform shadow-sm">
                 <div className="w-14 h-14 rounded-2xl bg-amber-100 dark:bg-amber-500/10 flex items-center justify-center shrink-0">
                   <Zap className="text-amber-500" size={28} />
@@ -429,88 +640,10 @@ const Profile = () => {
                 </div>
               </div>
 
-              {/* RIGHT COLUMN: Sidebar widgets */}
-              <div className="lg:col-span-4 space-y-6">
-                
-                {/* Goal Progress Widget */}
-                <div className="bg-white dark:bg-[#0A0A0A] p-6 rounded-3xl border border-black/5 dark:border-white/5">
-                  <h3 className="font-bold text-slate-900 dark:text-white mb-6 flex items-center gap-2">
-                    <Target className="text-indigo-500" size={20} /> Weekly Goal
-                  </h3>
-                  
-                  <div className="flex flex-col items-center justify-center">
-                    <div className="relative w-40 h-40 flex items-center justify-center">
-                      <svg className="w-full h-full transform -rotate-90">
-                        <circle cx="80" cy="80" r="70" fill="transparent" stroke="currentColor" strokeWidth="12" className="text-slate-100 dark:text-slate-800" />
-                        {/* Circle Circumference = 2 * PI * r = 2 * 3.1415 * 70 = 439.8 */}
-                        <circle 
-                          cx="80" cy="80" r="70" 
-                          fill="transparent" 
-                          stroke="url(#gradient)" 
-                          strokeWidth="12" 
-                          strokeLinecap="round"
-                          strokeDasharray="439.8" 
-                          strokeDashoffset={439.8 - (439.8 * profileData.goalProgress) / 100} 
-                          className="transition-all duration-1000 ease-out drop-shadow-md" 
-                        />
-                        <defs>
-                          <linearGradient id="gradient" x1="0%" y1="0%" x2="100%" y2="0%">
-                            <stop offset="0%" stopColor="#6366f1" />
-                            <stop offset="100%" stopColor="#06b6d4" />
-                          </linearGradient>
-                        </defs>
-                      </svg>
-                      <div className="absolute inset-0 flex flex-col items-center justify-center">
-                        <span className="text-3xl font-black text-slate-900 dark:text-white">{profileData.goalProgress}%</span>
-                        <span className="text-xs font-medium text-slate-500">Completed</span>
-                      </div>
-                    </div>
-                    <p className="text-sm text-center text-slate-500 dark:text-slate-400 mt-6 px-4">
-                      You are almost there! Keep studying to complete your weekly target.
-                    </p>
-                  </div>
-                </div>
-
-                {/* Achievements Highlights Widget */}
-                <div className="bg-white dark:bg-[#0A0A0A] p-6 rounded-3xl border border-black/5 dark:border-white/5">
-                  <div className="flex items-center justify-between mb-6">
-                    <h3 className="font-bold text-slate-900 dark:text-white flex items-center gap-2">
-                      <Star className="text-amber-500" size={20} /> Top Badges
-                    </h3>
-                    <button className="text-xs font-bold text-indigo-500 hover:text-indigo-600 uppercase tracking-wider">View All</button>
-                  </div>
-                  
-                  <div className="grid grid-cols-2 gap-4">
-                    <div className="bg-slate-50 dark:bg-[#111] p-4 rounded-2xl flex flex-col items-center text-center border border-black/5 dark:border-white/5 hover:border-indigo-500/30 transition-colors group cursor-pointer">
-                      <div className="w-12 h-12 rounded-full bg-violet-100 dark:bg-violet-500/10 text-violet-500 flex items-center justify-center mb-3 group-hover:scale-110 transition-transform">
-                        <Trophy size={20} />
-                      </div>
-                      <span className="text-xs font-bold text-slate-900 dark:text-white">Top Contributor</span>
-                    </div>
-
-                    <div className="bg-slate-50 dark:bg-[#111] p-4 rounded-2xl flex flex-col items-center text-center border border-black/5 dark:border-white/5 hover:border-indigo-500/30 transition-colors group cursor-pointer">
-                      <div className="w-12 h-12 rounded-full bg-indigo-100 dark:bg-indigo-500/10 text-indigo-500 flex items-center justify-center mb-3 group-hover:scale-110 transition-transform">
-                        <Moon size={20} />
-                      </div>
-                      <span className="text-xs font-bold text-slate-900 dark:text-white">Night Owl</span>
-                    </div>
-
-                    <div className="bg-slate-50 dark:bg-[#111] p-4 rounded-2xl flex flex-col items-center text-center border border-black/5 dark:border-white/5 hover:border-indigo-500/30 transition-colors group cursor-pointer">
-                      <div className="w-12 h-12 rounded-full bg-amber-100 dark:bg-amber-500/10 text-amber-500 flex items-center justify-center mb-3 group-hover:scale-110 transition-transform">
-                        <Zap size={20} />
-                      </div>
-                      <span className="text-xs font-bold text-slate-900 dark:text-white">Quick Learner</span>
-                    </div>
-
-                    <div className="bg-slate-50 dark:bg-[#111] p-4 rounded-2xl flex flex-col items-center text-center border border-black/5 dark:border-white/5 hover:border-indigo-500/30 transition-colors group cursor-pointer">
-                      <div className="w-12 h-12 rounded-full bg-cyan-100 dark:bg-cyan-500/10 text-cyan-500 flex items-center justify-center mb-3 group-hover:scale-110 transition-transform">
-                        <Users size={20} />
-                      </div>
-                      <span className="text-xs font-bold text-slate-900 dark:text-white">Team Player</span>
-                    </div>
-                  </div>
-                </div>
-
+              {/* RIGHT COLUMN: Sidebar widgets (Hidden on mobile, shown in sidebar) */}
+              <div className="hidden lg:block lg:col-span-4 space-y-6">
+                <GoalWidget />
+                <BadgesWidget />
               </div>
             </div>
           </div>
