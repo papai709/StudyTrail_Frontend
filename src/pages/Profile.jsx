@@ -142,16 +142,16 @@ const Profile = () => {
             {/* Right Actions (Top Right on Mobile) */}
             <div className="flex items-center gap-1.5 md:gap-4 order-2 md:order-3 shrink-0">
               <button onClick={toggleDarkMode} className="p-1.5 md:p-2.5 rounded-full bg-slate-200 dark:bg-white/10 text-slate-700 dark:text-amber-300 hover:scale-110 active:scale-95 transition-all">
-                {isDarkMode ? <Sun size={14} className="md:w-[18px] md:h-[18px]" /> : <Moon size={14} className="md:w-[18px] md:h-[18px]" />}
+                {isDarkMode ? <Sun size={14} className="md:w-4.5 md:h-4.5" /> : <Moon size={14} className="md:w-4.5 md:h-4.5" />}
               </button>
               
               <button className="p-1.5 md:p-2.5 rounded-full bg-slate-200 dark:bg-white/10 text-slate-700 dark:text-slate-300 hover:text-indigo-600 dark:hover:text-indigo-400 hover:scale-110 active:scale-95 transition-all relative">
-                <Bell size={14} className="md:w-[18px] md:h-[18px]" />
+                <Bell size={14} className="md:w-4.5 md:h-4.5" />
                 <span className="absolute top-1 right-1 md:top-1.5 md:right-2 w-1.5 h-1.5 md:w-2 md:h-2 bg-red-500 rounded-full border border-white dark:border-[#0A0A0A]"></span>
               </button>
               
               <button className="p-1.5 md:p-2.5 rounded-full bg-slate-200 dark:bg-white/10 text-slate-700 dark:text-slate-300 hover:text-indigo-600 dark:hover:text-indigo-400 hover:scale-110 active:scale-95 transition-all">
-                <MessageSquare size={14} className="md:w-[18px] md:h-[18px]" />
+                <MessageSquare size={14} className="md:w-4.5 md:h-4.5" />
               </button>
 
               <div className="w-6 h-6 md:w-9 md:h-9 rounded-full overflow-hidden border-2 border-indigo-500 shadow-sm ml-0.5 md:ml-2 shrink-0">
@@ -163,12 +163,12 @@ const Profile = () => {
                 onClick={handleLogout}
                 className="bg-red-50 hover:bg-red-100 dark:bg-red-500/10 dark:hover:bg-red-500/20 text-red-600 dark:text-red-400 px-2.5 md:px-4 py-1.5 md:py-2 rounded-full text-[11px] md:text-sm font-semibold hover:scale-105 active:scale-95 transition-all shadow-sm flex items-center gap-1 md:gap-2 shrink-0 ml-0.5"
               >
-                <LogOut size={12} className="md:w-[16px] md:h-[16px]" /> <span className="inline">Logout</span>
+                <LogOut size={12} className="md:w-4 md:h-4" /> <span className="inline">Logout</span>
               </button>
             </div>
 
             {/* Links (Drops to Bottom Row on Mobile, Centers on Desktop) */}
-            <div className="flex w-full md:w-auto items-center justify-center gap-4 md:gap-8 order-3 md:order-2 text-xs md:text-sm font-medium text-slate-500 dark:text-slate-400 border-t border-black/10 dark:border-white/10 md:border-transparent pt-2 md:pt-0">
+            <div className="flex w-full md:w-auto items-center justify-center gap-4 md:gap-8 order-3 md:order-2 text-xs md:text-sm font-medium text-slate-500  md:border-transparent pt-2 md:pt-0">
               <a href="#" className="text-indigo-600 dark:text-indigo-400 font-bold transition-colors">Home</a>
               <a href="#leaderboard" className="hover:text-slate-900 dark:hover:text-white transition-colors">Leaderboard</a>
               <Link to="/feed" className="hover:text-slate-900 dark:hover:text-white transition-colors">
@@ -346,7 +346,7 @@ const Profile = () => {
                     <button 
                       key={tab}
                       onClick={() => setActiveTab(tab)}
-                      className={`flex-1 min-w-[120px] py-3 px-4 rounded-xl font-semibold text-sm capitalize transition-all flex items-center justify-center gap-2 ${activeTab === tab ? 'bg-indigo-50 dark:bg-indigo-500/10 text-indigo-600 dark:text-indigo-400 shadow-sm' : 'text-slate-500 hover:text-slate-900 dark:hover:text-slate-200'}`}
+                      className={`flex-1 min-w-30 py-3 px-4 rounded-xl font-semibold text-sm capitalize transition-all flex items-center justify-center gap-2 ${activeTab === tab ? 'bg-indigo-50 dark:bg-indigo-500/10 text-indigo-600 dark:text-indigo-400 shadow-sm' : 'text-slate-500 hover:text-slate-900 dark:hover:text-slate-200'}`}
                     >
                       {tab === 'posts' && <FileText size={16} />}
                       {tab === 'achievements' && <Trophy size={16} />}
@@ -357,7 +357,7 @@ const Profile = () => {
                 </div>
 
                 {/* Tab Content Area */}
-                <div className="bg-white dark:bg-[#0A0A0A] rounded-3xl p-6 md:p-8 border border-black/5 dark:border-white/5 min-h-[400px]">
+                <div className="bg-white dark:bg-[#0A0A0A] rounded-3xl p-6 md:p-8 border border-black/5 dark:border-white/5 min-h-100">
                   {activeTab === 'posts' && (
                     <div className="space-y-6 animate-in fade-in duration-500">
                       <div className="pb-6 border-b border-black/5 dark:border-white/5">

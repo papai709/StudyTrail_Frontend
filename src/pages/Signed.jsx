@@ -369,7 +369,7 @@ const Signed = () => {
                 onClick={toggleDarkMode}
                 className="p-1.5 md:p-2.5 rounded-full bg-slate-200 dark:bg-white/10 text-slate-700 dark:text-amber-300 hover:scale-110 active:scale-95 transition-all"
               >
-                {isDarkMode ? <Sun size={14} className="md:w-[18px] md:h-[18px]" /> : <Moon size={14} className="md:w-[18px] md:h-[18px]" />}
+                {isDarkMode ? <Sun size={14} className="md:w-4.5 md:h-4.5" /> : <Moon size={14} className="md:w-4.5 md:h-4.5" />}
               </button>
 
               <div className="flex items-center gap-1.5 md:gap-2">
@@ -389,7 +389,7 @@ const Signed = () => {
             </div>
 
             {/* Links (Drops to Bottom Row on Mobile, Centers on Desktop) */}
-            <div className="flex w-full md:w-auto items-center justify-center gap-4 md:gap-8 order-3 md:order-2 text-xs md:text-sm font-medium text-slate-500 dark:text-slate-400 border-t border-black/10 dark:border-white/10 md:border-transparent pt-2 md:pt-0">
+            <div className="flex w-full md:w-auto items-center justify-center gap-4 md:gap-8 order-3 md:order-2 text-xs md:text-sm font-medium text-slate-500 md:border-transparent pt-2 md:pt-0">
               <a href="#features" className="hover:text-slate-900 dark:hover:text-white transition-colors">Features</a>
               <a href="#how-it-works" className="hover:text-slate-900 dark:hover:text-white transition-colors">How it Works</a>
               <a href="#testimonials" className="hover:text-slate-900 dark:hover:text-white transition-colors">Stories</a>

@@ -183,7 +183,8 @@ export default function Log() {
 
             {/* Left Panel (Now visible and responsive on mobile) */}
             <div className="flex w-full md:w-5/12 bg-linear-to-br from-indigo-600 via-violet-600 to-cyan-500 p-8 md:p-12 text-white flex-col justify-center md:justify-between relative overflow-hidden">
-              <div className="absolute -bottom-20 -left-20 w-64 h-64 bg-white/10 rounded-full blur-3xl"></div>
+              <div className="absolute -bottom-5 -left-6 w-100 h-100 bg-violet-600 full blur-2xl"></div>
+              <div className="absolute top-5 left-9 w-100 h-100 bg-violet-600 full blur-2xl"></div>
               <div className="absolute top-10 -right-10 w-48 h-48 bg-cyan-300/20 rounded-full blur-2xl"></div>
 
               <div className="flex items-center justify-center md:justify-start gap-3 relative z-10 mb-2 md:mb-0">
@@ -195,7 +196,7 @@ export default function Log() {
 
               <div className={`flex justify-center items-center flex-1 relative z-10 my-6 md:my-8 transition-all duration-1000 delay-300 ease-out transform-gpu ${mounted ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-12'}`}>
                 {/* SVG scaled slightly smaller for mobile to avoid taking up the whole screen */}
-                <svg viewBox="0 0 400 400" className="w-full max-w-[160px] md:max-w-70 drop-shadow-2xl hover:scale-105 transition-transform duration-700">
+                <svg viewBox="0 0 400 400" className="w-full max-w-40 md:max-w-70 drop-shadow-2xl hover:scale-105 transition-transform duration-700">
                   <circle cx="200" cy="180" r="120" fill="url(#glow)" opacity="0.8" />
                   <defs>
                     <radialGradient id="glow" cx="0.5" cy="0.5" r="0.5">
@@ -212,7 +213,7 @@ export default function Log() {
                     <path d="M22 10v6" stroke="white" strokeWidth="2" strokeLinecap="round" />
                     <path d="M6 12.5V16a6 3 0 0 0 12 0v-3.5" stroke="white" strokeWidth="2" strokeLinecap="round" />
                   </g>
-                  <text x="200" y="340" textAnchor="middle" fill="white" fontSize="22" fontWeight="800" letterSpacing="-0.5">Empowering Students</text>
+                  <text x="200" y="340" textAnchor="middle" fill="white" fontSize="35" fontWeight="800" letterSpacing="-0.5">Empowering Students</text>
                   <text x="200" y="370" textAnchor="middle" fill="rgba(255,255,255,0.8)" fontSize="14" fontWeight="500" letterSpacing="4" className="uppercase">Worldwide</text>
                 </svg>
               </div>

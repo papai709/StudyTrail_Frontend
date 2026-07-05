@@ -80,12 +80,12 @@ const Home = () => {
                 state={{ mode: 'register' }} 
                 className="bg-slate-900 dark:bg-white text-white dark:text-slate-900 px-3 py-1.5 md:px-5 md:py-2.5 rounded-full text-xs md:text-sm font-semibold hover:scale-105 active:scale-95 transition-all shadow-lg flex items-center gap-1 md:gap-2"
               >
-                Get Started <ArrowRight size={12} className="md:w-[16px] md:h-[16px]" />
+                Get Started <ArrowRight size={12} className="md:w-4 md:h-4" />
               </Link>
             </div>
 
             {/* Links (Drops to Bottom Row on Mobile, Centers on Desktop) */}
-            <div className="flex w-full md:w-auto items-center justify-center gap-4 md:gap-8 order-3 md:order-2 text-xs md:text-sm font-medium text-slate-500 dark:text-slate-400 border-t border-black/10 dark:border-white/10 md:border-transparent pt-2 md:pt-0">
+            <div className="flex w-full md:w-auto items-center justify-center gap-4 md:gap-8 order-3 md:order-2 text-xs md:text-sm font-medium text-slate-500 md:border-transparent pt-2 md:pt-0">
               <a href="#features" className="hover:text-slate-900 dark:hover:text-white transition-colors">Features</a>
               <a href="#how-it-works" className="hover:text-slate-900 dark:hover:text-white transition-colors">How it Works</a>
               <a href="#testimonials" className="hover:text-slate-900 dark:hover:text-white transition-colors">Stories</a>
@@ -120,7 +120,7 @@ const Home = () => {
                 >
                   Create Free Account
                 </Link>
-                <Link to="/feed" className="bg-white/50 dark:bg-white/5 text-slate-700 dark:text-slate-200 border border-black/10 dark:border-white/10 px-8 py-4 rounded-full text-base font-semibold hover:bg-black/5 dark:hover:bg-white/10 transition-all duration-300 backdrop-blur-md flex items-center justify-center gap-2">
+                <Link to="/Log" className="bg-white/50 dark:bg-white/5 text-slate-700 dark:text-slate-200 border border-black/10 dark:border-white/10 px-8 py-4 rounded-full text-base font-semibold hover:bg-black/5 dark:hover:bg-white/10 transition-all duration-300 backdrop-blur-md flex items-center justify-center gap-2">
                   <Globe size={20} /> Explore Community
                 </Link>
               </div>
