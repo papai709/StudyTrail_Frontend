@@ -33,7 +33,13 @@ const Profile = () => {
     grade: "",
     avatar: "https://api.dicebear.com/7.x/avataaars/svg?seed=Alex&backgroundColor=e2e8f0",
     cover: "https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?q=80&w=2000&auto=format&fit=crop",
-    stats: { xp: 12450, streak: 14, resources: 32 },
+    stats: { 
+      xp: 12450, 
+      streak: 14, 
+      resources: 32, 
+      // 1. Initialize at 0, ready for backend data
+      connections: 0 
+    }, 
     goalProgress: 75 
   });
 
@@ -43,7 +49,10 @@ const Profile = () => {
   // Fetch Logged-in User Data
   useEffect(() => {
     const fetchUserData = async () => {
-      // Mock fetching user data from local storage
+      // 2. BACKEND CONNECTION READY: 
+      // Replace this setTimeout with your actual API call 
+      // e.g., const response = await axios.get('/api/users/profile');
+      
       setTimeout(() => {
         const localUserStr = localStorage.getItem("mock_studyTrail_user");
         const user = localUserStr ? JSON.parse(localUserStr) : {
@@ -51,7 +60,9 @@ const Profile = () => {
            email: "demo@example.com",
            bio: "This is a local demo running without a backend.",
            schoolName: "Demo University",
-           className: "Computer Science - Year 3"
+           className: "Computer Science - Year 3",
+           // Simulating the backend returning the connections count
+           connectionsCount: 142 
         };
         
         setProfileData(prev => ({
@@ -66,7 +77,12 @@ const Profile = () => {
           schoolName: user.schoolName || "",
           course: user.className?.includes('-') ? user.className.split(' - ')[0].trim() : "",
           year: user.className?.includes('-') ? user.className.split(' - ')[1].trim() : "",
-          grade: !user.className?.includes('-') ? user.className : ""
+          grade: !user.className?.includes('-') ? user.className : "",
+          // 3. Merge the backend data into the existing stats object
+          stats: {
+            ...prev.stats,
+            connections: user.connectionsCount || 0
+          }
         }));
         setIsLoading(false);
       }, 500);
@@ -86,7 +102,7 @@ const Profile = () => {
     const file = e.target.files[0];
     if (!file) return;
 
-    // 1. Show preview immediately
+    // Show preview immediately
     const url = URL.createObjectURL(file);
     setProfileData(prev => ({ ...prev, [type]: url }));
   };
@@ -170,7 +186,9 @@ const Profile = () => {
             {/* Links (Drops to Bottom Row on Mobile, Centers on Desktop) */}
             <div className="flex w-full md:w-auto items-center justify-center gap-4 md:gap-8 order-3 md:order-2 text-xs md:text-sm font-medium text-slate-500  md:border-transparent pt-2 md:pt-0">
               <a href="#" className="text-indigo-600 dark:text-indigo-400 font-bold transition-colors">Home</a>
-              <a href="#leaderboard" className="hover:text-slate-900 dark:hover:text-white transition-colors">Leaderboard</a>
+              <Link to="/Working" className="hover:text-slate-900 dark:hover:text-white transition-colors">
+                Leaderboard
+              </Link>
               <Link to="/feed" className="hover:text-slate-900 dark:hover:text-white transition-colors">
                 Explore
               </Link>
@@ -268,6 +286,14 @@ const Profile = () => {
                           <p className="text-slate-600 dark:text-slate-300 leading-relaxed text-sm md:text-base">
                             {profileData.bio}
                           </p>
+                          
+                          {/* Connections Link (LinkedIn Style) populated by state */}
+                          <div className="pt-2">
+                            <a href="#" className="inline-flex items-center text-sm font-semibold text-indigo-600 dark:text-indigo-400 hover:underline hover:text-indigo-700 dark:hover:text-indigo-300 transition-colors">
+                              {profileData.stats.connections} connections
+                            </a>
+                          </div>
+
                           <div className="flex flex-wrap gap-y-3 gap-x-6 text-sm font-medium text-slate-500 dark:text-slate-400">
                             <div className="flex items-center gap-2">
                               <Mail size={16} className="text-indigo-500" /> {profileData.email}
@@ -509,7 +535,8 @@ const Profile = () => {
               <h4 className="font-semibold text-slate-900 dark:text-white mb-6">Platform</h4>
               <ul className="space-y-4 text-sm text-slate-500 dark:text-slate-400">
                 <li><a href="#" className="hover:text-slate-900 dark:hover:text-white transition-colors">Features</a></li>
-                <li><a href="#" className="hover:text-slate-900 dark:hover:text-white transition-colors">Leaderboard</a></li>
+                <li><Link to="/Working" 
+                 className="hover:text-slate-900 dark:hover:text-white transition-colors">Leaderboard</Link></li>
                 <li><a href="#" className="hover:text-slate-900 dark:hover:text-white transition-colors">Resources</a></li>
                 <li><a href="#" className="hover:text-slate-900 dark:hover:text-white transition-colors">Pricing</a></li>
               </ul>
