@@ -13,7 +13,7 @@ const Profile = () => {
   const { isDarkMode, toggleDarkMode } = useTheme();
   const [scrolled, setScrolled] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
-  const [isSaving, setIsSaving] = useState(false); // Added for save button state
+  const [isSaving, setIsSaving] = useState(false);
   
   // Refs for hidden file inputs
   const coverInputRef = useRef(null);
@@ -41,13 +41,8 @@ const Profile = () => {
   const [activeTab, setActiveTab] = useState('posts');
 
   // Fetch Logged-in User Data
-useEffect(() => {
+  useEffect(() => {
     const fetchUserData = async () => {
-      /* --- BACKEND COMMENTED OUT ---
-      const response = await fetch("http://localhost:8090/api/v1/user/current-user", { ... });
-      ...
-      -------------------------------- */
-
       // Mock fetching user data from local storage
       setTimeout(() => {
         const localUserStr = localStorage.getItem("mock_studyTrail_user");
@@ -86,7 +81,7 @@ useEffect(() => {
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
-  // Handle Live Image Uploads to Backend
+  // Handle Live Image Uploads
   const handleImageUpload = async (e, type) => {
     const file = e.target.files[0];
     if (!file) return;
@@ -94,14 +89,6 @@ useEffect(() => {
     // 1. Show preview immediately
     const url = URL.createObjectURL(file);
     setProfileData(prev => ({ ...prev, [type]: url }));
-
-    /* --- BACKEND COMMENTED OUT ---
-    const formData = new FormData();
-    const endpoint = type === 'avatar' ? '/update-profile-image' : '/update-cover-image'; 
-    const fileField = type === 'avatar' ? 'profileImage' : 'coverImage';
-    formData.append(fileField, file);
-    const response = await fetch(`http://localhost:8090/api/v1/user${endpoint}`, { ... });
-    -------------------------------- */
   };
 
   const handleInputChange = (e) => {
@@ -109,13 +96,9 @@ useEffect(() => {
     setProfileData(prev => ({ ...prev, [name]: value }));
   };
 
-  // Handle Text Profile Updates to Backend
+  // Handle Text Profile Updates
   const saveProfile = async () => {
     setIsSaving(true);
-    /* --- BACKEND COMMENTED OUT ---
-    const response = await fetch("http://localhost:8090/api/v1/user/update-account", { ... });
-    -------------------------------- */
-    
     // Mock save delay
     setTimeout(() => {
       setIsEditing(false);
@@ -124,9 +107,6 @@ useEffect(() => {
   };
 
   const handleLogout = async () => {
-    /* --- BACKEND COMMENTED OUT ---
-    await fetch("http://localhost:8090/api/v1/user/logout", { ... });
-    -------------------------------- */
     localStorage.removeItem("mock_studyTrail_user");
     navigate("/");
   };
@@ -147,57 +127,59 @@ useEffect(() => {
         <div className="absolute top-[-10%] left-[-10%] w-[50%] h-[50%] rounded-full bg-[radial-gradient(circle,rgba(99,102,241,0.15)_0%,rgba(0,0,0,0)_70%)] blur-[100px] pointer-events-none z-0"></div>
         <div className="absolute top-[40%] right-[-10%] w-[40%] h-[40%] rounded-full bg-[radial-gradient(circle,rgba(56,189,248,0.1)_0%,rgba(0,0,0,0)_70%)] blur-[100px] pointer-events-none z-0"></div>
 
-        {/* 1. GLASS NAVBAR */}
-        <nav className={`fixed top-0 w-full z-50 transition-all duration-500 ${scrolled ? 'bg-white/70 dark:bg-[#050505]/70 backdrop-blur-2xl border-b border-black/5 dark:border-white/5 py-3' : 'bg-transparent border-transparent py-5'}`}>
-          <div className="max-w-7xl mx-auto px-6 flex items-center justify-between">
-            {/* Logo */}
-            <div className="flex items-center gap-3">
-              <div className="bg-slate-200 dark:bg-white/10 border border-slate-300 dark:border-white/10 p-2 rounded-xl shadow-sm transition-colors">
-                <GraduationCap className="text-black dark:text-white" size={24} />
-              </div>
-              <span className="text-2xl font-bold tracking-tight text-black dark:text-white hidden sm:block">StudyTrail</span>
-            </div>
+        {/* 1. GLASS NAVBAR (Fully Visible Wrapping on Mobile) */}
+        <nav className={`fixed top-0 w-full z-50 transition-all duration-500 ${scrolled ? 'bg-white/90 dark:bg-[#050505]/90 backdrop-blur-2xl border-b border-black/5 dark:border-white/5 py-3' : 'bg-transparent border-transparent py-3 md:py-5'}`}>
+          <div className="max-w-7xl mx-auto px-3 md:px-6 flex flex-wrap items-center justify-between gap-y-3">
             
-            {/* Center Links */}
-            <div className="hidden md:flex items-center gap-8 text-slate-500 dark:text-slate-400 font-medium text-sm">
-              <a href="#" className="text-indigo-600 dark:text-indigo-400 font-bold transition-colors">Home</a>
-              <a href="#leaderboard" className="hover:text-slate-900 dark:hover:text-white transition-colors">Leaderboard</a>
-              <Link to="/feed" className="hover:text-slate-900 dark:hover:text-white transition-colors">
-               Explore
-             </Link>
+            {/* Logo (Top Left on Mobile) */}
+            <div className="flex items-center gap-1.5 md:gap-3 order-1 shrink-0">
+              <div className="bg-slate-200 dark:bg-white/10 border border-slate-300 dark:border-white/10 p-1.5 md:p-2 rounded-xl shadow-sm transition-colors">
+                <GraduationCap className="text-black dark:text-white w-4 h-4 md:w-6 md:h-6" />
+              </div>
+              <span className="text-lg md:text-2xl font-bold tracking-tight text-black dark:text-white">StudyTrail</span>
             </div>
 
-            {/* Right Actions */}
-            <div className="flex items-center gap-3 sm:gap-4">
-              <button onClick={toggleDarkMode} className="p-2 rounded-full bg-slate-200 dark:bg-white/10 text-slate-700 dark:text-amber-300 hover:scale-110 active:scale-95 transition-all">
-                {isDarkMode ? <Sun size={18} /> : <Moon size={18} />}
+            {/* Right Actions (Top Right on Mobile) */}
+            <div className="flex items-center gap-1.5 md:gap-4 order-2 md:order-3 shrink-0">
+              <button onClick={toggleDarkMode} className="p-1.5 md:p-2.5 rounded-full bg-slate-200 dark:bg-white/10 text-slate-700 dark:text-amber-300 hover:scale-110 active:scale-95 transition-all">
+                {isDarkMode ? <Sun size={14} className="md:w-[18px] md:h-[18px]" /> : <Moon size={14} className="md:w-[18px] md:h-[18px]" />}
               </button>
               
-              <button className="p-2 rounded-full bg-slate-200 dark:bg-white/10 text-slate-700 dark:text-slate-300 hover:text-indigo-600 dark:hover:text-indigo-400 hover:scale-110 active:scale-95 transition-all relative">
-                <Bell size={18} />
-                <span className="absolute top-1.5 right-2 w-2 h-2 bg-red-500 rounded-full border border-white dark:border-[#0A0A0A]"></span>
+              <button className="p-1.5 md:p-2.5 rounded-full bg-slate-200 dark:bg-white/10 text-slate-700 dark:text-slate-300 hover:text-indigo-600 dark:hover:text-indigo-400 hover:scale-110 active:scale-95 transition-all relative">
+                <Bell size={14} className="md:w-[18px] md:h-[18px]" />
+                <span className="absolute top-1 right-1 md:top-1.5 md:right-2 w-1.5 h-1.5 md:w-2 md:h-2 bg-red-500 rounded-full border border-white dark:border-[#0A0A0A]"></span>
               </button>
               
-              <button className="p-2 rounded-full bg-slate-200 dark:bg-white/10 text-slate-700 dark:text-slate-300 hover:text-indigo-600 dark:hover:text-indigo-400 hover:scale-110 active:scale-95 transition-all">
-                <MessageSquare size={18} />
+              <button className="p-1.5 md:p-2.5 rounded-full bg-slate-200 dark:bg-white/10 text-slate-700 dark:text-slate-300 hover:text-indigo-600 dark:hover:text-indigo-400 hover:scale-110 active:scale-95 transition-all">
+                <MessageSquare size={14} className="md:w-[18px] md:h-[18px]" />
               </button>
 
-              <div className="w-9 h-9 rounded-full overflow-hidden border-2 border-indigo-500 shadow-sm ml-2">
+              <div className="w-6 h-6 md:w-9 md:h-9 rounded-full overflow-hidden border-2 border-indigo-500 shadow-sm ml-0.5 md:ml-2 shrink-0">
                 <img src={profileData.avatar} alt="Current User" className="w-full h-full object-cover bg-white" />
               </div>
 
               {/* LOGOUT BUTTON */}
               <button 
                 onClick={handleLogout}
-                className="bg-red-50 hover:bg-red-100 dark:bg-red-500/10 dark:hover:bg-red-500/20 text-red-600 dark:text-red-400 px-3 py-2 sm:px-4 rounded-full text-sm font-semibold hover:scale-105 active:scale-95 transition-all shadow-sm flex items-center gap-2 ml-1"
+                className="bg-red-50 hover:bg-red-100 dark:bg-red-500/10 dark:hover:bg-red-500/20 text-red-600 dark:text-red-400 px-2.5 md:px-4 py-1.5 md:py-2 rounded-full text-[11px] md:text-sm font-semibold hover:scale-105 active:scale-95 transition-all shadow-sm flex items-center gap-1 md:gap-2 shrink-0 ml-0.5"
               >
-                <LogOut size={16} /> <span className="hidden sm:inline">Logout</span>
+                <LogOut size={12} className="md:w-[16px] md:h-[16px]" /> <span className="inline">Logout</span>
               </button>
+            </div>
+
+            {/* Links (Drops to Bottom Row on Mobile, Centers on Desktop) */}
+            <div className="flex w-full md:w-auto items-center justify-center gap-4 md:gap-8 order-3 md:order-2 text-xs md:text-sm font-medium text-slate-500 dark:text-slate-400 border-t border-black/10 dark:border-white/10 md:border-transparent pt-2 md:pt-0">
+              <a href="#" className="text-indigo-600 dark:text-indigo-400 font-bold transition-colors">Home</a>
+              <a href="#leaderboard" className="hover:text-slate-900 dark:hover:text-white transition-colors">Leaderboard</a>
+              <Link to="/feed" className="hover:text-slate-900 dark:hover:text-white transition-colors">
+                Explore
+              </Link>
             </div>
           </div>
         </nav>
 
-        <main className="flex-1 relative z-10 pt-24 pb-20">
+        {/* Adjusted padding-top for wrapping nav */}
+        <main className="flex-1 relative z-10 pt-32 md:pt-36 pb-20">
           <div className="max-w-7xl mx-auto px-4 sm:px-6">
             
             {/* 2. HERO / PROFILE HEADER */}
@@ -364,7 +346,7 @@ useEffect(() => {
                     <button 
                       key={tab}
                       onClick={() => setActiveTab(tab)}
-                      className={`flex-1 min-w-30 py-3 px-4 rounded-xl font-semibold text-sm capitalize transition-all flex items-center justify-center gap-2 ${activeTab === tab ? 'bg-indigo-50 dark:bg-indigo-500/10 text-indigo-600 dark:text-indigo-400 shadow-sm' : 'text-slate-500 hover:text-slate-900 dark:hover:text-slate-200'}`}
+                      className={`flex-1 min-w-[120px] py-3 px-4 rounded-xl font-semibold text-sm capitalize transition-all flex items-center justify-center gap-2 ${activeTab === tab ? 'bg-indigo-50 dark:bg-indigo-500/10 text-indigo-600 dark:text-indigo-400 shadow-sm' : 'text-slate-500 hover:text-slate-900 dark:hover:text-slate-200'}`}
                     >
                       {tab === 'posts' && <FileText size={16} />}
                       {tab === 'achievements' && <Trophy size={16} />}
@@ -375,7 +357,7 @@ useEffect(() => {
                 </div>
 
                 {/* Tab Content Area */}
-                <div className="bg-white dark:bg-[#0A0A0A] rounded-3xl p-6 md:p-8 border border-black/5 dark:border-white/5 min-h-100">
+                <div className="bg-white dark:bg-[#0A0A0A] rounded-3xl p-6 md:p-8 border border-black/5 dark:border-white/5 min-h-[400px]">
                   {activeTab === 'posts' && (
                     <div className="space-y-6 animate-in fade-in duration-500">
                       <div className="pb-6 border-b border-black/5 dark:border-white/5">
