@@ -6,6 +6,8 @@ import ScrollToTop from './pages/ScrollToTop';
 import { ThemeProvider } from './pages/ThemeContext';
 import { BrowserRouter, Route, Routes } from "react-router-dom";
 import Feed from "./pages/Feed";
+import Working from "./pages/Working";
+import Workflow from "./pages/Workflow";
 
 function App() {
   return (
@@ -18,6 +20,8 @@ function App() {
         <Route path="/signed" element={<Signed />} />
         <Route path="/profile" element={<Profile />} />
         <Route path="/feed" element={<Feed/>} />
+        <Route path="/working" element={<Working />} />
+        <Route path="/workflow" element={<Workflow />} />
       </Routes>
       </ThemeProvider>
     </BrowserRouter>
