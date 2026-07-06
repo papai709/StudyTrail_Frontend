@@ -9,7 +9,8 @@ import {
   Upload, MoreVertical, Menu, Sun, Moon, Bell, Users,
   Calendar, Clock
 } from 'lucide-react';
-//import axios from 'axios';// uncomment this when ready to integrate with backend
+// import axios from 'axios'; // uncomment this when ready to integrate with backend
+
 export const LOGGED_IN_USER = {
   id: 'user-101',
   name: 'Anuj Majumder',
@@ -39,7 +40,7 @@ export const INITIAL_POSTS = [
     mediaUrl: 'https://images.unsplash.com/photo-1516321318423-f06f85e504b3?auto=format&fit=crop&w=800&q=80',
     likesCount: 24,
     commentsCount: 5,
-    userReaction: null // Changed from isLikedByMe
+    userReaction: null
   },
   {
     id: 'post-2',
@@ -56,7 +57,7 @@ export const INITIAL_POSTS = [
     fileSize: '1.8 MB',
     likesCount: 18,
     commentsCount: 3,
-    userReaction: 'love' // Changed from isLikedByMe: true
+    userReaction: 'love'
   },
   {
     id: 'post-3',
@@ -72,7 +73,7 @@ export const INITIAL_POSTS = [
     mediaUrl: 'https://assets.mixkit.co/videos/preview/mixkit-man-working-on-his-laptop-computer-34254-large.mp4',
     likesCount: 42,
     commentsCount: 11,
-    userReaction: null // Changed from isLikedByMe
+    userReaction: null
   }
 ];
 
@@ -259,15 +260,23 @@ export default function Feed() {
       post.author.name.toLowerCase().includes(query);
   });
 
-  // Handles standard click (toggles default 'like' or removes reaction)
-  const handleLikeToggle = (postId) => {
+  // ==========================================
+  // OPTIMISTIC UI: LIKE / REACTION TOGGLE
+  // ==========================================
+  const handleLikeToggle = async (postId) => {
+    // 1. Find target post and cache state
+    const targetPost = posts.find(p => p.id === postId);
+    if (!targetPost) return;
+    
+    const previousReaction = targetPost.userReaction;
+    const previousCount = targetPost.likesCount;
+    const isRemoving = previousReaction !== null;
+    const newReaction = isRemoving ? null : 'like'; // Default to 'like' on simple click
+
+    // 2. Optimistic Update (Instant UI change)
     setPosts(prevPosts =>
       prevPosts.map(post => {
         if (post.id !== postId) return post;
-        
-        const isRemoving = post.userReaction !== null;
-        const newReaction = isRemoving ? null : 'like'; // Default to 'like' on simple click
-        
         return {
           ...post,
           userReaction: newReaction,
@@ -275,6 +284,92 @@ export default function Feed() {
         };
       })
     );
+
+    // 3. Background API Call
+    try {
+      // await axios.post(`/api/v1/like/toggle/post-id/${postId}`);
+      
+      // Simulating API call with 10% chance to fail for testing rollback
+      await new Promise((resolve, reject) => {
+        setTimeout(() => {
+          if (Math.random() > 0.9) reject(new Error("Simulated network failure"));
+          else resolve();
+        }, 500);
+      });
+    } catch (error) {
+      // 4. Rollback
+      console.error("Backend error:", error);
+      alert("Connection failed. Couldn't update your like.");
+      
+      setPosts(prevPosts =>
+        prevPosts.map(post => {
+          if (post.id !== postId) return post;
+          return {
+            ...post,
+            userReaction: previousReaction,
+            likesCount: previousCount,
+          };
+        })
+      );
+    }
+  };
+
+  // ==========================================
+  // OPTIMISTIC UI: SELECT SPECIFIC REACTION
+  // ==========================================
+  const handleSelectReaction = async (postId, reactionId) => {
+    // 1. Cache state
+    const targetPost = posts.find(p => p.id === postId);
+    if (!targetPost) return;
+
+    const previousReaction = targetPost.userReaction;
+    const previousCount = targetPost.likesCount;
+    const isRemoving = previousReaction === reactionId; 
+    const newReaction = isRemoving ? null : reactionId;
+
+    let newCount = targetPost.likesCount;
+    if (!previousReaction && newReaction) newCount += 1;
+    else if (previousReaction && !newReaction) newCount = Math.max(0, targetPost.likesCount - 1);
+
+    // 2. Optimistic Update (Instant UI change)
+    setPosts(prevPosts =>
+      prevPosts.map(post => {
+        if (post.id !== postId) return post;
+        return {
+          ...post,
+          userReaction: newReaction,
+          likesCount: newCount,
+        };
+      })
+    );
+    setActiveReactionPostId(null);
+
+    // 3. Background API Call
+    try {
+      // await axios.post(`/api/v1/react/post-id/${postId}`, { reaction: reactionId });
+
+      await new Promise((resolve, reject) => {
+        setTimeout(() => {
+          if (Math.random() > 0.9) reject(new Error("Simulated network failure"));
+          else resolve();
+        }, 500);
+      });
+    } catch (error) {
+      // 4. Rollback
+      console.error("Backend error:", error);
+      alert("Connection failed. Couldn't update your reaction.");
+
+      setPosts(prevPosts =>
+        prevPosts.map(post => {
+          if (post.id !== postId) return post;
+          return {
+            ...post,
+            userReaction: previousReaction,
+            likesCount: previousCount,
+          };
+        })
+      );
+    }
   };
 
   // Interaction Handlers for Long Press
@@ -300,30 +395,6 @@ export default function Feed() {
       clearTimeout(pressTimer.current);
       pressTimer.current = null;
     }
-  };
-
-  // Handles selecting a specific emoji from the popup
-  const handleSelectReaction = (postId, reactionId) => {
-    setPosts(prevPosts =>
-      prevPosts.map(post => {
-        if (post.id !== postId) return post;
-        
-        const previousReaction = post.userReaction;
-        const isRemoving = previousReaction === reactionId; // Clicked the same emoji they already had
-        const newReaction = isRemoving ? null : reactionId;
-        
-        let newCount = post.likesCount;
-        if (!previousReaction && newReaction) newCount += 1; // Was empty, now reacted
-        else if (previousReaction && !newReaction) newCount = Math.max(0, post.likesCount - 1); // Was reacted, now empty
-        
-        return {
-          ...post,
-          userReaction: newReaction,
-          likesCount: newCount,
-        };
-      })
-    );
-    setActiveReactionPostId(null);
   };
 
   const triggerMediaUpload = () => mediaInputRef.current?.click();
@@ -409,7 +480,7 @@ export default function Feed() {
       fileSize: selectedFile?.size,
       likesCount: 0,
       commentsCount: 0,
-      userReaction: null, // Initialize with no reaction
+      userReaction: null, 
       comments: []
     };
 
@@ -938,7 +1009,7 @@ export default function Feed() {
                           </div>
                         )}
 
-                        {/* The Rendered Reaction Button */}
+                        {/* The Rendered Reaction Button (Trigger) */}
                         <button 
                           onMouseDown={() => handleInteractionStart(post.id)}
                           onMouseUp={() => handleInteractionEnd(post.id)}
