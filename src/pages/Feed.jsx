@@ -1329,7 +1329,7 @@ export default function Feed() {
                             onChange={(e) => setGoalForm({ ...goalForm, isPublic: e.target.checked })} 
                           />
                           <div className={`block w-10 h-6 rounded-full transition-colors duration-300 ${goalForm.isPublic ? 'bg-violet-600' : isDarkMode ? 'bg-white/20' : 'bg-gray-300'}`}></div>
-                          <div className={`absolute left-1 top-1 bg-white w-4 h-4 rounded-full transition-transform duration-300 ${goalForm.isPublic ? 'translate-x-4' : ''}`}></div>
+                          <div className={`absolute left-1 top-1 bg-white w-4 h-4 rounded-full transition-transform duration-300 ${goalForm.isPublic ? 'translate-x-2' : ''}`}></div>
                         </div>
                         <div className="ml-3 flex items-center gap-1.5 text-sm font-medium">
                           {goalForm.isPublic ? <Globe className="w-4 h-4 text-violet-500" /> : <Lock className="w-4 h-4 text-gray-500" />}
