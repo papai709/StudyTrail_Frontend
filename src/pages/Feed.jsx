@@ -933,7 +933,7 @@ const friendRequests = [
     <UserPlus className="w-5 h-5" />
 
     {friendRequests.length > 0 && (
-      <span className="absolute -top-1 -right-1 bg-violet-600 text-white text-[9px] font-bold rounded-full min-w-[16px] h-4 px-1 flex items-center justify-center">
+      <span className="absolute -top-1 -right-1 bg-violet-600 text-white text-[9px] font-bold rounded-full min-w-4 h-4 px-1 flex items-center justify-center">
         {friendRequests.length}
       </span>
     )}
@@ -1063,7 +1063,7 @@ const friendRequests = [
                       </div>
                     )}
                   </div>
-                  <span className={`text-xs font-medium w-20 break-words text-center transition-colors duration-300 leading-tight ${
+                  <span className={`text-xs font-medium w-20 wrap-break-word text-center transition-colors duration-300 leading-tight ${
                     story.isCommunity 
                       ? (isDarkMode ? 'text-white' : 'text-slate-900') 
                       : (isDarkMode ? 'text-gray-300' : 'text-slate-700')
@@ -1208,7 +1208,7 @@ const friendRequests = [
                       >
                         {post.studyTopicTag}
                       </span>
-                      <p className="text-sm leading-relaxed whitespace-pre-wrap break-words">{post.contentText}</p>
+                      <p className="text-sm leading-relaxed whitespace-pre-wrap wrap-break-word">{post.contentText}</p>
                     </div>
 
                     {post.mediaType === 'image' && post.mediaUrl && (
@@ -1341,7 +1341,7 @@ const friendRequests = [
                                       <span className="text-sm font-semibold">{comment.author.name}</span>
                                       <span className="text-[10px] text-gray-500">{comment.author.handle}</span>
                                     </div>
-                                    <p className="text-sm leading-relaxed whitespace-pre-wrap break-words">
+                                    <p className="text-sm leading-relaxed whitespace-pre-wrap wrap-break-word">
                                       {renderCommentText(comment.text)}
                                     </p>
                                     {comment.mediaUrl && (
@@ -1426,7 +1426,7 @@ const friendRequests = [
                               </button>
                               
                               {activeGifPicker[post.id] && (
-                                <div className={`absolute bottom-[110%] left-0 z-[9999] w-48 p-2 rounded-xl border shadow-xl flex gap-2 ${isDarkMode ? 'bg-[#151125] border-white/10' : 'bg-white border-slate-200'}`} onClick={(e) => e.stopPropagation()}>
+                                <div className={`absolute bottom-[110%] left-0 z-9999 w-48 p-2 rounded-xl border shadow-xl flex gap-2 ${isDarkMode ? 'bg-[#151125] border-white/10' : 'bg-white border-slate-200'}`} onClick={(e) => e.stopPropagation()}>
                                   {DUMMY_GIFS.map((gif, i) => (
                                     <img 
                                       key={i} 
@@ -1452,7 +1452,7 @@ const friendRequests = [
                               
                               {activeEmojiPicker[post.id] && (
                                 <div 
-                                  className={`absolute bottom-[110%] left-0 z-[9999] w-[260px] p-2 rounded-2xl shadow-2xl border ${isDarkMode ? 'bg-[#151125] border-white/10' : 'bg-white border-slate-200'}`}
+                                  className={`absolute bottom-[110%] left-0 z-9999 w-65 p-2 rounded-2xl shadow-2xl border ${isDarkMode ? 'bg-[#151125] border-white/10' : 'bg-white border-slate-200'}`}
                                   onClick={(e) => e.stopPropagation()}
                                 >
                                   <div className="flex flex-wrap gap-2 justify-center">
@@ -1692,7 +1692,7 @@ const friendRequests = [
                       <button 
                         type="submit" 
                         disabled={isGoalSubmitting || !goalForm.title.trim() || !goalForm.subject.trim() || !goalForm.deadline}
-                        className="rounded-xl bg-violet-600 px-5 py-2 text-xs font-bold uppercase tracking-wider text-white hover:bg-violet-700 disabled:opacity-50 transition min-w-[100px]"
+                        className="rounded-xl bg-violet-600 px-5 py-2 text-xs font-bold uppercase tracking-wider text-white hover:bg-violet-700 disabled:opacity-50 transition min-w-25"
                       >
                         {isGoalSubmitting ? 'Loading...' : 'Add'}
                       </button>
