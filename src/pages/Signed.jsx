@@ -7,6 +7,15 @@ import {
 } from 'lucide-react';
 import { useTheme } from './ThemeContext';
 
+// NEW: Helper function to convert uploaded images to Base64 strings.
+// This is necessary because temporary Object URLs cannot be saved to localStorage.
+const fileToBase64 = (file) => new Promise((resolve, reject) => {
+  const reader = new FileReader();
+  reader.readAsDataURL(file);
+  reader.onload = () => resolve(reader.result);
+  reader.onerror = error => reject(error);
+});
+
 const Signed = () => {
   const navigate = useNavigate();
   const { isDarkMode, toggleDarkMode } = useTheme();
@@ -85,7 +94,7 @@ const Signed = () => {
     { name: "Ph.D (Doctor of Philosophy)", duration: 3 },
   ];
 
-  const indianBoards = [
+ const indianBoards = [
     "CBSE (Central Board of Secondary Education)",
     "CISCE (ICSE/ISC)",
     "NIOS (National Institute of Open Schooling)",
@@ -109,7 +118,8 @@ const Signed = () => {
     "West Bengal Board (WBBSE/WBCHSE)"
   ];
 
-  const indiaLocations = {
+
+   const indiaLocations = {
     "Andhra Pradesh": ["Visakhapatnam", "Vijayawada", "Guntur", "Nellore", "Tirupati"],
     "Assam": ["Guwahati", "Silchar", "Dibrugarh", "Jorhat"],
     "Bihar": ["Patna", "Gaya", "Bhagalpur", "Muzaffarpur"],
@@ -131,13 +141,11 @@ const Signed = () => {
 
   // ---------------- Course Search Logic ----------------
   const filteredCourses = collegeCourses.filter(c => c.name.toLowerCase().includes(courseSearch.toLowerCase()));
-
   const handleCourseSelect = (courseName) => {
     setProfileData(prev => ({ ...prev, course: courseName, year: '' }));
     setCourseSearch(courseName);
     setShowCourseDropdown(false);
   };
-
   const handleCourseSearchChange = (e) => {
     setCourseSearch(e.target.value);
     setShowCourseDropdown(true);
@@ -146,13 +154,11 @@ const Signed = () => {
 
   // ---------------- Board Search Logic ----------------
   const filteredBoards = indianBoards.filter(b => b.toLowerCase().includes(boardSearch.toLowerCase()));
-
   const handleBoardSelect = (boardName) => {
     setProfileData(prev => ({ ...prev, board: boardName }));
     setBoardSearch(boardName);
     setShowBoardDropdown(false);
   };
-
   const handleBoardSearchChange = (e) => {
     setBoardSearch(e.target.value);
     setShowBoardDropdown(true);
@@ -161,19 +167,16 @@ const Signed = () => {
 
   // ---------------- State Search Logic ----------------
   const filteredStates = Object.keys(indiaLocations).filter(s => s.toLowerCase().includes(stateSearch.toLowerCase()));
-
   const handleStateSelect = (stateName) => {
     setProfileData(prev => ({ ...prev, state: stateName, city: '' }));
     setStateSearch(stateName);
     setCitySearch('');
     setShowStateDropdown(false);
   };
-
   const handleStateSearchChange = (e) => {
     setStateSearch(e.target.value);
     setShowStateDropdown(true);
   };
-
   const handleStateBlur = () => {
     setTimeout(() => {
       setShowStateDropdown(false);
@@ -193,18 +196,15 @@ const Signed = () => {
   // ---------------- City Search Logic ----------------
   const availableCities = profileData.state ? (indiaLocations[profileData.state] || []) : [];
   const filteredCities = availableCities.filter(c => c.toLowerCase().includes(citySearch.toLowerCase()));
-
   const handleCitySelect = (cityName) => {
     setProfileData(prev => ({ ...prev, city: cityName }));
     setCitySearch(cityName);
     setShowCityDropdown(false);
   };
-
   const handleCitySearchChange = (e) => {
     setCitySearch(e.target.value);
     setShowCityDropdown(true);
   };
-
   const handleCityBlur = () => {
     setTimeout(() => {
       setShowCityDropdown(false);
@@ -257,22 +257,26 @@ const Signed = () => {
     setProfileData({ ...profileData, [e.target.name]: e.target.value });
   };
 
-  const handleAvatarUpload = (e) => {
+  // UPDATED: Made function async to handle the Base64 conversion
+  const handleAvatarUpload = async (e) => {
     const file = e.target.files[0];
     if (file) {
       setFiles(prev => ({ ...prev, profileImage: file })); 
-      const imageUrl = URL.createObjectURL(file);
-      setProfileData({ ...profileData, avatar: imageUrl }); 
+      // UPDATED: Convert the image to a Base64 string instead of a temporary URL
+      const base64Image = await fileToBase64(file);
+      setProfileData({ ...profileData, avatar: base64Image }); 
       setShowAvatarModal(false); 
     }
   };
 
-  const handleCoverUpload = (e) => {
+  // UPDATED: Made function async to handle the Base64 conversion
+  const handleCoverUpload = async (e) => {
     const file = e.target.files[0];
     if (file) {
       setFiles(prev => ({ ...prev, coverImage: file })); 
-      const imageUrl = URL.createObjectURL(file);
-      setProfileData({ ...profileData, cover: imageUrl }); 
+      // UPDATED: Convert the image to a Base64 string instead of a temporary URL
+      const base64Image = await fileToBase64(file);
+      setProfileData({ ...profileData, cover: base64Image }); 
       setShowCoverModal(false); 
     }
   };
@@ -286,17 +290,27 @@ const Signed = () => {
     setIsSubmitting(true);
     setError(null);
     setSuccessMessage("");
+    
     setTimeout(() => {
-      const localUserStr = localStorage.getItem("mock_studyTrail_user");
-      if(localUserStr) {
-        const parsed = JSON.parse(localUserStr);
-        parsed.schoolName = educationLevel === 'college' ? profileData.instituteName : profileData.schoolName;
-        parsed.className = educationLevel === 'college' ? `${profileData.course} - ${profileData.year}` : profileData.grade;
-        parsed.board = profileData.board;
-        parsed.location = `${profileData.city}, ${profileData.state}`;
-        parsed.bio = profileData.bio;
-        localStorage.setItem("mock_studyTrail_user", JSON.stringify(parsed));
-      }
+      // UPDATED: Completely overwriting the local storage object to ensure ALL profileData is saved
+      const userToSave = {
+        fullName: user?.fullName || "Demo User",
+        email: user?.email || "",
+        type: educationLevel, // Save if they are a school or college student
+        schoolName: educationLevel === 'college' ? profileData.instituteName : profileData.schoolName,
+        className: educationLevel === 'college' ? `${profileData.course} - ${profileData.year}` : profileData.grade,
+        course: profileData.course, // Explicitly save course for Profile.jsx
+        year: profileData.year,     // Explicitly save year for Profile.jsx
+        board: profileData.board,
+        location: `${profileData.city}, ${profileData.state}`,
+        bio: profileData.bio,
+        avatar: profileData.avatar, // Save Base64 avatar
+        cover: profileData.cover    // Save Base64 cover
+      };
+      
+      // Save the compiled object to local storage
+      localStorage.setItem("mock_studyTrail_user", JSON.stringify(userToSave));
+      
       setSuccessMessage("Profile completed successfully! Redirecting...");
       setTimeout(() => navigate("/profile"), 1500);
       setIsSubmitting(false);
@@ -305,9 +319,7 @@ const Signed = () => {
 
   const features = [
     { icon: <Users className="text-violet-500" size={24} />, title: "Collaborative Social Feed", description: "Connect with peers, ask questions, and share your 'aha!' moments in a dedicated academic timeline." },
-    { icon: <BookOpen className="text-cyan-500" size={24} />, title: "Resource Sharing", description: "Upload notes, flashcards, and study guides. Build your repository while helping others succeed." },
-    { icon: <Target className="text-emerald-500" size={24} />, title: "Weekly Goal Tracking", description: "Set personalized study targets and watch your progress ring close as you complete tasks." },
-    { icon: <Award className="text-amber-500" size={24} />, title: "Gamified Achievements", description: "Earn XP, maintain study streaks, and unlock exclusive badges like 'Top Contributor' and 'Night Owl'." }
+    { icon: <BookOpen className="text-cyan-500" size={24} />, title: "Resource Sharing", description: "Upload notes, flashcards, and study guides. Build your repository while helping others succeed." }
   ];
 
   if (error) {
@@ -350,11 +362,8 @@ const Signed = () => {
         <div className="absolute top-[-10%] left-[-10%] w-[50%] h-[50%] rounded-full bg-[radial-gradient(circle,rgba(99,102,241,0.15)_0%,rgba(0,0,0,0)_70%)] blur-[100px] pointer-events-none z-0"></div>
         <div className="absolute top-[20%] right-[-10%] w-[40%] h-[40%] rounded-full bg-[radial-gradient(circle,rgba(56,189,248,0.1)_0%,rgba(0,0,0,0)_70%)] blur-[100px] pointer-events-none z-0"></div>
 
-        {/* FULLY VISIBLE WRAPPING NAVBAR */}
         <nav className={`fixed top-0 w-full z-50 transition-all duration-500 ${scrolled ? 'bg-white/90 dark:bg-[#050505]/90 backdrop-blur-2xl border-b border-black/5 dark:border-white/5 py-3' : 'bg-transparent border-transparent py-3 md:py-5'}`}>
           <div className="max-w-7xl mx-auto px-3 md:px-6 flex flex-wrap items-center justify-between gap-y-3">
-            
-            {/* Logo (Top Left on Mobile) */}
             <div className="flex items-center gap-2 md:gap-3 order-1">
               <div className="bg-slate-200 dark:bg-white/10 border border-slate-300 dark:border-white/10 p-1.5 md:p-2 rounded-xl shadow-sm transition-colors">
                 <GraduationCap className="text-black dark:text-white w-4 h-4 md:w-6 md:h-6" />
@@ -362,7 +371,6 @@ const Signed = () => {
               <span className="text-lg md:text-2xl font-bold tracking-tight text-black dark:text-white">StudyTrail</span>
             </div>
 
-            {/* User Controls (Top Right on Mobile) */}
             <div className="flex items-center gap-2 md:gap-4 order-2 md:order-3">
               <button
                 type="button"
@@ -387,21 +395,10 @@ const Signed = () => {
                 <LogOut size={12} className="md:w-4 md:h-4" /> <span>Logout</span>
               </button>
             </div>
-
-            {/* Links (Drops to Bottom Row on Mobile, Centers on Desktop) */}
-            <div className="flex w-full md:w-auto items-center justify-center gap-4 md:gap-8 order-3 md:order-2 text-xs md:text-sm font-medium text-slate-500 md:border-transparent pt-2 md:pt-0">
-              <a href="#features" className="hover:text-slate-900 dark:hover:text-white transition-colors">Features</a>
-              <Link to="/Workflow" 
-              className="hover:text-slate-900 dark:hover:text-white transition-colors">How It Works</Link>
-              <a href="#testimonials" className="hover:text-slate-900 dark:hover:text-white transition-colors">Stories</a>
-            </div>
-            
           </div>
         </nav>
 
-        {/* Increased padding-top to account for the taller responsive navbar */}
         <main className="flex-1 relative z-10 pt-32 md:pt-36">
-          
           <section className="px-4 md:px-6 pb-20 max-w-4xl mx-auto relative z-10">
             <div className="text-center mb-8 md:mb-10">
               <div className="inline-flex items-center gap-2 px-3 py-1.5 md:px-4 md:py-2 rounded-full bg-indigo-500/10 border border-indigo-500/20 text-indigo-600 dark:text-indigo-400 text-xs font-semibold uppercase tracking-wider mb-4 backdrop-blur-md">
@@ -413,9 +410,6 @@ const Signed = () => {
                   Let's set up your profile.
                 </span>
               </h1>
-              <p className="text-slate-500 dark:text-slate-400 text-sm md:text-base max-w-xl mx-auto px-4">
-                Define your academic identity to get tailored resources, connect with classmates, and track your specific goals.
-              </p>
             </div>
 
             <div className="bg-white dark:bg-[#0A0A0A] rounded-3xl md:rounded-[40px] shadow-2xl border border-black/5 dark:border-white/5 overflow-hidden">
@@ -458,7 +452,6 @@ const Signed = () => {
                     className={`flex-1 relative z-10 py-3 md:py-4 flex flex-col items-center justify-center transition-colors duration-300 ${educationLevel === 'school' ? 'text-indigo-600 dark:text-indigo-400' : 'text-slate-500 hover:text-slate-700 dark:hover:text-slate-300'}`}
                   >
                     <span className="font-bold text-sm md:text-lg">School Student</span>
-                    <span className="hidden sm:block text-xs font-medium opacity-70 mt-1">Primary/Secondary Education</span>
                   </button>
                   
                   <button 
@@ -467,7 +460,6 @@ const Signed = () => {
                     className={`flex-1 relative z-10 py-3 md:py-4 flex flex-col items-center justify-center transition-colors duration-300 ${educationLevel === 'college' ? 'text-indigo-600 dark:text-indigo-400' : 'text-slate-500 hover:text-slate-700 dark:hover:text-slate-300'}`}
                   >
                     <span className="font-bold text-sm md:text-lg">College / Uni</span>
-                    <span className="hidden sm:block text-xs font-medium opacity-70 mt-1">Higher Education Institutions</span>
                   </button>
                 </div>
 
@@ -496,34 +488,18 @@ const Signed = () => {
                           Education Board <span className="text-red-500">*</span>
                         </label>
                         <input 
-                          type="text" 
-                          name="boardSearch" 
-                          required 
-                          value={boardSearch} 
-                          onChange={handleBoardSearchChange}
-                          onFocus={() => setShowBoardDropdown(true)}
-                          onBlur={() => setTimeout(() => setShowBoardDropdown(false), 200)}
+                          type="text" name="boardSearch" required value={boardSearch} onChange={handleBoardSearchChange}
+                          onFocus={() => setShowBoardDropdown(true)} onBlur={() => setTimeout(() => setShowBoardDropdown(false), 200)}
                           placeholder="Search or type board..." 
                           className="w-full px-4 py-3 md:py-3.5 rounded-xl bg-slate-50 dark:bg-[#111] border border-black/10 dark:border-white/10 focus:outline-none focus:ring-2 focus:ring-indigo-500/50 transition-all text-sm text-slate-900 dark:text-white" 
                         />
-                        
                         {showBoardDropdown && (
                           <div className="absolute z-50 w-full mt-1 max-h-48 overflow-y-auto bg-white dark:bg-[#1A1A1A] border border-black/10 dark:border-white/10 rounded-xl shadow-xl custom-scrollbar">
-                            {filteredBoards.length > 0 ? (
-                              filteredBoards.map(b => (
-                                <div 
-                                  key={b} 
-                                  onMouseDown={(e) => { e.preventDefault(); handleBoardSelect(b); }}
-                                  className="px-4 py-3 hover:bg-slate-100 dark:hover:bg-white/5 cursor-pointer text-sm text-slate-700 dark:text-slate-300 transition-colors"
-                                >
-                                  {b}
-                                </div>
-                              ))
-                            ) : (
-                              <div className="px-4 py-3 text-sm text-slate-500 dark:text-slate-400 italic">
-                                Using custom board name.
+                            {filteredBoards.map(b => (
+                              <div key={b} onMouseDown={(e) => { e.preventDefault(); handleBoardSelect(b); }} className="px-4 py-3 hover:bg-slate-100 dark:hover:bg-white/5 cursor-pointer text-sm text-slate-700 dark:text-slate-300 transition-colors">
+                                {b}
                               </div>
-                            )}
+                            ))}
                           </div>
                         )}
                       </div>
@@ -543,34 +519,18 @@ const Signed = () => {
                           Course Name <span className="text-red-500">*</span>
                         </label>
                         <input 
-                          type="text" 
-                          name="courseSearch" 
-                          required 
-                          value={courseSearch} 
-                          onChange={handleCourseSearchChange}
-                          onFocus={() => setShowCourseDropdown(true)}
-                          onBlur={() => setTimeout(() => setShowCourseDropdown(false), 200)}
+                          type="text" name="courseSearch" required value={courseSearch} onChange={handleCourseSearchChange}
+                          onFocus={() => setShowCourseDropdown(true)} onBlur={() => setTimeout(() => setShowCourseDropdown(false), 200)}
                           placeholder="Search or type course..." 
                           className="w-full px-4 py-3 md:py-3.5 rounded-xl bg-slate-50 dark:bg-[#111] border border-black/10 dark:border-white/10 focus:outline-none focus:ring-2 focus:ring-indigo-500/50 transition-all text-sm text-slate-900 dark:text-white" 
                         />
-                        
                         {showCourseDropdown && (
                           <div className="absolute z-50 w-full mt-1 max-h-48 overflow-y-auto bg-white dark:bg-[#1A1A1A] border border-black/10 dark:border-white/10 rounded-xl shadow-xl custom-scrollbar">
-                            {filteredCourses.length > 0 ? (
-                              filteredCourses.map(c => (
-                                <div 
-                                  key={c.name} 
-                                  onMouseDown={(e) => { e.preventDefault(); handleCourseSelect(c.name); }}
-                                  className="px-4 py-3 hover:bg-slate-100 dark:hover:bg-white/5 cursor-pointer text-sm text-slate-700 dark:text-slate-300 transition-colors"
-                                >
-                                  {c.name}
-                                </div>
-                              ))
-                            ) : (
-                              <div className="px-4 py-3 text-sm text-slate-500 dark:text-slate-400 italic">
-                                Using custom course name.
+                            {filteredCourses.map(c => (
+                              <div key={c.name} onMouseDown={(e) => { e.preventDefault(); handleCourseSelect(c.name); }} className="px-4 py-3 hover:bg-slate-100 dark:hover:bg-white/5 cursor-pointer text-sm text-slate-700 dark:text-slate-300 transition-colors">
+                                {c.name}
                               </div>
-                            )}
+                            ))}
                           </div>
                         )}
                       </div>
@@ -589,36 +549,21 @@ const Signed = () => {
 
                   {/* Strict Searchable Location Fields */}
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-5 md:gap-6 pt-2">
-                    
                     <div className="space-y-1.5 relative">
                       <label className="text-sm font-semibold text-slate-900 dark:text-white">State <span className="text-red-500">*</span></label>
                       <input 
-                        type="text"
-                        required 
-                        value={stateSearch} 
-                        onChange={handleStateSearchChange}
-                        onFocus={() => setShowStateDropdown(true)}
-                        onBlur={handleStateBlur}
+                        type="text" required value={stateSearch} onChange={handleStateSearchChange}
+                        onFocus={() => setShowStateDropdown(true)} onBlur={handleStateBlur}
                         placeholder="Search for your state..." 
                         className="w-full px-4 py-3 md:py-3.5 rounded-xl bg-slate-50 dark:bg-[#111] border border-black/10 dark:border-white/10 focus:outline-none focus:ring-2 focus:ring-indigo-500/50 transition-all text-sm text-slate-900 dark:text-white" 
                       />
                       {showStateDropdown && (
                         <div className="absolute z-50 w-full mt-1 max-h-48 overflow-y-auto bg-white dark:bg-[#1A1A1A] border border-black/10 dark:border-white/10 rounded-xl shadow-xl custom-scrollbar">
-                          {filteredStates.length > 0 ? (
-                            filteredStates.map(s => (
-                              <div 
-                                key={s} 
-                                onMouseDown={(e) => { e.preventDefault(); handleStateSelect(s); }}
-                                className="px-4 py-3 hover:bg-slate-100 dark:hover:bg-white/5 cursor-pointer text-sm text-slate-700 dark:text-slate-300 transition-colors"
-                              >
-                                {s}
-                              </div>
-                            ))
-                          ) : (
-                            <div className="px-4 py-3 text-sm text-slate-500 dark:text-slate-400 italic">
-                              State not found. Select from list.
+                          {filteredStates.map(s => (
+                            <div key={s} onMouseDown={(e) => { e.preventDefault(); handleStateSelect(s); }} className="px-4 py-3 hover:bg-slate-100 dark:hover:bg-white/5 cursor-pointer text-sm text-slate-700 dark:text-slate-300 transition-colors">
+                              {s}
                             </div>
-                          )}
+                          ))}
                         </div>
                       )}
                     </div>
@@ -626,33 +571,18 @@ const Signed = () => {
                     <div className="space-y-1.5 relative">
                       <label className="text-sm font-semibold text-slate-900 dark:text-white">City <span className="text-red-500">*</span></label>
                       <input 
-                        type="text"
-                        required 
-                        disabled={!profileData.state}
-                        value={citySearch} 
-                        onChange={handleCitySearchChange}
-                        onFocus={() => setShowCityDropdown(true)}
-                        onBlur={handleCityBlur}
+                        type="text" required disabled={!profileData.state} value={citySearch} onChange={handleCitySearchChange}
+                        onFocus={() => setShowCityDropdown(true)} onBlur={handleCityBlur}
                         placeholder={profileData.state ? "Search for your city..." : "Select a state first"} 
                         className="w-full px-4 py-3 md:py-3.5 rounded-xl bg-slate-50 dark:bg-[#111] border border-black/10 dark:border-white/10 focus:outline-none focus:ring-2 focus:ring-indigo-500/50 transition-all text-sm text-slate-900 dark:text-white disabled:opacity-50 disabled:cursor-not-allowed" 
                       />
                       {showCityDropdown && profileData.state && (
                         <div className="absolute z-50 w-full mt-1 max-h-48 overflow-y-auto bg-white dark:bg-[#1A1A1A] border border-black/10 dark:border-white/10 rounded-xl shadow-xl custom-scrollbar">
-                          {filteredCities.length > 0 ? (
-                            filteredCities.map(c => (
-                              <div 
-                                key={c} 
-                                onMouseDown={(e) => { e.preventDefault(); handleCitySelect(c); }}
-                                className="px-4 py-3 hover:bg-slate-100 dark:hover:bg-white/5 cursor-pointer text-sm text-slate-700 dark:text-slate-300 transition-colors"
-                              >
-                                {c}
-                              </div>
-                            ))
-                          ) : (
-                            <div className="px-4 py-3 text-sm text-slate-500 dark:text-slate-400 italic">
-                              City not found. Select from list.
+                          {filteredCities.map(c => (
+                            <div key={c} onMouseDown={(e) => { e.preventDefault(); handleCitySelect(c); }} className="px-4 py-3 hover:bg-slate-100 dark:hover:bg-white/5 cursor-pointer text-sm text-slate-700 dark:text-slate-300 transition-colors">
+                              {c}
                             </div>
-                          )}
+                          ))}
                         </div>
                       )}
                     </div>
@@ -676,79 +606,8 @@ const Signed = () => {
               </div>
             </div>
           </section>
-
-          <section id="features" className="py-20 md:py-32 border-t border-black/5 dark:border-white/5 backdrop-blur-3xl relative">
-            <div className="max-w-7xl mx-auto px-4 md:px-6">
-              <div className="text-center mb-12 md:mb-20 max-w-2xl mx-auto">
-                <h2 className="text-3xl md:text-5xl font-bold text-slate-900 dark:text-white tracking-tighter mb-4 md:mb-6">Your Active Tools</h2>
-                <p className="text-slate-600 dark:text-slate-400 text-base md:text-lg font-light px-4">Everything you need to track progress and study effectively.</p>
-              </div>
-
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6">
-                {features.map((feature, idx) => (
-                  <div key={idx} className="bg-white dark:bg-[#0A0A0A] p-6 md:p-8 rounded-3xl border border-black/5 dark:border-white/5 hover:-translate-y-2 hover:shadow-2xl hover:shadow-indigo-500/10 transition-all duration-500 group relative overflow-hidden cursor-pointer">
-                    <div className="w-12 h-12 md:w-14 md:h-14 rounded-2xl bg-slate-50 dark:bg-white/5 flex items-center justify-center mb-6 md:mb-8 border border-black/5 dark:border-white/5 group-hover:scale-110 transition-transform duration-500">
-                      {feature.icon}
-                    </div>
-                    <h3 className="text-lg md:text-xl font-bold text-slate-900 dark:text-white mb-2 md:mb-3 tracking-tight">{feature.title}</h3>
-                    <p className="text-slate-500 dark:text-slate-400 leading-relaxed text-xs md:text-sm font-light">
-                      {feature.description}
-                    </p>
-                  </div>
-                ))}
-              </div>
-            </div>
-          </section>
-
         </main>
 
-        <footer className="bg-transparent border-t border-black/5 dark:border-white/5 py-12 md:py-16 relative z-10 w-full mt-auto">
-          <div className="max-w-7xl mx-auto px-4 md:px-6 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-10 md:gap-12 mb-12">
-            <div className="sm:col-span-2">
-              <div className="flex items-center gap-3 mb-6">
-                <div className="bg-linear-to-tr from-indigo-600 to-cyan-500 p-2 rounded-lg shadow-lg shadow-indigo-500/20">
-                  <GraduationCap className="text-black dark:text-white w-5 h-5" />
-                </div>
-                <span className="text-xl md:text-2xl font-bold text-slate-900 dark:text-white tracking-tight">StudyTrail</span>
-              </div>
-              <p className="text-slate-500 dark:text-slate-400 max-w-sm text-sm leading-relaxed font-light">
-                Empowering students worldwide by combining community-driven learning with modern productivity tools.
-              </p>
-            </div>
-            
-            <div>
-              <h4 className="font-semibold text-slate-900 dark:text-white mb-4 md:mb-6">Platform</h4>
-              <ul className="space-y-3 md:space-y-4 text-sm text-slate-500 dark:text-slate-400">
-                <li><a href="#" className="hover:text-slate-900 dark:hover:text-white transition-colors">Features</a></li>
-                <li><a href="#" className="hover:text-slate-900 dark:hover:text-white transition-colors">Leaderboard</a></li>
-                <li><a href="#" className="hover:text-slate-900 dark:hover:text-white transition-colors">Resources</a></li>
-                <li><a href="#" className="hover:text-slate-900 dark:hover:text-white transition-colors">Pricing</a></li>
-              </ul>
-            </div>
-            
-            <div>
-              <h4 className="font-semibold text-slate-900 dark:text-white mb-4 md:mb-6">Company</h4>
-              <ul className="space-y-3 md:space-y-4 text-sm text-slate-500 dark:text-slate-400">
-                <li><a href="#" className="hover:text-slate-900 dark:hover:text-white transition-colors">About Us</a></li>
-                <li><a href="#" className="hover:text-slate-900 dark:hover:text-white transition-colors">Careers</a></li>
-                <li><a href="#" className="hover:text-slate-900 dark:hover:text-white transition-colors">Privacy Policy</a></li>
-                <li><a href="#" className="hover:text-slate-900 dark:hover:text-white transition-colors">Terms of Service</a></li>
-              </ul>
-            </div>
-          </div>
-          
-          <div className="max-w-7xl mx-auto px-4 md:px-6 pt-6 md:pt-8 border-t border-black/5 dark:border-white/5 flex flex-col md:flex-row justify-between items-center gap-4">
-            <div className="text-xs md:text-sm text-slate-500 dark:text-slate-400 order-2 md:order-1">
-              &copy; 2026 StudyTrail. All rights reserved.
-            </div>
-            <div className="flex gap-4 order-1 md:order-2">
-              <div className="w-8 h-8 md:w-10 md:h-10 rounded-full bg-black/5 dark:bg-white/5 flex items-center justify-center text-slate-500 hover:text-slate-900 dark:hover:text-white hover:bg-black/10 dark:hover:bg-white/10 cursor-pointer transition-all text-xs md:text-base">X</div>
-              <div className="w-8 h-8 md:w-10 md:h-10 rounded-full bg-black/5 dark:bg-white/5 flex items-center justify-center text-slate-500 hover:text-slate-900 dark:hover:text-white hover:bg-black/10 dark:hover:bg-white/10 cursor-pointer transition-all text-xs md:text-base">in</div>
-              <div className="w-8 h-8 md:w-10 md:h-10 rounded-full bg-black/5 dark:bg-white/5 flex items-center justify-center text-slate-500 hover:text-slate-900 dark:hover:text-white hover:bg-black/10 dark:hover:bg-white/10 cursor-pointer transition-all text-xs md:text-base">IG</div>
-            </div>
-          </div>
-        </footer>
-        
         {/* Avatar Modal */}
         {showAvatarModal && (
           <div className="fixed inset-0 z-100 bg-black/60 backdrop-blur-sm flex items-center justify-center p-4">
@@ -758,10 +617,8 @@ const Signed = () => {
               </button>
               
               <h3 className="text-xl md:text-2xl font-bold text-slate-900 dark:text-white mb-1 md:mb-2 pr-8">Update Profile Picture</h3>
-              <p className="text-slate-500 dark:text-slate-400 text-xs md:text-sm mb-6">Upload your own image or choose an avatar.</p>
-
-              {/* Upload Button */}
-              <div className="mb-6 md:mb-8">
+              
+              <div className="mb-6 md:mb-8 mt-4">
                  <input 
                    type="file" 
                    accept="image/*" 
@@ -778,32 +635,25 @@ const Signed = () => {
                       <UploadCloud size={20} className="md:w-6 md:h-6" />
                     </div>
                     <span className="font-bold text-base md:text-lg">Upload from Device</span>
-                    <span className="text-[10px] md:text-xs font-medium opacity-70 mt-1">Supports JPG, PNG (Max 5MB)</span>
                  </button>
               </div>
 
-              {/* Inbuilt Presets */}
+              {/* Presets Grid... */}
               <div className="space-y-3 md:space-y-4">
                   <h4 className="text-xs md:text-sm font-semibold text-slate-900 dark:text-white uppercase tracking-wider">Or choose a preset</h4>
                   <div className="grid grid-cols-3 sm:grid-cols-4 gap-3 md:gap-4">
                     {avatarOptions.map((opt, i) => (
-                      <div key={i} onClick={() => { setProfileData({...profileData, avatar: opt}); setFiles({...files, profileImage: null}); setShowAvatarModal(false); }} className={`cursor-pointer rounded-2xl overflow-hidden border-2 md:border-4 relative transition-all hover:scale-105 ${profileData.avatar === opt ? 'border-indigo-500' : 'border-transparent'}`}>
+                      <div key={i} onClick={() => { setProfileData({...profileData, avatar: opt}); setShowAvatarModal(false); }} className={`cursor-pointer rounded-2xl overflow-hidden border-2 md:border-4 relative transition-all hover:scale-105 ${profileData.avatar === opt ? 'border-indigo-500' : 'border-transparent'}`}>
                         <img src={opt} alt="Avatar option" className="w-full h-auto bg-slate-100 dark:bg-slate-800" />
-                        {profileData.avatar === opt && (
-                          <div className="absolute top-1 right-1 md:top-2 md:right-2 bg-indigo-500 rounded-full p-1 text-white shadow-md">
-                            <Check size={10} className="md:w-3 md:h-3" strokeWidth={3} />
-                          </div>
-                        )}
                       </div>
                     ))}
                   </div>
               </div>
-
             </div>
           </div>
         )}
 
-        {/* CoverImage Modal */}
+        {/* Cover Modal */}
         {showCoverModal && (
           <div className="fixed inset-0 z-100 bg-black/60 backdrop-blur-sm flex items-center justify-center p-4">
             <div className="bg-white dark:bg-[#111] w-full max-w-2xl max-h-[90vh] overflow-y-auto rounded-3xl p-6 md:p-8 relative shadow-2xl border border-black/5 dark:border-white/10 animate-in zoom-in-95 duration-200 custom-scrollbar">
@@ -812,10 +662,8 @@ const Signed = () => {
               </button>
               
               <h3 className="text-xl md:text-2xl font-bold text-slate-900 dark:text-white mb-1 md:mb-2 pr-8">Update Cover Photo</h3>
-              <p className="text-slate-500 dark:text-slate-400 text-xs md:text-sm mb-6">Upload your own image or choose a theme.</p>
-
-              {/* Upload Button */}
-              <div className="mb-6 md:mb-8">
+              
+              <div className="mb-6 md:mb-8 mt-4">
                  <input 
                    type="file" 
                    accept="image/*" 
@@ -832,27 +680,20 @@ const Signed = () => {
                       <UploadCloud size={20} className="md:w-6 md:h-6" />
                     </div>
                     <span className="font-bold text-base md:text-lg">Upload from Device</span>
-                    <span className="text-[10px] md:text-xs font-medium opacity-70 mt-1">Supports JPG, PNG (Max 5MB)</span>
                  </button>
               </div>
 
-              {/* Inbuilt Presets */}
+              {/* Presets Grid... */}
               <div className="space-y-3 md:space-y-4">
                   <h4 className="text-xs md:text-sm font-semibold text-slate-900 dark:text-white uppercase tracking-wider">Or choose a preset</h4>
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 md:gap-4">
                     {coverOptions.map((opt, i) => (
-                      <div key={i} onClick={() => { setProfileData({...profileData, cover: opt}); setFiles({...files, coverImage: null}); setShowCoverModal(false); }} className={`cursor-pointer h-24 md:h-32 rounded-xl overflow-hidden border-2 md:border-4 relative transition-all hover:scale-105 ${profileData.cover === opt ? 'border-indigo-500' : 'border-transparent'}`}>
+                      <div key={i} onClick={() => { setProfileData({...profileData, cover: opt}); setShowCoverModal(false); }} className={`cursor-pointer h-24 md:h-32 rounded-xl overflow-hidden border-2 md:border-4 relative transition-all hover:scale-105 ${profileData.cover === opt ? 'border-indigo-500' : 'border-transparent'}`}>
                         <img src={opt} alt="Cover option" className="w-full h-full object-cover" />
-                        {profileData.cover === opt && (
-                          <div className="absolute top-1 right-1 md:top-2 md:right-2 bg-indigo-500 rounded-full p-1.5 text-white shadow-md">
-                            <Check size={12} className="md:w-4 md:h-4" strokeWidth={3} />
-                          </div>
-                        )}
                       </div>
                     ))}
                   </div>
               </div>
-
             </div>
           </div>
         )}
