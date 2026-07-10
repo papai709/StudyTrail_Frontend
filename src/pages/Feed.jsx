@@ -6,8 +6,10 @@ import {
   Home, BookOpen, Trophy, Compass, MessageSquare, Search,
   Image as ImageIcon, FileText, Send, Heart, Share2, X, Check,
   Download, Flame, Sparkles, GraduationCap, Edit3, Upload, 
-  MoreVertical, Menu, Sun, Moon, Bell, Users, Clock, 
-  Lock, Globe, ChevronDown, ChevronUp
+  MoreVertical, Menu, Sun, Moon, Bell, Users, UserPlus, Clock, 
+  Lock, Globe, ChevronDown, ChevronUp,
+  GlobeLock, Target,
+  Smile, PlaySquare
 } from 'lucide-react';
 
 // ==========================================
@@ -15,6 +17,7 @@ import {
 // Uncomment the line below when your Node.js backend is running
 // import axios from 'axios'; 
 // ==========================================
+
 
 export const LOGGED_IN_USER = {
   id: 'user-101',
@@ -32,7 +35,7 @@ export const NAV_ITEMS = [
 
 export const INITIAL_POSTS = [
   {
-    id: 'post_123', // Matches your backend example
+    id: 'post_123',
     author: {
       name: 'Sarah Chen',
       handle: '@sarah_codes',
@@ -40,12 +43,15 @@ export const INITIAL_POSTS = [
     },
     timestamp: '2 hours ago',
     studyTopicTag: '#MachineLearning',
-    contentText: 'Finished drafting my visual cheat sheet for neural network backpropagation! Let me know if you want the PDF. The formulas are color-coded to match forward vs backward weight changes. 🧠📝',
+    contentText: 'Finished drafting my visual cheat sheet for neural network backpropagation!\n\nLet me know if you want the PDF. The formulas are color-coded to match forward vs backward weight changes. 🧠📝',
     mediaType: 'image',
     mediaUrl: 'https://images.unsplash.com/photo-1516321318423-f06f85e504b3?auto=format&fit=crop&w=800&q=80',
     likesCount: 24,
     commentsCount: 5,
-    userReaction: null // null means not liked
+    userReaction: null,
+    comments: [
+      { id: 'c1', author: { name: 'Michael Torres', handle: '@mike_bio', avatarUrl: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150' }, text: 'This is incredibly helpful! Thanks for sharing.', likes: 2, isLiked: false }
+    ]
   },
   {
     id: 'post_124',
@@ -56,13 +62,14 @@ export const INITIAL_POSTS = [
     },
     timestamp: '4 hours ago',
     studyTopicTag: '#HumanAnatomy',
-    contentText: 'Sharing my handwritten summary sheet of the cardiovascular pathway structure for our upcoming biology midterm. Highly detailed, includes diagrams of heart chambers and valve actions.',
+    contentText: 'Sharing my handwritten summary sheet of the cardiovascular pathway structure for our upcoming biology midterm.\n\nHighly detailed, includes diagrams of heart chambers and valve actions. Good luck everyone! 🫀',
     mediaType: 'document',
     fileName: 'Cardiology_Handout_Review.pdf',
     fileSize: '1.8 MB',
     likesCount: 18,
     commentsCount: 3,
-    userReaction: 'love'
+    userReaction: 'love',
+    comments: []
   }
 ];
 
@@ -73,13 +80,32 @@ const SUGGESTED_SCHOLARS = [
   { id: 4, name: 'James Clear', handle: '@james_habits', avatar: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=100&h=100&fit=crop' },
   { id: 5, name: 'Dr. Andrew H.', handle: '@andrew_neuro', avatar: 'https://images.unsplash.com/photo-1550525811-e5869dd03032?w=100&h=100&fit=crop' },
   { id: 6, name: 'Er. Ankandip Biswas', handle: '@Ankan_ui/ux', avatar: 'https://images.unsplash.com/photo-1531427186611-ecfd6d936c79?w=100&h=100&fit=crop' },
-  { id: 6, name: 'Er. Papai Debnath', handle: '@Papai_backend', avatar: 'https://images.unsplash.com/photo-1519085360753-af0119f7cbe7?w=100&h=100&fit=crop' },
+  { id: 16, name: 'Er. Papai Debnath', handle: '@Papai_backend', avatar: 'https://images.unsplash.com/photo-1519085360753-af0119f7cbe7?w=100&h=100&fit=crop' },
   { id: 7, name: 'Auth. Anuj Majumder', handle: '@Anuj_author', avatar: 'https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?w=100&h=100&fit=crop' },
   { id: 8, name: 'Swarup Bhowmik', handle: '@Swarup_broker', avatar: 'https://images.unsplash.com/photo-1560250097-0b93528c311a?w=100&h=100&fit=crop' },
   { id: 9, name: 'Mrinmoy Nandi', handle: '@Mrinmoy_player', avatar: 'https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?w=100&h=100&fit=crop' },
   { id: 10, name: 'Ernold Mocks', handle: '@Ernnold_M', avatar: 'https://images.unsplash.com/photo-1527980965255-d3b416303d12?w=100&h=100&fit=crop' },
   { id: 11, name: 'Shepard Butcher', handle: '@Butcher_Sheep', avatar: 'https://images.unsplash.com/photo-1583341612074-ccea5cd64f6a?w=100&h=100&fit=crop' },
-    
+];
+
+const STORY_DATA_STATIC = [
+  { id: 's2', name: 'Maria Garcia', username: '@Maria_maria', avatar: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=100&h=100&fit=crop', streak: 45 },
+  { id: 's3', name: 'James Clear', username: '@James_Cl', avatar: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=100&h=100&fit=crop', streak: 21 },
+  { id: 's4', name: 'Sarah Jen', username: '@Sarah_Jen', avatar: 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=100&h=100&fit=crop', streak: 14 },
+  { id: 's5', name: 'Alan Watts', username: '@Alan_W', avatar: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=100&h=100&fit=crop', streak: 7 },
+  { id: 's6', name: 'Ankandip B.', username: '@Ankan_ui/ux', avatar: 'https://images.unsplash.com/photo-1531427186611-ecfd6d936c79?w=100&h=100&fit=crop', streak: 100 },
+  { id: 's7', name: 'Papai Deb', username: '@Papai_backend', avatar: 'https://images.unsplash.com/photo-1519085360753-af0119f7cbe7?w=100&h=100&fit=crop', streak: 2 },
+  { id: 's8', name: 'Anuj Majumder', username: '@Anuj_author', avatar: 'https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?w=100&h=100&fit=crop', streak: 30 },
+  { id: 's9', name: 'Swarup Bhowmik', username: '@Swarup_broker', avatar: 'https://images.unsplash.com/photo-1560250097-0b93528c311a?w=100&h=100&fit=crop', streak: 15 },
+  { id: 's10', name: 'Mrinmoy Nandi', username: '@Mrinmoy_player', avatar: 'https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?w=100&h=100&fit=crop', streak: 8 },
+  { id: 's11', name: 'Ernold Mocks', username: '@Ernold_M', avatar: 'https://images.unsplash.com/photo-1527980965255-d3b416303d12?w=100&h=100&fit=crop', streak: 5 },
+  { 
+   id: 's-community', 
+    name: 'Community', 
+    username: 'Explore', 
+    isCommunity: true,
+    streak: 0 
+  }
 ];
 
 const TYPEWRITER_PLACEHOLDERS = [
@@ -98,7 +124,14 @@ const REACTIONS = [
   { id: 'sad', emoji: '😢', label: 'Sad', color: 'text-yellow-600' }
 ];
 
-// Helper to highlight @mentions in comments
+const QUICK_EMOJIS = ['👍', '🔥', '📚', '🧠', '✨', '💻', '💡', '🚀'];
+
+const DUMMY_GIFS = [
+  'https://media.giphy.com/media/13HgwGsXF0aiGY/giphy.gif', 
+  'https://media.giphy.com/media/JIX9t2j0ZTN9S/giphy.gif', 
+  'https://media.giphy.com/media/3o7TKSjRrfIPjeiVyM/giphy.gif' 
+];
+
 const renderCommentText = (text) => {
   if (!text) return null;
   const parts = text.split(/(@[\w_]+)/g);
@@ -110,14 +143,37 @@ const renderCommentText = (text) => {
   });
 };
 
+const fileToBase64 = (file) => new Promise((resolve, reject) => {
+  const reader = new FileReader();
+  reader.readAsDataURL(file);
+  reader.onload = () => resolve(reader.result);
+  reader.onerror = error => reject(error);
+});
+
 export default function Feed() {
   const { isDarkMode, toggleDarkMode } = useTheme();
   const navigate = useNavigate();
+
+  const [isFriendRequestsOpen, setIsFriendRequestsOpen] = useState(false);
+
+const friendRequests = [
+  {
+    id: 1,
+    name: "Sarah Chen",
+    handle: "@sarah_codes",
+    avatar:
+      "https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=150",
+  },
+  {
+    id: 2,
+    name: "Michael Torres",
+    handle: "@mike_bio",
+    avatar:
+      "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150",
+  },
+];
   
-  // NOTE FOR FRONTEND TEAM: You can initialize this as an empty array []
-  // and load INITIAL_POSTS via an axios.get('/api/v1/post') in a useEffect
   const [posts, setPosts] = useState(INITIAL_POSTS);
-  
   const [searchQuery, setSearchQuery] = useState('');
   const [newPostText, setNewPostText] = useState('');
   
@@ -136,20 +192,23 @@ export default function Feed() {
 
   const [activeReactionPostId, setActiveReactionPostId] = useState(null);
   const pressTimer = useRef(null);
+  
+  const scholarsSectionRef = useRef(null);
+  const storyScrollRef = useRef(null);
+  const mediaInputRef = useRef(null);
+  const docInputRef = useRef(null);
+  const postTextareaRef = useRef(null);
 
-  // Goal Form State
+  const [userStreak, setUserStreak] = useState(12);
+
+  const storyData = [
+    { id: 's1', name: 'Your StudyStreak', username: LOGGED_IN_USER.handle, avatar: LOGGED_IN_USER.avatarUrl, streak: userStreak, isSelf: true },
+    ...STORY_DATA_STATIC
+  ];
+
   const [goalForm, setGoalForm] = useState({ title: '', subject: '', deadline: '', isPublic: false });
   const [isGoalSubmitting, setIsGoalSubmitting] = useState(false);
   const [currentTime, setCurrentTime] = useState(Date.now());
-
-  const [currentPlaceholder, setCurrentPlaceholder] = useState('');
-  const [phIndex, setPhIndex] = useState(0);
-  const [isDeleting, setIsDeleting] = useState(false);
-  const [isTextareaFocused, setIsTextareaFocused] = useState(false);
-  const [isComposerActive, setIsComposerActive] = useState(false);
-  
-  const shouldShowComposerActions = isComposerActive || Boolean(newPostText.trim()) || Boolean(selectedFile) || isUploadExpanded;
-
   const [goals, setGoals] = useState(() => {
     try {
       const saved = localStorage.getItem('studytrail_goals');
@@ -159,13 +218,20 @@ export default function Feed() {
     }
     return [];
   });
-  
+
   const [commentsByPost, setCommentsByPost] = useState(() => Object.fromEntries(INITIAL_POSTS.map(post => [post.id, post.comments || []])));
   const [commentDrafts, setCommentDrafts] = useState({});
+  const [commentMedia, setCommentMedia] = useState({}); 
+  const [activeEmojiPicker, setActiveEmojiPicker] = useState({}); 
+  const [activeGifPicker, setActiveGifPicker] = useState({});     
 
-  const mediaInputRef = useRef(null);
-  const docInputRef = useRef(null);
-  const postTextareaRef = useRef(null);
+  const [currentPlaceholder, setCurrentPlaceholder] = useState('');
+  const [phIndex, setPhIndex] = useState(0);
+  const [isDeleting, setIsDeleting] = useState(false);
+  const [isTextareaFocused, setIsTextareaFocused] = useState(false);
+  const [isComposerActive, setIsComposerActive] = useState(false);
+  
+  const shouldShowComposerActions = isComposerActive || Boolean(newPostText.trim()) || Boolean(selectedFile) || isUploadExpanded;
 
   useEffect(() => {
     try {
@@ -182,7 +248,6 @@ export default function Feed() {
     }
   }, [newPostText]);
 
-  // Keep time updated for the 3-hour check
   useEffect(() => {
     const interval = setInterval(() => setCurrentTime(Date.now()), 60000); 
     return () => clearInterval(interval);
@@ -215,6 +280,46 @@ export default function Feed() {
     return () => clearTimeout(timeout);
   }, [currentPlaceholder, isDeleting, phIndex, isTextareaFocused]);
 
+  const handleMouseDown = (e) => {
+    const slider = storyScrollRef.current;
+    if (!slider) return;
+    let isDown = true;
+    let startX = e.pageX - slider.offsetLeft;
+    let scrollLeft = slider.scrollLeft;
+
+    const onMouseMove = (e) => {
+      if (!isDown) return;
+      e.preventDefault();
+      const x = e.pageX - slider.offsetLeft;
+      const walk = (x - startX) * 2; 
+      slider.scrollLeft = scrollLeft - walk;
+    };
+
+    const onMouseUp = () => {
+      isDown = false;
+      document.removeEventListener('mousemove', onMouseMove);
+      document.removeEventListener('mouseup', onMouseUp);
+    };
+
+    document.addEventListener('mousemove', onMouseMove);
+    document.addEventListener('mouseup', onMouseUp);
+  };
+
+  const handleCommunityClick = () => {
+    if (window.innerWidth < 1024) {
+      setIsMobileMenuOpen(true);
+      setIsMobileScholarsOpen(true);
+      setTimeout(() => {
+        const el = document.getElementById('mobile-scholars-section');
+        if (el) el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      }, 300);
+    } else {
+      scholarsSectionRef.current?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      scholarsSectionRef.current?.classList.add('ring-2', 'ring-violet-500');
+      setTimeout(() => scholarsSectionRef.current?.classList.remove('ring-2', 'ring-violet-500'), 2000);
+    }
+  };
+
   const handleNavigation = (route) => {
     if (route === '/home' || route === '/') {
       window.location.reload();
@@ -237,7 +342,7 @@ export default function Feed() {
         id: `goal-${Date.now()}`,
         title: goalForm.title.trim(),
         subject: goalForm.subject.trim(),
-        deadline: goalForm.deadline,
+        deadline: goalForm.deadline, // Now saving full date string
         isPublic: goalForm.isPublic,
         createdAt: Date.now(),
         completed: false
@@ -253,16 +358,14 @@ export default function Feed() {
     const threeHoursInMs = 3 * 60 * 60 * 1000;
     const isCompletable = currentTime >= (createdAt + threeHoursInMs);
     if (!isCompletable) return;
+    
     setGoals(prev => prev.map(item => item.id === goalId ? { ...item, completed: !item.completed } : item));
+    setUserStreak(prev => prev + 1); 
   };
 
-  const formatTimeAMPM = (time24) => {
-    if (!time24) return '';
-    const [h, m] = time24.split(':');
-    const hours = parseInt(h, 10);
-    const suffix = hours >= 12 ? 'PM' : 'AM';
-    const displayHours = hours % 12 || 12;
-    return `${displayHours}:${m} ${suffix}`;
+  const formatDate = (dateStr) => {
+    if (!dateStr) return '';
+    return new Date(dateStr).toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' });
   };
 
   const filteredPosts = posts.filter(post => {
@@ -273,20 +376,15 @@ export default function Feed() {
       post.author.name.toLowerCase().includes(query);
   });
 
-  // ==========================================
-  // OPTIMISTIC UI: LIKE TOGGLE (DEFAULT HEART)
-  // ==========================================
   const handleLikeToggle = async (postId) => {
-    // 1. Cache the current state just in case we need to roll back
     const targetPost = posts.find(p => p.id === postId);
     if (!targetPost) return;
     
-    const previousReaction = targetPost.userReaction; // acts as "isLiked" equivalent
+    const previousReaction = targetPost.userReaction; 
     const previousCount = targetPost.likesCount;
     const isRemoving = previousReaction !== null;
-    const newReaction = isRemoving ? null : 'love'; // 'love' is our default true state
+    const newReaction = isRemoving ? null : 'love'; 
 
-    // 2. Optimistic Update (Instant UI change)
     setPosts(prevPosts =>
       prevPosts.map(post => {
         if (post.id !== postId) return post;
@@ -297,40 +395,13 @@ export default function Feed() {
         };
       })
     );
-
-    try {
-      // 3. Call my backend silently
-      // await axios.post(`/api/v1/like/toggle/post-id/${postId}`);
-      
-      // Simulating a successful network request...
-      await new Promise(resolve => setTimeout(resolve, 300));
-    } catch (error) {
-      // 4. Rollback if the API fails
-      console.error("Backend error:", error);
-      setPosts(prevPosts =>
-        prevPosts.map(post => {
-          if (post.id !== postId) return post;
-          return {
-            ...post,
-            userReaction: previousReaction,
-            likesCount: previousCount,
-          };
-        })
-      );
-      // Optional: alert("Connection failed.");
-    }
   };
 
-  // ==========================================
-  // OPTIMISTIC UI: LONG-PRESS SPECIFIC REACTION
-  // ==========================================
   const handleSelectReaction = async (postId, reactionId) => {
-    // 1. Cache state
     const targetPost = posts.find(p => p.id === postId);
     if (!targetPost) return;
 
     const previousReaction = targetPost.userReaction;
-    const previousCount = targetPost.likesCount;
     const isRemoving = previousReaction === reactionId; 
     const newReaction = isRemoving ? null : reactionId;
 
@@ -338,7 +409,6 @@ export default function Feed() {
     if (!previousReaction && newReaction) newCount += 1;
     else if (previousReaction && !newReaction) newCount = Math.max(0, targetPost.likesCount - 1);
 
-    // 2. Optimistic Update (Instant UI change)
     setPosts(prevPosts =>
       prevPosts.map(post => {
         if (post.id !== postId) return post;
@@ -346,21 +416,6 @@ export default function Feed() {
       })
     );
     setActiveReactionPostId(null);
-
-    try {
-      // 3. Backend sync
-      // await axios.post(`/api/v1/like/toggle/post-id/${postId}`, { reaction: reactionId });
-      await new Promise(resolve => setTimeout(resolve, 300));
-    } catch (error) {
-      // 4. Rollback
-      console.error("Backend error:", error);
-      setPosts(prevPosts =>
-        prevPosts.map(post => {
-          if (post.id !== postId) return post;
-          return { ...post, userReaction: previousReaction, likesCount: previousCount };
-        })
-      );
-    }
   };
 
   const handleInteractionStart = (postId) => {
@@ -374,9 +429,7 @@ export default function Feed() {
       clearTimeout(pressTimer.current); 
       pressTimer.current = null; 
     }
-    // If popup opened, don't trigger the default click
     if (activeReactionPostId === postId) return;
-    
     handleLikeToggle(postId);
   };
 
@@ -387,21 +440,66 @@ export default function Feed() {
     } 
   };
 
-  const triggerMediaUpload = () => mediaInputRef.current?.click();
-  const triggerDocUpload = () => docInputRef.current?.click();
+  const toggleCommentLike = (postId, commentId) => {
+    setCommentsByPost(prev => ({
+      ...prev,
+      [postId]: prev[postId].map(c => 
+        c.id === commentId 
+          ? { ...c, isLiked: !c.isLiked, likes: c.isLiked ? c.likes - 1 : c.likes + 1 }
+          : c
+      )
+    }));
+  };
+
+  const handleCommentFileChange = (e, postId) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    const previewUrl = URL.createObjectURL(file);
+    setCommentMedia(prev => ({ ...prev, [postId]: { file, previewUrl } }));
+    setActiveEmojiPicker(prev => ({ ...prev, [postId]: false }));
+    setActiveGifPicker(prev => ({ ...prev, [postId]: false }));
+  };
+
+  const removeCommentMedia = (postId) => {
+    setCommentMedia(prev => {
+      const newState = { ...prev };
+      delete newState[postId];
+      return newState;
+    });
+  };
+
+  const insertEmoji = (postId, emoji) => {
+    setCommentDrafts(prev => ({ ...prev, [postId]: (prev[postId] || '') + emoji }));
+    setActiveEmojiPicker(prev => ({ ...prev, [postId]: false }));
+  };
+
+  const insertGif = (postId, gifUrl) => {
+    setCommentMedia(prev => ({ ...prev, [postId]: { file: null, previewUrl: gifUrl, isGif: true } }));
+    setActiveGifPicker(prev => ({ ...prev, [postId]: false }));
+  };
 
   const handleCommentSubmit = (e, postId) => {
     e.preventDefault();
     const trimmedComment = (commentDrafts[postId] || '').trim();
-    if (!trimmedComment) return;
+    const attachedMedia = commentMedia[postId];
+    
+    if (!trimmedComment && !attachedMedia) return;
 
     setCommentsByPost(prev => ({
       ...prev,
-      [postId]: [...(prev[postId] || []), { id: `comment-${Date.now()}`, author: { name: LOGGED_IN_USER.name, handle: LOGGED_IN_USER.handle, avatarUrl: LOGGED_IN_USER.avatarUrl }, text: trimmedComment }]
+      [postId]: [...(prev[postId] || []), { 
+        id: `comment-${Date.now()}`, 
+        author: { name: LOGGED_IN_USER.name, handle: LOGGED_IN_USER.handle, avatarUrl: LOGGED_IN_USER.avatarUrl }, 
+        text: trimmedComment,
+        mediaUrl: attachedMedia?.previewUrl,
+        likes: 0,
+        isLiked: false
+      }]
     }));
 
     setPosts(prevPosts => prevPosts.map(post => post.id === postId ? { ...post, commentsCount: (post.commentsCount || 0) + 1 } : post));
     setCommentDrafts(prev => ({ ...prev, [postId]: '' }));
+    removeCommentMedia(postId); 
   };
 
   const handleReplyClick = (postId, userHandle) => {
@@ -419,6 +517,17 @@ export default function Feed() {
         input.selectionStart = input.selectionEnd = input.value.length;
       }
     }, 50);
+  };
+
+  const triggerMediaUpload = () => {
+    setActiveEmojiPicker({});
+    setActiveGifPicker({});
+    mediaInputRef.current?.click();
+  };
+  const triggerDocUpload = () => {
+    setActiveEmojiPicker({});
+    setActiveGifPicker({});
+    docInputRef.current?.click();
   };
 
   const handleFileChange = (e, category) => {
@@ -456,7 +565,7 @@ export default function Feed() {
       author: { name: LOGGED_IN_USER.name, handle: LOGGED_IN_USER.handle, avatarUrl: LOGGED_IN_USER.avatarUrl },
       timestamp: 'Just now',
       studyTopicTag: parsedTag,
-      contentText: newPostText,
+      contentText: newPostText, 
       mediaType: selectedFile ? selectedFile.type : 'none',
       mediaUrl: selectedFile?.previewUrl,
       fileName: selectedFile?.name,
@@ -469,9 +578,6 @@ export default function Feed() {
 
     setIsUploading(true);
     
-    // BACKEND INTEGRATION:
-    // await axios.post('/api/v1/post', newPost);
-
     setPosts(prevPosts => [newPost, ...prevPosts]);
     setCommentsByPost(prev => ({ ...prev, [newPost.id]: [] }));
     setNewPostText('');
@@ -535,8 +641,8 @@ export default function Feed() {
                         ? 'bg-violet-600/10 text-violet-400 font-semibold border-l-4 border-violet-500'
                         : 'bg-violet-50 text-violet-600 font-semibold border-l-4 border-violet-500'
                       : isDarkMode
-                        ? 'text-gray-400 hover:text-white hover:bg-white/5 border-l-4 border-transparent'
-                        : 'text-slate-500 hover:text-slate-900 hover:bg-slate-100 border-l-4 border-transparent'
+                        ? 'text-gray-400 hover:text-white hover:bg-white/10 border-l-4 border-transparent hover:translate-x-1'
+                        : 'text-slate-500 hover:text-slate-900 hover:bg-slate-100 border-l-4 border-transparent hover:translate-x-1'
                   }`}
                 >
                   {renderNavIcon(item.icon, "w-5 h-5")}
@@ -559,7 +665,7 @@ export default function Feed() {
                 <Flame className="w-6 h-6 fill-violet-400/20" />
               </div>
               <div className="min-w-0">
-                <h5 className={`text-sm font-bold truncate ${isDarkMode ? 'text-white' : 'text-slate-900'}`}>12-Day Streak</h5>
+                <h5 className={`text-sm font-bold truncate ${isDarkMode ? 'text-white' : 'text-slate-900'}`}>{userStreak}-Day Streak</h5>
                 <p className="text-xs text-gray-400 truncate mt-0.5">Target matches goals!</p>
               </div>
             </div>
@@ -628,7 +734,7 @@ export default function Feed() {
                     <Flame className="w-5 h-5 fill-violet-400/20" />
                   </div>
                   <div className="min-w-0">
-                    <h5 className={`text-sm font-bold truncate ${isDarkMode ? 'text-white' : 'text-slate-900'}`}>12-Day Streak</h5>
+                    <h5 className={`text-sm font-bold truncate ${isDarkMode ? 'text-white' : 'text-slate-900'}`}>{userStreak}-Day Streak</h5>
                     <p className="text-[10px] text-gray-400 truncate">Target matches goals!</p>
                   </div>
                 </div>
@@ -647,8 +753,7 @@ export default function Feed() {
                 </div>
               </div>
 
-              {/* Mobile Suggested Scholars Accordion */}
-              <div className={`border rounded-3xl p-5 shadow-sm transition-colors duration-300 ${isDarkMode ? 'bg-[#151125] border-white/5' : 'bg-white border-slate-200'}`}>
+              <div id="mobile-scholars-section" className={`border rounded-3xl p-5 shadow-sm transition-colors duration-300 ${isDarkMode ? 'bg-[#151125] border-white/5' : 'bg-white border-slate-200'}`}>
                 <div 
                   className="flex items-center justify-between cursor-pointer group"
                   onClick={() => setIsMobileScholarsOpen(!isMobileScholarsOpen)}
@@ -661,7 +766,7 @@ export default function Feed() {
                 </div>
                 
                 {isMobileScholarsOpen && (
-                  <div className="space-y-4 mt-5 max-h-60 overflow-y-auto pr-1 [&::-webkit-scrollbar]:hidden">
+                  <div className="space-y-4 mt-5 max-h-[40vh] overflow-y-auto pr-1 [&::-webkit-scrollbar]:hidden">
                     {SUGGESTED_SCHOLARS.map((user) => (
                       <div key={user.id} className="flex items-center justify-between group">
                         <div className="flex items-center gap-3">
@@ -682,8 +787,9 @@ export default function Feed() {
 
               <button 
                 onClick={() => { setIsMobileMenuOpen(false); setIsGoalModalOpen(true); }} 
-                className="w-full py-4 bg-violet-600 text-white rounded-2xl font-bold shadow-lg transition-transform hover:scale-[1.02]"
+                className="w-full py-4 rounded-2xl font-bold text-white shadow-md bg-violet-600 hover:bg-violet-700 transition-all duration-300 hover:scale-[1.02] flex items-center justify-center gap-2"
               >
+                <Target className="w-5 h-5" />
                 Set Goal
               </button>
             </div>
@@ -736,10 +842,8 @@ export default function Feed() {
         </div>
       )}
 
-      {/* MAIN CONTENT FEED */}
       <main className="flex-1 min-w-0 flex flex-col h-full overflow-y-auto relative [&::-webkit-scrollbar]:hidden [-ms-overflow-style:'none'] [scrollbar-width:'none'] pb-16 lg:pb-0">
         
-        {/* TOP NAVBAR */}
         <header className={`sticky top-0 z-30 flex items-center px-4 py-3 border-b backdrop-blur-md transition-colors ${
           isDarkMode ? 'bg-[#0B0914]/80 border-white/10' : 'bg-white/80 border-slate-200'
         }`}>
@@ -814,6 +918,103 @@ export default function Feed() {
               )}
             </div>
 
+            {/* Friend Requests */}
+<div className="relative">
+  <button
+    onClick={() =>
+      setIsFriendRequestsOpen(!isFriendRequestsOpen)
+    }
+    className={`p-2 rounded-full transition-colors relative ${
+      isDarkMode
+        ? "hover:bg-white/10 text-gray-300"
+        : "hover:bg-slate-200 text-slate-600"
+    }`}
+  >
+    <UserPlus className="w-5 h-5" />
+
+    {friendRequests.length > 0 && (
+      <span className="absolute -top-1 -right-1 bg-violet-600 text-white text-[9px] font-bold rounded-full min-w-[16px] h-4 px-1 flex items-center justify-center">
+        {friendRequests.length}
+      </span>
+    )}
+  </button>
+
+  {isFriendRequestsOpen && (
+    <div
+      className={`absolute right-0 mt- w-75 rounded-2xl border shadow-xl overflow-hidden z-50 ${
+        isDarkMode
+          ? "bg-[#151125] border-white/10"
+          : "bg-white border-slate-200"
+      }`}
+    >
+      <div className="flex items-center justify-between px-4 py-3 border-b border-white/10">
+        <h3 className="font-semibold text-sm">
+          Friend Requests
+        </h3>
+
+        <button
+          onClick={() => setIsFriendRequestsOpen(false)}
+          className="text-gray-400 hover:text-red-500"
+        >
+          <X className="w-4 h-4" />
+        </button>
+      </div>
+
+      <div className="max-h-80 overflow-y-auto">
+        {friendRequests.map((user) => (
+          <div
+            key={user.id}
+            className={`flex items-center justify-between px-4 py-3 ${
+              isDarkMode
+                ? "hover:bg-white/5"
+                : "hover:bg-slate-50"
+            }`}
+          >
+            <div className="flex items-center gap-3">
+              <img
+                src={user.avatar}
+                alt={user.name}
+                className="w-10 h-10 rounded-full object-cover"
+              />
+
+              <div>
+                <p className="font-medium text-sm">
+                  {user.name}
+                </p>
+                <p className="text-xs text-gray-500">
+                  {user.handle}
+                </p>
+              </div>
+            </div>
+
+            <div className="flex gap-2">
+              <button className="px-3 py-1 rounded-lg bg-violet-600 text-white text-xs font-medium hover:bg-violet-700">
+                Accept
+              </button>
+
+              <button
+                className={`px-3 py-1 rounded-lg text-xs font-medium ${
+                  isDarkMode
+                    ? "bg-white/10 hover:bg-white/20"
+                    : "bg-slate-200 hover:bg-slate-300"
+                }`}
+              >
+                Ignore
+              </button>
+            </div>
+          </div>
+        ))}
+
+        {friendRequests.length === 0 && (
+          <div className="py-10 text-center text-sm text-gray-500">
+            No pending requests
+          </div>
+        )}
+      </div>
+    </div>
+  )}
+</div>
+
             <Link to="/profile" className="cursor-pointer hidden sm:block">
               <img src={LOGGED_IN_USER.avatarUrl} alt="Profile" className={`w-8 h-8 rounded-full object-cover border transition ${isDarkMode ? 'border-white/10' : 'border-slate-200'} hover:opacity-80`} />
             </Link>
@@ -826,6 +1027,55 @@ export default function Feed() {
 
         <div className="w-full max-w-4xl mx-auto p-4 lg:px-6 lg:py-6 space-y-6 flex-1">
           
+          {/* Center Aligned Study Streak Section with full names and dynamic gradient borders */}
+          <div className="w-full flex justify-center">
+             <div 
+              ref={storyScrollRef}
+              onMouseDown={handleMouseDown}
+              className="story-container flex gap-4 py-3 items-start w-full max-w-4xl no-scrollbar pb-2 select-none cursor-grab active:cursor-grabbing">
+              {storyData.map((story) => (
+                <div 
+                  key={story.id} 
+                  onClick={() => { if (story.isCommunity) handleCommunityClick(); }}
+                  className={`flex flex-col items-center justify-start gap-1.5 shrink-0 ${story.isCommunity ? 'cursor-pointer' : 'cursor-default'} group snap-start`}
+                >
+                  <div className="relative">
+                    <div className={`w-16 h-16 rounded-full p-1 flex items-center justify-center transition-all duration-300 group-hover:scale-105 ${
+                      story.isCommunity
+                        ? isDarkMode ? 'bg-[#151125] border-2 border-white/10' : 'bg-white border-2 border-slate-200'
+                        : story.streak > 0 
+                          ? `bg-gradient-to-tr ${story.isSelf ? (isDarkMode ? 'from-gray-600 to-gray-700' : 'from-gray-300 to-gray-400') : 'from-orange-500 via-pink-500 to-violet-500'}`
+                          : (isDarkMode ? 'bg-transparent border-2 border-white/10' : 'bg-transparent border-2 border-slate-200')
+                    }`}>
+                      {story.isCommunity ? (
+                        <Users className={`w-8 h-8 ${isDarkMode ? 'text-white' : 'text-slate-700'}`} />
+                      ) : (
+                        <img src={story.avatar} alt={story.name} className={`w-full h-full rounded-full object-cover pointer-events-none border-2 ${isDarkMode ? 'border-[#0B0914]' : 'border-white'}`} />
+                      )}
+                    </div>
+                    
+                    {!story.isCommunity && story.streak > 0 && (
+                      <div className="absolute -bottom-1 -right-1 bg-white dark:bg-[#0B0914] rounded-full p-0.5 transition-colors duration-300">
+                        <div className="bg-orange-100 dark:bg-orange-500/20 text-orange-600 dark:text-orange-400 flex items-center justify-center gap-0.5 px-1.5 py-0.5 rounded-full border border-orange-200 dark:border-orange-500/30">
+                          <Flame className="w-2.5 h-2.5 fill-orange-500" />
+                          <span className="text-[10px] font-bold">{story.streak}</span>
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                  <span className={`text-xs font-medium w-20 break-words text-center transition-colors duration-300 leading-tight ${
+                    story.isCommunity 
+                      ? (isDarkMode ? 'text-white' : 'text-slate-900') 
+                      : (isDarkMode ? 'text-gray-300' : 'text-slate-700')
+                  }`}>
+                    {story.isCommunity ? 'More Streaks?' :(story.isSelf ? 'You' : story.username)
+                    }
+                  </span>
+                </div>
+              ))}
+            </div>
+          </div>
+
           {/* POST CREATION BOX */}
           <div className={`w-full p-3 sm:px-4 sm:py-3 rounded-2xl border shadow-sm transition-colors duration-300 ${
             isDarkMode ? 'bg-[#151125] border-white/5' : 'bg-white border-slate-200'
@@ -850,7 +1100,7 @@ export default function Feed() {
                     }, 150);
                   }}
                   placeholder={isTextareaFocused ? "Write your post..." : currentPlaceholder}
-                  className={`w-full bg-transparent resize-none outline-none text-sm leading-relaxed py-1.5 transition-all duration-300 ${
+                  className={`w-full bg-transparent resize-none outline-none text-sm leading-relaxed py-1.5 transition-all duration-300 whitespace-pre-wrap ${
                     isDarkMode ? 'text-white placeholder-gray-500' : 'text-slate-900 placeholder-slate-400'
                   }`}
                   rows="1"
@@ -873,6 +1123,8 @@ export default function Feed() {
                     <button 
                       onMouseDown={(e) => e.preventDefault()}
                       onClick={() => {
+                        setActiveEmojiPicker({});
+                        setActiveGifPicker({});
                         setIsTextareaFocused(true);
                         setIsComposerActive(true);
                         setIsUploadExpanded(!isUploadExpanded);
@@ -931,7 +1183,6 @@ export default function Feed() {
                 const postComments = commentsByPost[post.id] || [];
                 const isCommentsOpen = activeCommentPostId === post.id;
                 
-                // Find the active reaction object for this post
                 const activeReaction = REACTIONS.find(r => r.id === post.userReaction);
 
                 return (
@@ -957,7 +1208,7 @@ export default function Feed() {
                       >
                         {post.studyTopicTag}
                       </span>
-                      <p className="text-sm leading-relaxed">{post.contentText}</p>
+                      <p className="text-sm leading-relaxed whitespace-pre-wrap break-words">{post.contentText}</p>
                     </div>
 
                     {post.mediaType === 'image' && post.mediaUrl && (
@@ -988,13 +1239,11 @@ export default function Feed() {
                         className="relative flex items-center"
                         onMouseLeave={() => setActiveReactionPostId(null)}
                       >
-                        {/* The Popup Menu */}
                         {activeReactionPostId === post.id && (
                           <div 
                             className={`absolute -top-12 left-0 flex items-center gap-2 px-3 py-2 rounded-full shadow-xl animate-fade-in reaction-picker z-50 ${
                               isDarkMode ? 'bg-[#151125] border border-white/10 shadow-black/50' : 'bg-white border border-slate-200 shadow-slate-200'
                             }`}
-                            // Mobile drag support to highlight emojis
                             onTouchMove={(e) => {
                               const touch = e.touches[0];
                               const element = document.elementFromPoint(touch.clientX, touch.clientY);
@@ -1003,7 +1252,6 @@ export default function Feed() {
                                 element.classList.add('scale-125', '-translate-y-1');
                               }
                             }}
-                            // Select the hovered emoji when user lifts finger
                             onTouchEnd={(e) => {
                               const touch = e.changedTouches[0];
                               const element = document.elementFromPoint(touch.clientX, touch.clientY);
@@ -1031,7 +1279,6 @@ export default function Feed() {
                           </div>
                         )}
 
-                        {/* The Rendered Reaction Button (Trigger) */}
                         <button 
                           onMouseDown={() => handleInteractionStart(post.id)}
                           onMouseUp={() => handleInteractionEnd(post.id)}
@@ -1074,6 +1321,7 @@ export default function Feed() {
                       </button>
                     </div>
 
+                    {/* COMMENTS SECTION */}
                     {isCommentsOpen && (
                       <div className={`mt-4 rounded-2xl border p-3 space-y-3 ${isDarkMode ? 'bg-white/5 border-white/10' : 'bg-slate-50 border-slate-200'}`}>
                         <div className="flex items-center justify-between">
@@ -1086,8 +1334,9 @@ export default function Feed() {
                             postComments.map((comment) => (
                               <div key={comment.id} className="flex items-start gap-2">
                                 <img src={comment.author.avatarUrl} alt={comment.author.name} className="w-8 h-8 rounded-full object-cover shrink-0 mt-1" />
-                                <div className="flex-1">
-                                  <div className={`rounded-2xl px-3 py-2 ${isDarkMode ? 'bg-[#0B0914] text-gray-200' : 'bg-white text-slate-700'}`}>
+                                <div className="flex-1 min-w-0 flex flex-col items-start">
+                                  {/* Dynamic Size Comment Bubble */}
+                                  <div className={`inline-block max-w-[95%] rounded-2xl px-3 py-2 ${isDarkMode ? 'bg-[#0B0914] text-gray-200' : 'bg-white text-slate-700 shadow-sm border border-slate-100'} w-fit`}>
                                     <div className="flex items-center gap-2 mb-1">
                                       <span className="text-sm font-semibold">{comment.author.name}</span>
                                       <span className="text-[10px] text-gray-500">{comment.author.handle}</span>
@@ -1095,8 +1344,23 @@ export default function Feed() {
                                     <p className="text-sm leading-relaxed whitespace-pre-wrap break-words">
                                       {renderCommentText(comment.text)}
                                     </p>
+                                    {comment.mediaUrl && (
+                                   <div
+                                   className="mt-2 cursor-zoom-in" onClick={() => setImageLightbox(comment.mediaUrl)}>
+                                  <img src={comment.mediaUrl}
+                                   alt="Comment Attachment"className="rounded-lg max-h-32 object-contain hover:scale-[1.02] transition"/>
+                                  </div>
+                                  )}
                                   </div>
                                   <div className="flex items-center gap-3 px-2 mt-1">
+                                    <button 
+                                      onClick={() => toggleCommentLike(post.id, comment.id)}
+                                      className={`text-[10px] font-semibold transition-colors flex items-center gap-1 ${comment.isLiked ? 'text-pink-500' : (isDarkMode ? 'text-gray-400 hover:text-pink-400' : 'text-gray-500 hover:text-pink-500')}`}
+                                    >
+                                      <Heart className={`w-3 h-3 ${comment.isLiked ? 'fill-pink-500' : ''}`} />
+                                      {comment.likes > 0 ? comment.likes : 'Like'}
+                                    </button>
+                                    <span className="text-gray-300 dark:text-gray-600 text-[10px]">•</span>
                                     <button 
                                       onClick={() => handleReplyClick(post.id, comment.author.handle)}
                                       className={`text-[10px] font-semibold transition-colors ${isDarkMode ? 'text-gray-400 hover:text-violet-400' : 'text-gray-500 hover:text-violet-500'}`}
@@ -1112,18 +1376,101 @@ export default function Feed() {
                           )}
                         </div>
 
-                        <form onSubmit={(e) => handleCommentSubmit(e, post.id)} className="flex items-center gap-2 mt-2">
-                          <input
-                            id={`comment-input-${post.id}`}
-                            type="text"
-                            value={commentDrafts[post.id] || ''}
-                            onChange={(e) => setCommentDrafts(prev => ({ ...prev, [post.id]: e.target.value }))}
-                            placeholder="Write a comment..."
-                            className={`flex-1 rounded-full border px-3 py-2 text-sm outline-none transition ${isDarkMode ? 'bg-[#0B0914] border-white/10 text-white placeholder-gray-500' : 'bg-white border-slate-200 text-slate-700 placeholder-slate-400'}`}
-                          />
-                          <button type="submit" className="rounded-full bg-violet-600 px-3 py-2 text-sm font-semibold text-white transition hover:bg-violet-700">
-                            Send
-                          </button>
+                        {commentMedia[post.id] && (
+                          <div className="relative mt-2 p-2 rounded-lg inline-block bg-slate-200 dark:bg-white/10 border dark:border-white/20">
+                            <img src={commentMedia[post.id].previewUrl} alt="To attach" className="h-16 rounded" />
+                            <button onClick={() => removeCommentMedia(post.id)} className="absolute -top-2 -right-2 bg-red-500 text-white p-0.5 rounded-full"><X className="w-3 h-3" /></button>
+                          </div>
+                        )}
+
+                        <form onSubmit={(e) => handleCommentSubmit(e, post.id)} className={`comment-form-container mt-2 flex flex-col gap-2 rounded-2xl border px-2 py-1.5 transition ${isDarkMode ? 'bg-[#0B0914] border-white/10' : 'bg-white border-slate-200'}`}>
+                          <div className="flex w-full items-center">
+                            <input
+                              id={`comment-input-${post.id}`}
+                              type="text"
+                              value={commentDrafts[post.id] || ''}
+                              onChange={(e) => setCommentDrafts(prev => ({ ...prev, [post.id]: e.target.value }))}
+                              placeholder="Write a comment..."
+                              className="flex-1 bg-transparent px-2 py-1 text-sm outline-none placeholder-gray-500 w-full"
+                            />
+                            <button type="submit" disabled={!(commentDrafts[post.id] || '').trim() && !commentMedia[post.id]} className="ml-1 rounded-full bg-violet-600 p-2 text-sm font-semibold text-white transition hover:bg-violet-700 disabled:opacity-50">
+                              <Send className="w-4 h-4 ml-0.5" />
+                            </button>
+                          </div>
+                          
+                          <div className="flex items-center gap-1.5 px-1 relative">
+                            <input 
+                              type="file" 
+                              id={`comment-file-${post.id}`} 
+                              accept="image/*" 
+                              className="hidden" 
+                              onChange={(e) => handleCommentFileChange(e, post.id)} 
+                            />
+                            <button 
+                              type="button" 
+                              onClick={() => document.getElementById(`comment-file-${post.id}`).click()} 
+                              className={`p-1.5 rounded-full transition-colors ${isDarkMode ? 'text-gray-400 hover:bg-white/10' : 'text-gray-500 hover:bg-slate-100'}`} 
+                              title="Attach Photo"
+                            >
+                              <ImageIcon className="w-4 h-4 text-blue-500" />
+                            </button>
+
+                            <div className="relative">
+                              <button 
+                                type="button" 
+                                onClick={(e) => { e.preventDefault(); setActiveGifPicker(activeGifPicker[post.id] ? {} : { [post.id]: true }); setActiveEmojiPicker({}); }}
+                                className={`p-1.5 rounded-full transition-colors ${isDarkMode ? 'text-gray-400 hover:bg-white/10' : 'text-gray-500 hover:bg-slate-100'}`} 
+                                title="GIF"
+                              >
+                                <PlaySquare className="w-4 h-4 text-emerald-500" />
+                              </button>
+                              
+                              {activeGifPicker[post.id] && (
+                                <div className={`absolute bottom-[110%] left-0 z-[9999] w-48 p-2 rounded-xl border shadow-xl flex gap-2 ${isDarkMode ? 'bg-[#151125] border-white/10' : 'bg-white border-slate-200'}`} onClick={(e) => e.stopPropagation()}>
+                                  {DUMMY_GIFS.map((gif, i) => (
+                                    <img 
+                                      key={i} 
+                                      src={gif} 
+                                      alt="gif" 
+                                      className="w-14 h-14 object-cover rounded cursor-pointer hover:opacity-80 transition-opacity" 
+                                      onClick={() => insertGif(post.id, gif)}
+                                    />
+                                  ))}
+                                </div>
+                              )}
+                            </div>
+
+                            <div className="relative">
+                              <button 
+                                type="button" 
+                                onClick={(e) => { e.preventDefault(); setActiveEmojiPicker(activeEmojiPicker[post.id] ? {} : { [post.id]: true }); setActiveGifPicker({}); }}
+                                className={`p-1.5 rounded-full transition-colors ${isDarkMode ? 'text-gray-400 hover:bg-white/10' : 'text-gray-500 hover:bg-slate-100'}`} 
+                                title="Emoji"
+                              >
+                                <Smile className="w-4 h-4 text-orange-500" />
+                              </button>
+                              
+                              {activeEmojiPicker[post.id] && (
+                                <div 
+                                  className={`absolute bottom-[110%] left-0 z-[9999] w-[260px] p-2 rounded-2xl shadow-2xl border ${isDarkMode ? 'bg-[#151125] border-white/10' : 'bg-white border-slate-200'}`}
+                                  onClick={(e) => e.stopPropagation()}
+                                >
+                                  <div className="flex flex-wrap gap-2 justify-center">
+                                    {QUICK_EMOJIS.map(emoji => (
+                                      <button 
+                                        key={emoji} 
+                                        type="button" 
+                                        onClick={() => insertEmoji(post.id, emoji)}
+                                        className="text-lg hover:scale-150 transition-transform flex items-center justify-center p-1"
+                                      >
+                                        {emoji}
+                                      </button>
+                                    ))}
+                                  </div>
+                                </div>
+                              )}
+                            </div>
+                          </div>
                         </form>
                       </div>
                     )}
@@ -1183,6 +1530,10 @@ export default function Feed() {
             </button>
           );
         })}
+
+
+      
+        
         <button
           onClick={() => setIsBottomSearchOpen((prev) => !prev)}
           className={`flex flex-col items-center gap-1 p-2 rounded-lg transition-colors ${isDarkMode ? 'text-gray-400 hover:text-white' : 'text-slate-500 hover:text-slate-900'}`}
@@ -1210,14 +1561,15 @@ export default function Feed() {
       <aside className={`hidden lg:flex flex-col w-88 shrink-0 h-full border-l overflow-hidden transition-colors duration-300 ${
         isDarkMode ? 'border-white/5 bg-[#0B0914]' : 'border-slate-200 bg-white'
       }`}>
-        <div className="flex-1 flex flex-col p-6 space-y-6 overflow-hidden">
+        <div className="flex-1 flex flex-col p-6 gap-6 overflow-hidden">
           
-          <div className="space-y-4 shrink-0">
+          <div className="shrink-0 space-y-4">
             <button 
               onClick={() => setIsGoalModalOpen(true)}
-              className="w-full py-4 bg-violet-600 hover:bg-violet-700 text-white rounded-3xl font-bold shadow-lg transition-transform hover:scale-[1.02]"
+              className="w-full py-4 bg-violet-600 hover:bg-violet-700 text-white rounded-3xl font-bold shadow-sm transition-colors flex items-center justify-center gap-2"
             >
-              Set Goal
+              <Target className="w-5 h-5" />
+              <span>Set Weekly Goal</span>
             </button>
 
             <div className={`flex justify-between items-center p-5 rounded-3xl border transition-all duration-300 hover:-translate-y-1 hover:shadow-md ${
@@ -1236,8 +1588,9 @@ export default function Feed() {
             </div>
           </div>
 
-          {/* Desktop Scrollable Suggested Scholars - Expanded to fill space */}
-          <div className={`border rounded-3xl p-5 flex flex-col transition-all duration-300 hover:-translate-y-1 hover:shadow-md flex-1 min-h-[250px] ${
+          <div
+             ref={scholarsSectionRef} 
+             className={`border rounded-3xl p-5 flex flex-col transition-all duration-300 hover:-translate-y-1 hover:shadow-md shrink min-h-0 overflow-hidden ${
             isDarkMode ? 'bg-[#151125] border-white/5 shadow-white/5' : 'bg-white border-slate-200 shadow-slate-200'
           }`}>
             <div className="flex items-center gap-1.5 mb-4 shrink-0">
@@ -1245,7 +1598,7 @@ export default function Feed() {
               <h4 className="font-bold text-sm">Suggested Scholars</h4>
             </div>
             
-            <div className="space-y-4 overflow-y-auto pr-2 flex-1 [&::-webkit-scrollbar]:hidden">
+            <div className="space-y-4 overflow-y-auto pr-2 flex-1 no-scrollbar h-full">
               {SUGGESTED_SCHOLARS.map((user) => (
                 <div key={user.id} className="flex items-center justify-between group cursor-pointer">
                   <div className="flex items-center gap-3">
@@ -1262,7 +1615,6 @@ export default function Feed() {
               ))}
             </div>
           </div>
-
         </div>
       </aside>
 
@@ -1283,7 +1635,6 @@ export default function Feed() {
 
             <div className="space-y-6">
               
-              {/* GOAL FORM */}
               {canAddMoreGoals ? (
                 <form onSubmit={handleGoalSubmit} className={`p-4 rounded-2xl border ${isDarkMode ? 'bg-[#0B0914] border-white/10' : 'bg-slate-50 border-slate-200'}`}>
                   <div className="space-y-3">
@@ -1308,8 +1659,9 @@ export default function Feed() {
                       required
                     />
                     <div className="flex items-center gap-3">
+                      {/* UPDATED: Change time to date input */}
                       <input
-                        type="time"
+                        type="date"
                         value={goalForm.deadline}
                         onChange={(e) => setGoalForm({ ...goalForm, deadline: e.target.value })}
                         className={`flex-1 rounded-xl border px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-violet-500 transition ${
@@ -1332,7 +1684,7 @@ export default function Feed() {
                           <div className={`absolute left-1 top-1 bg-white w-4 h-4 rounded-full transition-transform duration-300 ${goalForm.isPublic ? 'translate-x-2' : ''}`}></div>
                         </div>
                         <div className="ml-3 flex items-center gap-1.5 text-sm font-medium">
-                          {goalForm.isPublic ? <Globe className="w-4 h-4 text-violet-500" /> : <Lock className="w-4 h-4 text-gray-500" />}
+                          {goalForm.isPublic ? <Globe  className="w-4 h-4 text-violet-500" /> : <GlobeLock className="w-4 h-4 text-gray-500" />}
                           {goalForm.isPublic ? 'Public' : 'Private'}
                         </div>
                       </label>
@@ -1354,7 +1706,6 @@ export default function Feed() {
                 </div>
               )}
 
-              {/* GOALS LIST */}
               <div className="max-h-[35vh] overflow-y-auto space-y-3 pr-2 [&::-webkit-scrollbar]:hidden [-ms-overflow-style:'none'] [scrollbar-width:'none']">
                 {goals.length === 0 ? (
                   <p className="text-center text-sm text-gray-500 py-4">No goals added yet.</p>
@@ -1386,11 +1737,12 @@ export default function Feed() {
                             <p className={`font-semibold text-sm truncate ${goal.completed ? 'text-gray-500 line-through' : ''}`}>
                               {goal.title}
                             </p>
-                            {goal.isPublic ? <Globe className="w-3.5 h-3.5 text-violet-500 shrink-0 mt-0.5" /> : <Lock className="w-3.5 h-3.5 text-gray-500 shrink-0 mt-0.5" />}
+                            {goal.isPublic ? <Globe className="w-3.5 h-3.5 text-violet-500 shrink-0 mt-0.5" /> : <GlobeLock className="w-3.5 h-3.5 text-gray-500 shrink-0 mt-0.5" />}
                           </div>
                           
                           <p className="text-xs text-gray-500 mt-0.5">
-                            {goal.subject} • Deadline: {formatTimeAMPM(goal.deadline)} • Set: {new Date(goal.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                            {/* UPDATED: Displays the selected deadline date nicely */}
+                            {goal.subject} • Deadline: {formatDate(goal.deadline)} • Set: {new Date(goal.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
                           </p>
                           
                           {!goal.completed && !isCompletable && (
