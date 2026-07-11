@@ -5,7 +5,7 @@ import {
   Image as ImageIcon, Mail, BookOpen, Zap, Flame, Share2, 
   UserPlus, Trophy, Star, Clock, FileText, Activity, Target, 
   CheckCircle2, Users, LogOut, Loader2, MoreVertical, X, 
-  Eye, Upload 
+  Eye, Upload, MapPin
 } from 'lucide-react';
 import { useTheme } from './ThemeContext';
 
@@ -15,6 +15,71 @@ const fileToBase64 = (file) => new Promise((resolve, reject) => {
   reader.onload = () => resolve(reader.result);
   reader.onerror = error => reject(error);
 });
+
+// Mock Databases
+const collegeCourses = [
+  { name: "B.Tech (Bachelor of Technology)", duration: 4 },
+  { name: "B.E. (Bachelor of Engineering)", duration: 4 },
+  { name: "B.A. Hons (Bachelor of Arts)", duration: 3 },
+  { name: "B.Sc (Bachelor of Science)", duration: 3 },
+  { name: "B.Com (Bachelor of Commerce)", duration: 3 },
+  { name: "BBA (Bachelor of Business Admin)", duration: 3 },
+  { name: "BCA (Bachelor of Computer Apps)", duration: 3 },
+  { name: "MBBS (Medicine & Surgery)", duration: 5 },
+  { name: "B.Arch (Bachelor of Architecture)", duration: 5 },
+  { name: "LLB (Bachelor of Laws)", duration: 3 },
+  { name: "M.Tech (Master of Technology)", duration: 2 },
+  { name: "MBA (Master of Business Admin)", duration: 2 },
+  { name: "M.Sc (Master of Science)", duration: 2 },
+  { name: "MCA (Master of Computer Application)", duration: 2 },
+  { name: "M.A. (Master of Arts)", duration: 2 },
+  { name: "M.Com (Master of Commerce)", duration: 2 },
+  { name: "Ph.D (Doctor of Philosophy)", duration: 3 },
+];
+
+const indianBoards = [
+  "CBSE (Central Board of Secondary Education)",
+  "CISCE (ICSE/ISC)",
+  "NIOS (National Institute of Open Schooling)",
+  "IB (International Baccalaureate)",
+  "Cambridge (IGCSE/A-Level)",
+  "Andhra Pradesh Board (BSEAP/BIEAP)",
+  "Assam Board (SEBA/AHSEC)",
+  "Bihar Board (BSEB)",
+  "Gujarat Board (GSEB)",
+  "Haryana Board (BSEH)",
+  "Karnataka Board (KSEEB/DPUE)",
+  "Kerala Board (KBPE)",
+  "Madhya Pradesh Board (MPBSE)",
+  "Maharashtra Board (MSBSHSE)",
+  "Punjab Board (PSEB)",
+  "Rajasthan Board (RBSE)",
+  "Tamil Nadu Board (TNBSE)",
+  "Telangana Board (BSE Telangana)",
+  "Tripura Board (TBSE)",
+  "Uttar Pradesh Board (UPMSP)",
+  "West Bengal Board (WBBSE/WBCHSE)"
+];
+
+const indiaLocations = {
+  "Andhra Pradesh": ["Visakhapatnam", "Vijayawada", "Guntur", "Nellore", "Tirupati"],
+  "Assam": ["Guwahati", "Silchar", "Dibrugarh", "Jorhat"],
+  "Bihar": ["Patna", "Gaya", "Bhagalpur", "Muzaffarpur"],
+  "Delhi": ["New Delhi", "North Delhi", "South Delhi", "Dwarka"],
+  "Gujarat": ["Ahmedabad", "Surat", "Vadodara", "Rajkot", "Gandhinagar"],
+  "Haryana": ["Gurugram", "Faridabad", "Panipat", "Ambala"],
+  "Karnataka": ["Bengaluru", "Mysuru", "Mangaluru", "Hubballi", "Belagavi"],
+  "Kerala": ["Thiruvananthapuram", "Kochi", "Kozhikode", "Thrissur", "Kollam"],
+  "Madhya Pradesh": ["Bhopal", "Indore", "Gwalior", "Jabalpur", "Ujjain"],
+  "Maharashtra": ["Mumbai", "Pune", "Nagpur", "Nashik", "Aurangabad", "Thane"],
+  "Punjab": ["Ludhiana", "Amritsar", "Jalandhar", "Patiala", "Mohali"],
+  "Rajasthan": ["Jaipur", "Jodhpur", "Udaipur", "Kota", "Bikaner"],
+  "Tamil Nadu": ["Chennai", "Coimbatore", "Madurai", "Tiruchirappalli", "Salem"],
+  "Telangana": ["Hyderabad", "Warangal", "Nizamabad", "Karimnagar"],
+  "Tripura": ["Agartala", "Udaipur", "Dharmanagar"],
+  "Uttar Pradesh": ["Lucknow", "Kanpur", "Varanasi", "Agra", "Noida", "Prayagraj"],
+  "West Bengal": ["Kolkata", "Howrah", "Darjeeling", "Siliguri", "Asansol"]
+};
 
 const Profile = () => {
   const navigate = useNavigate();
@@ -42,6 +107,17 @@ const Profile = () => {
   const coverInputRef = useRef(null);
   const avatarInputRef = useRef(null);
 
+  // States for Searchable Inputs
+  const [courseSearch, setCourseSearch] = useState('');
+  const [showCourseDropdown, setShowCourseDropdown] = useState(false);
+  const [boardSearch, setBoardSearch] = useState('');
+  const [showBoardDropdown, setShowBoardDropdown] = useState(false);
+  
+  const [stateSearch, setStateSearch] = useState('');
+  const [showStateDropdown, setShowStateDropdown] = useState(false);
+  const [citySearch, setCitySearch] = useState('');
+  const [showCityDropdown, setShowCityDropdown] = useState(false);
+
   const [profileData, setProfileData] = useState({
     name: "Student",
     email: "",
@@ -52,13 +128,15 @@ const Profile = () => {
     year: "",
     schoolName: "",
     grade: "",
+    board: "",
+    state: "",
+    city: "",
     avatar: "https://api.dicebear.com/7.x/avataaars/svg?seed=Alex&backgroundColor=e2e8f0",
     cover: "https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?q=80&w=2000&auto=format&fit=crop",
     stats: { xp: 12450, streak: 14, resources: 32, connections: 0 }, 
     goalProgress: 75 
   });
 
-  // Dummy data for connections modal
   const dummyConnections = [
     { name: "Anuj Sharma", role: "Computer Science, Year 3", img: "https://api.dicebear.com/7.x/avataaars/svg?seed=Anuj" },
     { name: "Sarah Jenkins", role: "Information Technology", img: "https://api.dicebear.com/7.x/avataaars/svg?seed=Sarah" },
@@ -74,10 +152,24 @@ const Profile = () => {
         const localUserStr = localStorage.getItem("mock_studyTrail_user");
         const user = localUserStr ? JSON.parse(localUserStr) : {};
         
-        // Load the saved connection state from localStorage
         if (user.hasConnected !== undefined) {
           setIsConnected(user.hasConnected);
         }
+
+        let loadedState = "";
+        let loadedCity = "";
+        if (user.location) {
+          const parts = user.location.split(', ');
+          if(parts.length === 2) {
+             loadedCity = parts[0];
+             loadedState = parts[1];
+          } else {
+             loadedCity = user.location;
+          }
+        }
+
+        const loadedCourse = user.course || (user.className?.includes('-') ? user.className.split(' - ')[0].trim() : "");
+        const loadedBoard = user.board || "";
 
         setProfileData(prev => ({
             ...prev,
@@ -89,11 +181,20 @@ const Profile = () => {
             type: user.type || (user.className?.includes('-') ? 'college' : 'school'),
             instituteName: user.type === 'college' ? user.schoolName : "",
             schoolName: user.type === 'school' ? user.schoolName : "",
-            course: user.course || (user.className?.includes('-') ? user.className.split(' - ')[0].trim() : ""),
+            course: loadedCourse,
             year: user.year || (user.className?.includes('-') ? user.className.split(' - ')[1].trim() : ""),
             grade: user.type === 'school' ? user.className : "",
+            board: loadedBoard,
+            state: loadedState,
+            city: loadedCity,
             stats: { ...prev.stats, connections: user.connectionsCount || 0 }
         }));
+
+        setCourseSearch(loadedCourse);
+        setBoardSearch(loadedBoard);
+        setStateSearch(loadedState);
+        setCitySearch(loadedCity);
+        
         setIsLoading(false);
       }, 500);
     };
@@ -105,6 +206,86 @@ const Profile = () => {
     window.addEventListener('scroll', handleScroll);
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
+
+  // --- Searchable Inputs Logic ---
+  const filteredCourses = collegeCourses.filter(c => c.name.toLowerCase().includes(courseSearch.toLowerCase()));
+  const handleCourseSelect = (courseName) => {
+    setProfileData(prev => ({ ...prev, course: courseName, year: '' }));
+    setCourseSearch(courseName);
+    setShowCourseDropdown(false);
+  };
+  const handleCourseSearchChange = (e) => {
+    setCourseSearch(e.target.value);
+    setShowCourseDropdown(true);
+    setProfileData(prev => ({ ...prev, course: e.target.value, year: '' }));
+  };
+
+  const filteredBoards = indianBoards.filter(b => b.toLowerCase().includes(boardSearch.toLowerCase()));
+  const handleBoardSelect = (boardName) => {
+    setProfileData(prev => ({ ...prev, board: boardName }));
+    setBoardSearch(boardName);
+    setShowBoardDropdown(false);
+  };
+  const handleBoardSearchChange = (e) => {
+    setBoardSearch(e.target.value);
+    setShowBoardDropdown(true);
+    setProfileData(prev => ({ ...prev, board: e.target.value }));
+  };
+
+  const filteredStates = Object.keys(indiaLocations).filter(s => s.toLowerCase().includes(stateSearch.toLowerCase()));
+  const handleStateSelect = (stateName) => {
+    setProfileData(prev => ({ ...prev, state: stateName, city: '' }));
+    setStateSearch(stateName);
+    setCitySearch('');
+    setShowStateDropdown(false);
+  };
+  const handleStateSearchChange = (e) => {
+    setStateSearch(e.target.value);
+    setShowStateDropdown(true);
+  };
+  const handleStateBlur = () => {
+    setTimeout(() => {
+      setShowStateDropdown(false);
+      const exactMatch = Object.keys(indiaLocations).find(s => s.toLowerCase() === stateSearch.toLowerCase());
+      if (exactMatch) {
+        if (exactMatch !== profileData.state) {
+          setProfileData(prev => ({ ...prev, state: exactMatch, city: '' }));
+          setCitySearch('');
+        }
+        setStateSearch(exactMatch);
+      } else {
+        setStateSearch(profileData.state);
+      }
+    }, 200);
+  };
+
+  const availableCities = profileData.state ? (indiaLocations[profileData.state] || []) : [];
+  const filteredCities = availableCities.filter(c => c.toLowerCase().includes(citySearch.toLowerCase()));
+  const handleCitySelect = (cityName) => {
+    setProfileData(prev => ({ ...prev, city: cityName }));
+    setCitySearch(cityName);
+    setShowCityDropdown(false);
+  };
+  const handleCitySearchChange = (e) => {
+    setCitySearch(e.target.value);
+    setShowCityDropdown(true);
+  };
+  const handleCityBlur = () => {
+    setTimeout(() => {
+      setShowCityDropdown(false);
+      const exactMatch = availableCities.find(c => c.toLowerCase() === citySearch.toLowerCase());
+      if (exactMatch) {
+        setProfileData(prev => ({ ...prev, city: exactMatch }));
+        setCitySearch(exactMatch);
+      } else {
+        setCitySearch(profileData.city);
+      }
+    }, 200);
+  };
+
+  const selectedCourseObj = collegeCourses.find(c => c.name === profileData.course);
+  const maxYears = selectedCourseObj ? selectedCourseObj.duration : (profileData.course ? 5 : 0);
+  const yearOptions = Array.from({ length: maxYears }, (_, i) => i + 1);
 
   // --- HANDLERS ---
   const handleImageUpload = async (e, type) => {
@@ -132,12 +313,20 @@ const Profile = () => {
 
   const startEditing = () => {
     setBackupData({ ...profileData }); 
+    setCourseSearch(profileData.course);
+    setBoardSearch(profileData.board);
+    setStateSearch(profileData.state);
+    setCitySearch(profileData.city);
     setEmailError("");
     setIsEditing(true);
   };
 
   const cancelEditing = () => {
     setProfileData(backupData); 
+    setCourseSearch(backupData.course);
+    setBoardSearch(backupData.board);
+    setStateSearch(backupData.state);
+    setCitySearch(backupData.city);
     setEmailError("");
     setIsEditing(false);
   };
@@ -165,6 +354,8 @@ const Profile = () => {
           parsed.schoolName = profileData.type === 'college' ? profileData.instituteName : profileData.schoolName;
           parsed.course = profileData.course;
           parsed.year = profileData.year;
+          parsed.board = profileData.board;
+          parsed.location = (profileData.city && profileData.state) ? `${profileData.city}, ${profileData.state}` : '';
           parsed.className = profileData.type === 'school' ? profileData.grade : `${profileData.course} - ${profileData.year}`;
           localStorage.setItem("mock_studyTrail_user", JSON.stringify(parsed));
       }
@@ -189,7 +380,7 @@ const Profile = () => {
       if (localUserStr) {
         const parsed = JSON.parse(localUserStr);
         parsed.connectionsCount = newCount;
-        parsed.hasConnected = newConnectedState; // Persist the toggle state
+        parsed.hasConnected = newConnectedState;
         localStorage.setItem("mock_studyTrail_user", JSON.stringify(parsed));
       }
 
@@ -271,15 +462,15 @@ const Profile = () => {
         </div>
         
          <div className="bg-slate-50 dark:bg-[#111] p-4 md:p-10 rounded-2xl border border-black/5 dark:border-white/5 flex items-center gap-1 md:gap-5 hover:-translate-y-1 transition-transform shadow-sm col-span-2">
-                <div className="w-8 h-8 md:w-14 md:h-14 rounded-2xl bg-emerald-100 dark:bg-emerald-500/10 flex items-center justify-center shrink-0">
-                  <Share2 className="text-emerald-500" size={24} />
-                </div>
-                <div>
-                  <p className="text-xs md:text-sm font-medium text-slate-500 dark:text-slate-400">Resources Shared</p>
-                  <h3 className="text-xl md:text-2xl font-bold text-slate-900 dark:text-white">{profileData.stats.resources} Docs</h3>
-                </div>
-              </div>
+            <div className="w-8 h-8 md:w-14 md:h-14 rounded-2xl bg-emerald-100 dark:bg-emerald-500/10 flex items-center justify-center shrink-0">
+              <Share2 className="text-emerald-500" size={24} />
             </div>
+            <div>
+              <p className="text-xs md:text-sm font-medium text-slate-500 dark:text-slate-400">Resources Shared</p>
+              <h3 className="text-xl md:text-2xl font-bold text-slate-900 dark:text-white">{profileData.stats.resources} Docs</h3>
+            </div>
+          </div>
+        </div>
     );
   };
 
@@ -309,7 +500,6 @@ const Profile = () => {
             
             <div className="space-y-4 max-h-[60vh] overflow-y-auto pr-2 custom-scrollbar">
               {profileData.stats.connections > 0 ? (
-                // Display mock data up to the current number of connections (max 5 in mock array)
                 dummyConnections.slice(0, profileData.stats.connections).map((c, i) => (
                   <div key={i} className="flex items-center gap-3 p-2 hover:bg-slate-50 dark:hover:bg-white/5 rounded-xl transition-colors cursor-pointer">
                     <img src={c.img} alt={c.name} className="w-12 h-12 rounded-full border border-black/5 dark:border-white/10" />
@@ -331,7 +521,7 @@ const Profile = () => {
         </div>
       )}
 
-      {/* Facebook-Style Action Menu (View vs Edit) */}
+      {/* Facebook-Style Action Menu */}
       {photoMenu.isOpen && (
         <div className="fixed inset-0 z-60 flex items-center justify-center bg-black/40 backdrop-blur-sm" onClick={() => setPhotoMenu({ isOpen: false, type: '' })}>
           <div className="bg-white dark:bg-[#111] p-4 rounded-2xl shadow-2xl border border-black/5 dark:border-white/10 w-72 animate-in zoom-in-95 duration-200" onClick={(e) => e.stopPropagation()}>
@@ -452,10 +642,12 @@ const Profile = () => {
           <div className="max-w-7xl mx-auto px-4 sm:px-6">
             
             {/* HERO / PROFILE HEADER */}
-            <div className="bg-white dark:bg-[#0A0A0A] rounded-3xl md:rounded-[40px] shadow-2xl border border-black/5 dark:border-white/5 overflow-hidden mb-8">
+            {/* FIX: Removed 'overflow-hidden' from here to prevent cropping dropdowns, added 'relative z-20' */}
+            <div className="bg-white dark:bg-[#0A0A0A] rounded-3xl md:rounded-[40px] shadow-2xl border border-black/5 dark:border-white/5 mb-8 relative z-20">
               
+              {/* FIX: Added 'rounded-t-3xl md:rounded-t-[40px] overflow-hidden' specifically to the cover container */}
               <div 
-                className="h-48 sm:h-56 md:h-72 w-full relative group cursor-pointer" 
+                className="h-48 sm:h-56 md:h-72 w-full relative group cursor-pointer rounded-t-3xl md:rounded-t-[40px] overflow-hidden" 
                 onClick={() => setPhotoMenu({ isOpen: true, type: 'cover' })}
               >
                 <img src={profileData.cover} alt="Cover" className="w-full h-full object-cover" />
@@ -534,19 +726,107 @@ const Profile = () => {
                           {profileData.type === 'college' ? (
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                               <input type="text" name="instituteName" value={profileData.instituteName} onChange={handleInputChange} className="col-span-1 md:col-span-2 w-full px-4 py-3 rounded-xl bg-slate-50 dark:bg-[#111] border border-black/10 dark:border-white/10 focus:ring-2 focus:ring-indigo-500/50 text-sm" placeholder="College/University Name" />
-                              <input type="text" name="course" value={profileData.course} onChange={handleInputChange} className="w-full px-4 py-3 rounded-xl bg-slate-50 dark:bg-[#111] border border-black/10 dark:border-white/10 focus:ring-2 focus:ring-indigo-500/50 text-sm" placeholder="Course Name" />
-                              <select name="year" value={profileData.year} onChange={handleInputChange} className="w-full px-4 py-3 rounded-xl bg-slate-50 dark:bg-[#111] border border-black/10 dark:border-white/10 focus:ring-2 focus:ring-indigo-500/50 text-sm">
-                                <option value="Year 1">Year 1</option><option value="Year 2">Year 2</option><option value="Year 3">Year 3</option><option value="Year 4">Year 4</option>
-                              </select>
+                              
+                              {/* FIX: added conditional dynamic z-index wrapping logic to prevent overlap between adjacent fields */}
+                              <div className={`relative ${showCourseDropdown ? 'z-50' : 'z-10'}`}>
+                                <input 
+                                  type="text" name="courseSearch" required value={courseSearch} onChange={handleCourseSearchChange}
+                                  onFocus={() => setShowCourseDropdown(true)} onBlur={() => setTimeout(() => setShowCourseDropdown(false), 200)}
+                                  placeholder="Search or type course..." 
+                                  className="w-full px-4 py-3 rounded-xl bg-slate-50 dark:bg-[#111] border border-black/10 dark:border-white/10 focus:ring-2 focus:ring-indigo-500/50 text-sm" 
+                                />
+                                {showCourseDropdown && (
+                                  <div className="absolute w-full mt-1 max-h-48 overflow-y-auto bg-white dark:bg-[#1A1A1A] border border-black/10 dark:border-white/10 rounded-xl shadow-xl custom-scrollbar text-left">
+                                    {filteredCourses.map(c => (
+                                      <div key={c.name} onMouseDown={(e) => { e.preventDefault(); handleCourseSelect(c.name); }} className="px-4 py-3 hover:bg-slate-100 dark:hover:bg-white/5 cursor-pointer text-sm text-slate-700 dark:text-slate-300 transition-colors">
+                                        {c.name}
+                                      </div>
+                                    ))}
+                                  </div>
+                                )}
+                              </div>
+
+                              <div className="relative z-10">
+                                <select name="year" value={profileData.year} onChange={handleInputChange} disabled={!profileData.course} className="w-full px-4 py-3 rounded-xl bg-slate-50 dark:bg-[#111] border border-black/10 dark:border-white/10 focus:ring-2 focus:ring-indigo-500/50 text-sm disabled:opacity-50">
+                                  <option value="" disabled>{profileData.course ? 'Select Year' : 'Select a course first'}</option>
+                                  {yearOptions.map(y => (
+                                    <option key={y} value={`Year ${y}`}>{y}{y===1?'st':y===2?'nd':y===3?'rd':'th'} Year</option>
+                                  ))}
+                                </select>
+                              </div>
                             </div>
                           ) : (
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                               <input type="text" name="schoolName" value={profileData.schoolName} onChange={handleInputChange} className="col-span-1 md:col-span-2 w-full px-4 py-3 rounded-xl bg-slate-50 dark:bg-[#111] border border-black/10 dark:border-white/10 focus:ring-2 focus:ring-indigo-500/50 text-sm" placeholder="School Name" />
-                              <select name="grade" value={profileData.grade} onChange={handleInputChange} className="w-full px-4 py-3 rounded-xl bg-slate-50 dark:bg-[#111] border border-black/10 dark:border-white/10 focus:ring-2 focus:ring-indigo-500/50 text-sm">
-                                {[6,7,8,9,10,11,12].map(g => <option key={g} value={`Grade ${g}`}>Grade {g}</option>)}
-                              </select>
+                              
+                              <div className="relative z-10">
+                                <select name="grade" value={profileData.grade} onChange={handleInputChange} className="w-full px-4 py-3 rounded-xl bg-slate-50 dark:bg-[#111] border border-black/10 dark:border-white/10 focus:ring-2 focus:ring-indigo-500/50 text-sm">
+                                  {[6,7,8,9,10,11,12].map(g => <option key={g} value={`Grade ${g}`}>Grade {g}</option>)}
+                                </select>
+                              </div>
+
+                              {/* FIX: added conditional dynamic z-index wrapping logic to prevent overlap between adjacent fields */}
+                              <div className={`relative ${showBoardDropdown ? 'z-50' : 'z-10'}`}>
+                                <input 
+                                  type="text" name="boardSearch" required value={boardSearch} onChange={handleBoardSearchChange}
+                                  onFocus={() => setShowBoardDropdown(true)} onBlur={() => setTimeout(() => setShowBoardDropdown(false), 200)}
+                                  placeholder="Search or type board..." 
+                                  className="w-full px-4 py-3 rounded-xl bg-slate-50 dark:bg-[#111] border border-black/10 dark:border-white/10 focus:ring-2 focus:ring-indigo-500/50 text-sm" 
+                                />
+                                {showBoardDropdown && (
+                                  <div className="absolute w-full mt-1 max-h-48 overflow-y-auto bg-white dark:bg-[#1A1A1A] border border-black/10 dark:border-white/10 rounded-xl shadow-xl custom-scrollbar text-left">
+                                    {filteredBoards.map(b => (
+                                      <div key={b} onMouseDown={(e) => { e.preventDefault(); handleBoardSelect(b); }} className="px-4 py-3 hover:bg-slate-100 dark:hover:bg-white/5 cursor-pointer text-sm text-slate-700 dark:text-slate-300 transition-colors">
+                                        {b}
+                                      </div>
+                                    ))}
+                                  </div>
+                                )}
+                              </div>
                             </div>
                           )}
+
+                          {/* Common Location Searchable Fields */}
+                          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 pt-2 border-t border-black/5 dark:border-white/5 mt-4">
+                            
+                            {/* FIX: conditional dynamic z-index wrapping */}
+                            <div className={`relative ${showStateDropdown ? 'z-50' : 'z-10'}`}>
+                              <input 
+                                type="text" required value={stateSearch} onChange={handleStateSearchChange}
+                                onFocus={() => setShowStateDropdown(true)} onBlur={handleStateBlur}
+                                placeholder="Search for your state..." 
+                                className="w-full px-4 py-3 rounded-xl bg-slate-50 dark:bg-[#111] border border-black/10 dark:border-white/10 focus:ring-2 focus:ring-indigo-500/50 text-sm" 
+                              />
+                              {showStateDropdown && (
+                                <div className="absolute w-full mt-1 max-h-48 overflow-y-auto bg-white dark:bg-[#1A1A1A] border border-black/10 dark:border-white/10 rounded-xl shadow-xl custom-scrollbar text-left">
+                                  {filteredStates.map(s => (
+                                    <div key={s} onMouseDown={(e) => { e.preventDefault(); handleStateSelect(s); }} className="px-4 py-3 hover:bg-slate-100 dark:hover:bg-white/5 cursor-pointer text-sm text-slate-700 dark:text-slate-300 transition-colors">
+                                      {s}
+                                    </div>
+                                  ))}
+                                </div>
+                              )}
+                            </div>
+
+                            {/* FIX: conditional dynamic z-index wrapping */}
+                            <div className={`relative ${showCityDropdown ? 'z-50' : 'z-10'}`}>
+                              <input 
+                                type="text" required disabled={!profileData.state} value={citySearch} onChange={handleCitySearchChange}
+                                onFocus={() => setShowCityDropdown(true)} onBlur={handleCityBlur}
+                                placeholder={profileData.state ? "Search for your city..." : "Select a state first"} 
+                                className="w-full px-4 py-3 rounded-xl bg-slate-50 dark:bg-[#111] border border-black/10 dark:border-white/10 focus:ring-2 focus:ring-indigo-500/50 text-sm disabled:opacity-50" 
+                              />
+                              {showCityDropdown && profileData.state && (
+                                <div className="absolute w-full mt-1 max-h-48 overflow-y-auto bg-white dark:bg-[#1A1A1A] border border-black/10 dark:border-white/10 rounded-xl shadow-xl custom-scrollbar text-left">
+                                  {filteredCities.map(c => (
+                                    <div key={c} onMouseDown={(e) => { e.preventDefault(); handleCitySelect(c); }} className="px-4 py-3 hover:bg-slate-100 dark:hover:bg-white/5 cursor-pointer text-sm text-slate-700 dark:text-slate-300 transition-colors">
+                                      {c}
+                                    </div>
+                                  ))}
+                                </div>
+                              )}
+                            </div>
+                          </div>
                         </div>
                       ) : (
                         <div className="space-y-4 animate-in fade-in max-w-2xl">
@@ -564,7 +844,7 @@ const Profile = () => {
                           </div>
 
                           <div className="flex flex-wrap gap-y-3 gap-x-5 text-sm font-medium text-slate-500 dark:text-slate-400">
-                            <div className="flex items-center gap-2 break-all">
+                            <div className="flex items-center gap-2 w-full sm:w-auto break-all">
                               <Mail size={16} className="text-indigo-500 shrink-0" /> {profileData.email || 'No email provided'}
                             </div>
                             {profileData.type === 'college' ? (
@@ -575,9 +855,10 @@ const Profile = () => {
                             ) : (
                               <>
                                 <div className="flex items-center gap-2"><BookOpen size={16} className="text-indigo-500 shrink-0" /> <span className="line-clamp-1">{profileData.schoolName || 'School Name Not Set'}</span></div>
-                                <div className="flex items-center gap-2"><GraduationCap size={16} className="text-indigo-500 shrink-0" /> {profileData.grade || 'Grade Not Set'}</div>
+                                <div className="flex items-center gap-2"><GraduationCap size={16} className="text-indigo-500 shrink-0" /> {profileData.grade || 'Grade Not Set'} {profileData.board ? `• ${profileData.board}` : ''}</div>
                               </>
                             )}
+                            <div className="flex items-center gap-2 w-full"><MapPin size={16} className="text-indigo-500 shrink-0" /> {profileData.city && profileData.state ? `${profileData.city}, ${profileData.state}` : 'Location Not Set'}</div>
                           </div>
                         </div>
                       )}
@@ -613,7 +894,7 @@ const Profile = () => {
               </div>
             </div>
 
-            {/* Main Stats Cards (Visible on Mobile as stacked/grid) */}
+            {/* Main Stats Cards */}
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 md:gap-6 mb-8">
               <div className="bg-white dark:bg-[#0A0A0A] p-5 md:p-6 rounded-3xl border border-black/5 dark:border-white/5 flex items-center gap-4 md:gap-5 hover:-translate-y-1 transition-transform shadow-sm">
                 <div className="w-12 h-12 md:w-14 md:h-14 rounded-2xl bg-amber-100 dark:bg-amber-500/10 flex items-center justify-center shrink-0">
