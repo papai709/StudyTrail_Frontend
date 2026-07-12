@@ -143,13 +143,6 @@ const renderCommentText = (text) => {
   });
 };
 
-const fileToBase64 = (file) => new Promise((resolve, reject) => {
-  const reader = new FileReader();
-  reader.readAsDataURL(file);
-  reader.onload = () => resolve(reader.result);
-  reader.onerror = error => reject(error);
-});
-
 export default function Feed() {
   const { isDarkMode, toggleDarkMode } = useTheme();
   const navigate = useNavigate();
@@ -223,7 +216,7 @@ const friendRequests = [
   const [commentDrafts, setCommentDrafts] = useState({});
   const [commentMedia, setCommentMedia] = useState({}); 
   const [activeEmojiPicker, setActiveEmojiPicker] = useState({}); 
-  const [activeGifPicker, setActiveGifPicker] = useState({});     
+  const [activeGifPicker, setActiveGifPicker] = useState({});      
 
   const [currentPlaceholder, setCurrentPlaceholder] = useState('');
   const [phIndex, setPhIndex] = useState(0);
@@ -342,7 +335,7 @@ const friendRequests = [
         id: `goal-${Date.now()}`,
         title: goalForm.title.trim(),
         subject: goalForm.subject.trim(),
-        deadline: goalForm.deadline, // Now saving full date string
+        deadline: goalForm.deadline, 
         isPublic: goalForm.isPublic,
         createdAt: Date.now(),
         completed: false
@@ -1106,11 +1099,51 @@ const friendRequests = [
                   rows="1"
                 />
                 
+                {/* Visual Attachment Preview Canvas */}
                 {selectedFile && (
-                  <div className={`relative mt-2 p-3 rounded-xl border inline-flex items-center gap-3 w-fit ${isDarkMode ? 'bg-white/5 border-white/10' : 'bg-slate-50 border-slate-200'}`}>
-                    <span className="text-xs truncate max-w-50">{selectedFile.name}</span>
-                    <button onClick={removeAttachment} className="p-1 rounded-full bg-red-500/10 text-red-500 hover:bg-red-500 hover:text-white transition">
-                      <X className="w-3 h-3" />
+                  <div className="relative mt-3 mb-2 rounded-2xl overflow-hidden border border-slate-200 dark:border-white/10 max-w-full bg-slate-100 dark:bg-white/5">
+                    {selectedFile.type === 'image' && (
+                      <div className="relative">
+                        <img 
+                          src={selectedFile.previewUrl} 
+                          alt="Upload preview" 
+                          className="w-full max-h-64 object-cover" 
+                        />
+                        <div className="absolute top-2 right-2 bg-black/60 backdrop-blur-md px-2 py-1 rounded-md text-[10px] text-white font-medium">
+                          {selectedFile.size}
+                        </div>
+                      </div>
+                    )}
+                    {selectedFile.type === 'video' && (
+                      <div className="relative">
+                        <video 
+                          src={selectedFile.previewUrl} 
+                          controls 
+                          className="w-full max-h-64 object-cover" 
+                        />
+                        <div className="absolute top-2 right-2 bg-black/60 backdrop-blur-md px-2 py-1 rounded-md text-[10px] text-white font-medium">
+                          {selectedFile.size}
+                        </div>
+                      </div>
+                    )}
+                    {selectedFile.type === 'document' && (
+                      <div className="flex items-center justify-between p-4">
+                        <div className="flex items-center gap-3 min-w-0">
+                          <div className="p-2 bg-red-500/10 text-red-500 rounded-lg shrink-0">
+                            <FileText className="w-5 h-5" />
+                          </div>
+                          <div className="min-w-0">
+                            <p className="text-sm font-semibold truncate pr-2">{selectedFile.name}</p>
+                            <p className="text-xs text-gray-500 mt-0.5">{selectedFile.size}</p>
+                          </div>
+                        </div>
+                      </div>
+                    )}
+                    <button 
+                      onClick={(e) => { e.stopPropagation(); removeAttachment(); }} 
+                      className="absolute top-2 left-2 p-1.5 rounded-full bg-black/70 hover:bg-red-600 text-white transition shadow-md"
+                    >
+                      <X className="w-4 h-4" />
                     </button>
                   </div>
                 )}
@@ -1214,6 +1247,12 @@ const friendRequests = [
                     {post.mediaType === 'image' && post.mediaUrl && (
                       <div className="mb-4 rounded-2xl overflow-hidden border border-black/5 dark:border-white/5 cursor-zoom-in" onClick={() => setImageLightbox(post.mediaUrl)}>
                         <img src={post.mediaUrl} alt="Post material" className="w-full h-auto max-h-96 object-cover hover:scale-[1.02] transition duration-500" />
+                      </div>
+                    )}
+
+                    {post.mediaType === 'video' && post.mediaUrl && (
+                      <div className="mb-4 rounded-2xl overflow-hidden border border-black/5 dark:border-white/5 bg-black">
+                        <video src={post.mediaUrl} controls className="w-full h-auto max-h-96 object-contain" />
                       </div>
                     )}
 
@@ -1335,7 +1374,6 @@ const friendRequests = [
                               <div key={comment.id} className="flex items-start gap-2">
                                 <img src={comment.author.avatarUrl} alt={comment.author.name} className="w-8 h-8 rounded-full object-cover shrink-0 mt-1" />
                                 <div className="flex-1 min-w-0 flex flex-col items-start">
-                                  {/* Dynamic Size Comment Bubble */}
                                   <div className={`inline-block max-w-[95%] rounded-2xl px-3 py-2 ${isDarkMode ? 'bg-[#0B0914] text-gray-200' : 'bg-white text-slate-700 shadow-sm border border-slate-100'} w-fit`}>
                                     <div className="flex items-center gap-2 mb-1">
                                       <span className="text-sm font-semibold">{comment.author.name}</span>
@@ -1346,9 +1384,9 @@ const friendRequests = [
                                     </p>
                                     {comment.mediaUrl && (
                                    <div
-                                   className="mt-2 cursor-zoom-in" onClick={() => setImageLightbox(comment.mediaUrl)}>
+                                    className="mt-2 cursor-zoom-in" onClick={() => setImageLightbox(comment.mediaUrl)}>
                                   <img src={comment.mediaUrl}
-                                   alt="Comment Attachment"className="rounded-lg max-h-32 object-contain hover:scale-[1.02] transition"/>
+                                    alt="Comment Attachment"className="rounded-lg max-h-32 object-contain hover:scale-[1.02] transition"/>
                                   </div>
                                   )}
                                   </div>
@@ -1531,9 +1569,6 @@ const friendRequests = [
           );
         })}
 
-
-      
-        
         <button
           onClick={() => setIsBottomSearchOpen((prev) => !prev)}
           className={`flex flex-col items-center gap-1 p-2 rounded-lg transition-colors ${isDarkMode ? 'text-gray-400 hover:text-white' : 'text-slate-500 hover:text-slate-900'}`}
@@ -1557,7 +1592,7 @@ const friendRequests = [
         </div>
       </nav>
 
-      {/* RIGHT SIDEBAR (Fixed Desktop UI) */}
+      {/* RIGHT SIDEBAR */}
       <aside className={`hidden lg:flex flex-col w-88 shrink-0 h-full border-l overflow-hidden transition-colors duration-300 ${
         isDarkMode ? 'border-white/5 bg-[#0B0914]' : 'border-slate-200 bg-white'
       }`}>
@@ -1589,9 +1624,9 @@ const friendRequests = [
           </div>
 
           <div
-             ref={scholarsSectionRef} 
-             className={`border rounded-3xl p-5 flex flex-col transition-all duration-300 hover:-translate-y-1 hover:shadow-md shrink min-h-0 overflow-hidden ${
-            isDarkMode ? 'bg-[#151125] border-white/5 shadow-white/5' : 'bg-white border-slate-200 shadow-slate-200'
+              ref={scholarsSectionRef} 
+              className={`border rounded-3xl p-5 flex flex-col transition-all duration-300 hover:-translate-y-1 hover:shadow-md shrink min-h-0 overflow-hidden ${
+             isDarkMode ? 'bg-[#151125] border-white/5 shadow-white/5' : 'bg-white border-slate-200 shadow-slate-200'
           }`}>
             <div className="flex items-center gap-1.5 mb-4 shrink-0">
               <Users className="w-4 h-4 text-violet-500" />
@@ -1659,7 +1694,6 @@ const friendRequests = [
                       required
                     />
                     <div className="flex items-center gap-3">
-                      {/* UPDATED: Change time to date input */}
                       <input
                         type="date"
                         value={goalForm.deadline}
@@ -1741,7 +1775,6 @@ const friendRequests = [
                           </div>
                           
                           <p className="text-xs text-gray-500 mt-0.5">
-                            {/* UPDATED: Displays the selected deadline date nicely */}
                             {goal.subject} • Deadline: {formatDate(goal.deadline)} • Set: {new Date(goal.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
                           </p>
                           
